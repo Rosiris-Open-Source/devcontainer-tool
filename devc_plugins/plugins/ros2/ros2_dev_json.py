@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from devc_cli_plugin_system.verb import VerbExtension
+from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.templates import TEMPLATES
 from devc.template_loader import TemplateLoader
 
-class Ros2DevJsonPlugin(VerbExtension):
+class Ros2DevJsonPlugin(Plugin):
     """Create the a basic ROS2 devcontainer json."""
 
     def add_arguments(self, parser, cli_name):

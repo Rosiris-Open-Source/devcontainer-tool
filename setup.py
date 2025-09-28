@@ -49,13 +49,13 @@ setup(
         'console_scripts': [
             'devc = devc_cli_plugin_system.cli:main',
         ],
-        'devc_commands.container.verbs': [
+        'devc_commands.container.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_container:Ros2ContainerPlugin',
         ],
-        'devc_commands.dev_json.verbs': [
+        'devc_commands.dev_json.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin',
         ],
-        'devc_commands.image.verbs': [
+        'devc_commands.image.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_image:Ros2ImagePlugin',
         ],
         'devc_cli.command': [
@@ -67,9 +67,9 @@ setup(
         ],
         'devc_cli.extension_point': [
             'devc_cli.command = devc_cli_plugin_system.command:CommandExtension',
-            'devc_commands.container.verbs = devc_cli_plugin_system.verb:VerbExtension',
-            'devc_commands.dev_json.verbs = devc_cli_plugin_system.verb:VerbExtension',
-            'devc_commands.image.verbs = devc_cli_plugin_system.verb:VerbExtension',
+            'devc_commands.container.plugins = devc_cli_plugin_system.plugin:Plugin',
+            'devc_commands.dev_json.plugins = devc_cli_plugin_system.plugin:Plugin',
+            'devc_commands.image.plugins = devc_cli_plugin_system.plugin:Plugin',
         ],
     },
 )

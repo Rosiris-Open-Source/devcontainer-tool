@@ -19,9 +19,9 @@ from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
 
 
-class VerbExtension:
+class Plugin:
     """
-    The interface for verb extensions.
+    The interface for a plugin.
 
     The following properties must be defined:
     * `NAME` (will be set to the entry point name)
@@ -34,11 +34,11 @@ class VerbExtension:
     EXTENSION_POINT_VERSION = '0.1'
 
     def __init__(self):
-        super(VerbExtension, self).__init__()
+        super(Plugin, self).__init__()
         satisfies_version(PLUGIN_SYSTEM_VERSION, '^0.1')
 
 
-def get_verb_extensions(name):
+def get_plugin(name):
     extensions = instantiate_extensions(name)
     for name, extension in extensions.items():
         extension.NAME = name
@@ -46,7 +46,7 @@ def get_verb_extensions(name):
 
 
 def add_task_arguments(parser, task_name):
-    plugins = get_verb_extensions(task_name)
+    plugins = get_plugin(task_name)
     for plugin_name, plugin in plugins.items():
         group = parser.add_argument_group(
             title=f"Arguments for '{plugin_name}' packages")

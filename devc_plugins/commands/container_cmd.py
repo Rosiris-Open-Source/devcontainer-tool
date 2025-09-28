@@ -22,16 +22,16 @@ class ContainerCommand(CommandExtension):
 
     def add_arguments(self, parser, cli_name):
         self._subparser = parser
-        # get verb extensions and let them add their arguments
-        add_subparsers_on_demand(parser, cli_name, "_verb", "devc_commands.container.verbs", required=False)
+        # get plugin and let them add their arguments
+        add_subparsers_on_demand(parser, cli_name, "_plugin", "devc_commands.container.plugins", required=False)
 
     def main(self, *, parser, args):
-        if not hasattr(args, "_verb"):
-            # in case no verb was passed
+        if not hasattr(args, "_plugin"):
+            # in case no plugin was passed
             self._subparser.print_help()
             return 0
 
-        extension = getattr(args, "_verb")
+        extension = getattr(args, "_plugin")
 
-        # call the verb's main method
+        # call the plugin's main method
         return extension.main(args=args)
