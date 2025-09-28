@@ -13,17 +13,17 @@
 # limitations under the License.
 
 
-from ros2_devcontainer_cli.command import add_subparsers_on_demand
-from ros2_devcontainer_cli.command import CommandExtension
+from devc_cli_plugin_system.command import add_subparsers_on_demand
+from devc_cli_plugin_system.command import CommandExtension
 
 
-class ContainerCommand(CommandExtension):
-    """Various container related sub-commands."""
+class ImageCommand(CommandExtension):
+    """Entry point to create docker image for a development environment."""
 
     def add_arguments(self, parser, cli_name):
         self._subparser = parser
         # get verb extensions and let them add their arguments
-        add_subparsers_on_demand(parser, cli_name, "_verb", "ros2_devcontainer_commands.container.verbs", required=False)
+        add_subparsers_on_demand(parser, cli_name, "_verb", "devc_commands.image.verbs", required=False)
 
     def main(self, *, parser, args):
         if not hasattr(args, "_verb"):

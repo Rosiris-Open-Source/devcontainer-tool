@@ -15,14 +15,14 @@
 from setuptools import find_packages
 from setuptools import setup
 
-package_name = "ros2_devcontainer_cli"
+package_name = "devc"
 
 setup(
     name=package_name,
     version="0.0.0",
     packages=find_packages(exclude=["test"]),
     data_files=[],
-    install_requires=["packaging"],
+    install_requires=["jinja2", "packaging"],
     zip_safe=True,
     author="Manuel Muth",
     author_email="manuel.muth@rosiris.de",
@@ -46,20 +46,30 @@ setup(
         ],
     },
     entry_points={
-        'ros2_devcontainer_cli.command': [
-            'extension_points = ros2_devcontainer_cli.command.extension_points:ExtensionPointsCommand',
-            'extensions = ros2_devcontainer_cli.command.extensions:ExtensionsCommand',
-            'container = ros2_devcontainer_commands.container.container_cmd:ContainerCommand',
-        ],
-        'ros2_devcontainer_cli.extension_point': [
-            'ros2_devcontainer_cli.command = ros2_devcontainer_cli.command:CommandExtension',
-            'ros2_devcontainer_commands.container.verbs = ros2_devcontainer_cli.verb:VerbExtension',
-        ],
-        'ros2_devcontainer_commands.container.verbs': [
-            'rebuild = ros2_devcontainer_commands.container.verbs.rebuild:RebuildVerb',
-        ],
         'console_scripts': [
-            'ros2-devc = ros2_devcontainer_cli.cli:main',
+            'devc = devc_cli_plugin_system.cli:main',
+        ],
+        'devc_commands.container.verbs': [
+            'ros2 = devc_plugins.plugins.ros2.ros2_container:Ros2ContainerPlugin',
+        ],
+        'devc_commands.dev_json.verbs': [
+            'ros2 = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin',
+        ],
+        'devc_commands.image.verbs': [
+            'ros2 = devc_plugins.plugins.ros2.ros2_image:Ros2ImagePlugin',
+        ],
+        'devc_cli.command': [
+            'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',
+            'extensions = devc_cli_plugin_system.command.extensions:ExtensionsCommand',
+            'container = devc_plugins.commands.container_cmd:ContainerCommand',
+            'dev_json = devc_plugins.commands.dev_json_cmd:DevJsonCommand',
+            'image = devc_plugins.commands.image_cmd:ImageCommand',
+        ],
+        'devc_cli.extension_point': [
+            'devc_cli.command = devc_cli_plugin_system.command:CommandExtension',
+            'devc_commands.container.verbs = devc_cli_plugin_system.verb:VerbExtension',
+            'devc_commands.dev_json.verbs = devc_cli_plugin_system.verb:VerbExtension',
+            'devc_commands.image.verbs = devc_cli_plugin_system.verb:VerbExtension',
         ],
     },
 )

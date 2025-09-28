@@ -1,0 +1,53 @@
+{
+    "name": "ROS 2 Development Container",
+    "build": {
+        "dockerfile": "../.docker/{{ dockerfile_name }}",
+        "context": "..",
+        "args": {
+            "ROS_DISTRO": "{{ ros_distro }}",
+            "USER_NAME": "{{ default_user }}",
+            "USER_PASSWORD": "${localEnv:USER}",
+            "USER_UID": "1000",
+            "USER_GID": "1000"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+                "ms-python.vscode-python-envs",
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "ranch-hand-robotics.rde-ros-2",
+                "ranch-hand-robotics.urdf-editor",
+                "redhat.vscode-yaml",
+                "eamodio.gitlens",
+                "xaver.clang-format"
+            ],
+            "settings": {
+                "remote.autoForwardPorts": {{ remote_auto_forward_ports | default('false') }},
+                "remote.restoreForwardedPorts": {{ remote_restore_forwarded_ports | default('false') }},
+            }
+        }
+    },
+    "containerEnv": {
+        "DISPLAY": "unix:0",
+        "ROS_AUTOMATIC_DISCOVERY_RANGE": "{{ ros_automatic_discovery_range | default('SUBNET') }}",
+        "ROS_DOMAIN_ID": "{{ ros_domain_id | default('0') }}",
+    },
+    "runArgs": [
+        "-e", "DISPLAY=${env:DISPLAY}",
+        "--network={{ network_mode | default('host') }}",
+    ],
+    "forwardPorts": [],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USER}/workspace/,type=bind,consistency=cached",
+    "workspaceFolder": "/home/${localEnv:USER}/workspace/",
+    "mounts": [
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+        {% if mount_ssh_keys | default(true) %}
+            "source=${env:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,consistency=cached",
+        {% endif %}
+    ]
+}

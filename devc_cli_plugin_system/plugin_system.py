@@ -19,7 +19,7 @@ import logging
 
 from packaging.version import Version
 
-from ros2_devcontainer_cli.entry_points import load_entry_points
+from devc_cli_plugin_system.entry_points import load_entry_points
 
 PLUGIN_SYSTEM_VERSION = '0.1'
 

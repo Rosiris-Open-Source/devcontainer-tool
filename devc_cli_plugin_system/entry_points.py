@@ -25,18 +25,18 @@ except ModuleNotFoundError:
 """
 The group name for entry points identifying extension points.
 
-While all entry points in this package start with ``ros2_devcontainer_cli.`` other
+While all entry points in this package start with ``devc_cli.`` other
 distributions might define entry points with a different prefix.
 Those need to be declared using this group name.
 """
-EXTENSION_POINT_GROUP_NAME = 'ros2_devcontainer_cli.extension_point'
+EXTENSION_POINT_GROUP_NAME = 'devc_cli.extension_point'
 
 logger = logging.getLogger(__name__)
 
 
 def get_all_entry_points():
     """
-    Get all entry points related to ``ros2_devcontainer_cli`` and any of its extensions.
+    Get all entry points related to ``devc_cli`` and any of its extensions.
 
     :returns: mapping of entry point names to ``EntryPoint`` instances
     :rtype: dict

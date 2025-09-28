@@ -19,11 +19,11 @@ import inspect
 import os
 import types
 
-from ros2_devcontainer_cli.entry_points import get_entry_points
-from ros2_devcontainer_cli.entry_points import get_first_line_doc
-from ros2_devcontainer_cli.plugin_system import instantiate_extensions
-from ros2_devcontainer_cli.plugin_system import PLUGIN_SYSTEM_VERSION
-from ros2_devcontainer_cli.plugin_system import satisfies_version
+from devc_cli_plugin_system.entry_points import get_entry_points
+from devc_cli_plugin_system.entry_points import get_first_line_doc
+from devc_cli_plugin_system.plugin_system import instantiate_extensions
+from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
+from devc_cli_plugin_system.plugin_system import satisfies_version
 
 
 class CommandExtension:

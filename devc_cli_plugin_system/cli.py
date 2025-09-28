@@ -20,13 +20,13 @@ import functools
 import signal
 import sys
 
-from ros2_devcontainer_cli.command import add_subparsers_on_demand
+from devc_cli_plugin_system.command import add_subparsers_on_demand
 
 
-def main(*, script_name='ros2-devc', argv=None, description=None, extension=None):
+def main(*, script_name='devc', argv=None, description=None, extension=None):
     if description is None:
         description = f'{script_name} is an extensible command-line tool ' \
-            'for ros2-devcontainer (ros2-devc).'
+            'for creating development containers.'
 
     # top level parser
     parser = argparse.ArgumentParser(
@@ -49,7 +49,7 @@ def main(*, script_name='ros2-devc', argv=None, description=None, extension=None
         # get command entry points as needed
         selected_extension_key = '_command'
         add_subparsers_on_demand(
-            parser, script_name, selected_extension_key, 'ros2_devcontainer_cli.command',
+            parser, script_name, selected_extension_key, 'devc_cli.command',
             # hide the special commands in the help
             hide_extensions=['extension_points', 'extensions'],
             required=False, argv=argv)

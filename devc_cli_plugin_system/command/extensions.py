@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ros2_devcontainer_cli.command import CommandExtension
-from ros2_devcontainer_cli.entry_points import get_all_entry_points
-from ros2_devcontainer_cli.entry_points import get_first_line_doc
+from devc_cli_plugin_system.command import CommandExtension
+from devc_cli_plugin_system.entry_points import get_all_entry_points
+from devc_cli_plugin_system.entry_points import get_first_line_doc
 
 
 class ExtensionsCommand(CommandExtension):

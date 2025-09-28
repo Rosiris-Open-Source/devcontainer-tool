@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ros2_devcontainer_cli.plugin_system import instantiate_extensions
-from ros2_devcontainer_cli.plugin_system import PLUGIN_SYSTEM_VERSION
-from ros2_devcontainer_cli.plugin_system import satisfies_version
+from devc_cli_plugin_system.plugin_system import instantiate_extensions
+from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
+from devc_cli_plugin_system.plugin_system import satisfies_version
 
 
 class VerbExtension:
