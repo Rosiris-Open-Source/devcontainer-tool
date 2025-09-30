@@ -22,13 +22,13 @@ setup(
     version="0.0.0",
     packages=find_packages(exclude=["test"]),
     data_files=[],
-    install_requires=["jinja2", "packaging"],
+    install_requires=["argcomplete", "jinja2", "packaging", "typing_extensions"],
     zip_safe=True,
     author="Manuel Muth",
     author_email="manuel.muth@rosiris.de",
     maintainer="Manuel Muth",
     maintainer_email="manuel.muth@rosiris.de",
-    url="https://github.com/Rosiris-Open-Source/ros2-devcontainer",
+    url="https://github.com/Rosiris-Open-Source/devcontainer-tool",
     keywords=[],
     classifiers=[
         "Environment :: Console",
@@ -36,9 +36,9 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
     ],
-    description="ROS2 devcontainer tool",
+    description="Devcontainer tool",
     long_description="""\
-    Tool for creating and management of ROS2 development containers.""",
+    Tool for creating and management of devcontainer development environments.""",
     license="Apache License, Version 2.0",
     extras_require={
         "test": [
@@ -51,18 +51,21 @@ setup(
         ],
         'devc_commands.container.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_container:Ros2ContainerPlugin',
+            'base-setup = devc_plugins.plugins.base_setup.base_container:BaseContainerPlugin',
         ],
         'devc_commands.dev_json.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin',
+            'base-setup = devc_plugins.plugins.base_setup.base_dev_json:BaseDevJsonPlugin',
         ],
         'devc_commands.image.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_image:Ros2ImagePlugin',
+            'base-setup = devc_plugins.plugins.base_setup.base_image:BaseImagePlugin',
         ],
         'devc_cli.command': [
             'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',
             'extensions = devc_cli_plugin_system.command.extensions:ExtensionsCommand',
             'container = devc_plugins.commands.container_cmd:ContainerCommand',
-            'dev_json = devc_plugins.commands.dev_json_cmd:DevJsonCommand',
+            'dev-json = devc_plugins.commands.dev_json_cmd:DevJsonCommand',
             'image = devc_plugins.commands.image_cmd:ImageCommand',
         ],
         'devc_cli.extension_point': [

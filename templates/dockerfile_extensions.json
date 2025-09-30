@@ -1,5 +1,7 @@
 {
     "pre-defined-customizations": {
+        "image" : "",
+        "image_tag": "",
         "pre_package_install" : [""],
         "additional_apt_packages" : [""], 
         "post_package_install" : [""],
@@ -9,7 +11,7 @@
   "insertions": [
     {
       "anchor": "",
-      "position": "after",
+      "position": "",
       "is_regex": false,
       "lines": [
         ""

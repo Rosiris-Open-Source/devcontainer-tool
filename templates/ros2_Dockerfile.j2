@@ -1,5 +1,8 @@
+# Variables - Setup ROS2 distribution.
+ARG ROS_DISTRO={{ ros_distro }}
+
 # Docker - Pull base image
-FROM {{ image | require('image') }}:{{ image_tag | require('image_tag') }}
+FROM osrf/ros:$ROS_DISTRO-desktop-full
 
 # Environment - Setup ARGs and ENV, after FROM reset all args.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -18,27 +21,37 @@ ENV PATH=$PATH:/home/$USER/.local/bin
 # Environment - Setup internationalization and styles.
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-{%- if pre_package_install %}
-{{ pre_package_install }}
-{%- endif %}
+{{ pre_package_install | default('') }}
 
 # Packages - Update and Install
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    clang-format \
+    cmake \
     curl \
+    gdb \
     git \
     lsb-release \
+    python3 \
+    python3-pip \
+    python3-venv \
+    ros-dev-tools \
     sudo \
     tree \
+    udev \
     vim \
     wget \
-    {%- for pkg in additional_apt_packages %}
-        {{ pkg }}{% if not loop.last %} \{% endif %}
-    {%- endfor %} \
+    {% for pkg in extra_packages %}{{ pkg }}{% if not loop.last %} \{% endif %}\n    {% endfor %}
     && rm -rf /var/lib/apt/lists/*
 
-{%- if post_package_install %}
-{{ post_package_install }}
-{%- endif %}
+{{ post_package_install | default('') }}
+
+# Make python and pip globally available if missing
+RUN [ ! -e /usr/bin/python ] && ln -s /usr/bin/python3 /usr/bin/python || true && \
+    [ ! -e /usr/bin/pip ] && ln -s /usr/bin/pip3 /usr/bin/pip || true
+
+# Initialize rosdep
+RUN rosdep init || true
 
 # Remove existing ubuntu user if it exists and conflicts
 RUN if id "ubuntu" &>/dev/null; then \
@@ -62,9 +75,7 @@ RUN groupadd --gid "${GID}" "${USER}" && \
     chmod 0440 /etc/sudoers.d/sudogrp && \
     chown ${UID}:${GID} -R /home/${USER}
 
-{%- if additional_sudo_commands %}
-{{ additional_sudo_commands }}
-{%- endif %}
+{{ additional_sudo_commands | default('') }}
 
 USER $USER
 WORKDIR /home/$USER
@@ -72,9 +83,12 @@ WORKDIR /home/$USER
 # Create workspace directory with correct ownership
 RUN mkdir -p /home/$USER/workspace
 
-{%- if additional_user_commands %}
-{{ additional_user_commands }}
-{%- endif %}
+# Source ROS environment automatically
+SHELL ["/bin/bash", "-c"]
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/$USER/.bashrc
+RUN rosdep update || true
+
+{{ additional_user_commands | default('') }}
 
 # Set up entrypoint
-ENTRYPOINT ["/bin/bash", "-c", "exec bash"]
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/${ROS_DISTRO}/setup.bash && exec bash"]
