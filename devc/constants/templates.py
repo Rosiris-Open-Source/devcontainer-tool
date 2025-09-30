@@ -25,11 +25,13 @@ class TEMPLATES:
     DEVCONTAINER_JSON: ClassVar[str] = "devcontainer.json.j2"
     BASE_DOCKERFILE: ClassVar[str] = "Dockerfile.j2"
     DOCKERFILE_EXTENSIONS_JSON: ClassVar[str] = "dockerfile_extensions.json"
+    DEVCONTAINER_EXTENSIONS_JSON: ClassVar[str] = "devcontainer_extensions.json"
 
     _TEMPLATE_FILES: ClassVar[List[ſtr]] = [
         DEVCONTAINER_JSON,
         BASE_DOCKERFILE,
-        DOCKERFILE_EXTENSIONS_JSON
+        DOCKERFILE_EXTENSIONS_JSON,
+        DEVCONTAINER_EXTENSIONS_JSON
     ]
 
     # Mapping template filename -> destination path in devcontainer

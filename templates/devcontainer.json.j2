@@ -1,7 +1,8 @@
 {
-    "name": "{{ name }}",
+    "name": "{{ name | required('name') }}",
+{%- if dockerfile %}
     "build": {
-        "dockerfile": "../.docker/{{ dockerfile_name }}",
+        "dockerfile": "{{ dockerfile }}",
         "context": "..",
         "args": {
             "USER_NAME": "{{ user | default('${localEnv:USER}') }}",
@@ -10,6 +11,9 @@
             "USER_GID": "1000"
         }
     },
+{%- else %}
+    "image": "{{ image | required('dockerfile or image') }}",
+{%- endif %}
     "customizations": {
         "vscode": {
             "extensions": [
@@ -21,17 +25,28 @@
         }
     },
     "containerEnv": {
+    {%- if enable_x11 | default(true) %}
         "DISPLAY": "unix:0",
+    {%- endif %}
     },
     "runArgs": [
+    {%- if enable_x11 | default(true) %}
+        "-e", "DISPLAY",
+        "-v", "/tmp/.X11-unix:/tmp/.X11-unix",
+    {%- endif %}
+    {%- if network_mode | default(true) %}
         "--network={{ network_mode | default('host') }}",
+    {%- endif %}
     ],
     "forwardPorts": [],
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USER}/workspace/,type=bind,consistency=cached",
     "workspaceFolder": "/home/${localEnv:USER}/workspace/",
     "mounts": [
-        {% if mount_ssh_keys | default(true) %}
-            "source=${env:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,consistency=cached",
-        {% endif %}
+    {%- if enable_x11 | default(true) %}
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+    {%- endif %}
+    {%- if mount_ssh_keys | default(true) %}
+        "source=${env:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,consistency=cached",
+    {%- endif %}
     ]
 }

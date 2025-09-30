@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
 import jinja2
 
 from pathlib import Path
@@ -50,7 +49,7 @@ class BaseImagePlugin(Plugin):
         )
         parser.add_argument(
             "--extend-with",
-            help="path to a dockerfile_extensions.json file to extend the base Dockerfile.",
+            help="path to a .json file to extend the Dockerfile.",
             type=IsExistingFile(),
             default=str(TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)), 
             nargs="?"
@@ -66,13 +65,15 @@ class BaseImagePlugin(Plugin):
     def main(self, *, args):
         template_machine = TemplateMachine()
         loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
+        template_file = TEMPLATES.BASE_DOCKERFILE
+
         try:
-            template = loader.load_template(TEMPLATES.BASE_DOCKERFILE)
+            template = loader.load_template(template_file)
         except FileNotFoundError:
-            print(f"Could not find the '{TEMPLATES.get_target_filename(TEMPLATES.BASE_DOCKERFILE)}' template in the template directory '{TEMPLATES.TEMPLATE_DIR}'.")
+            print(f"Could not find the '{TEMPLATES.get_target_filename(template_file)}' template in the template directory '{TEMPLATES.TEMPLATE_DIR}'.")
             return 1
 
-        path : Path = args.path / TEMPLATES.get_target_filename(TEMPLATES.BASE_DOCKERFILE)
+        path : Path = args.path / TEMPLATES.get_target_filename(template_file)
         if not args.override and path.exists():
                 print(f"The target file '{path}' already exists. Use --override to overwrite it.")
                 return 1
@@ -81,13 +82,13 @@ class BaseImagePlugin(Plugin):
 
         # Override image and tag if provided via CLI
         if args.image:
-            dockerfile.content.pre_defined_customizations.image = args.image
+            dockerfile.content.pre_defined_extensions.image = args.image
         if args.image_tag:
-            dockerfile.content.pre_defined_customizations.image_tag = args.image_tag
+            dockerfile.content.pre_defined_extensions.image_tag = args.image_tag
         
         try:
-            predefs = dict(asdict(dockerfile.content.pre_defined_customizations))
+            predefs = dict(asdict(dockerfile.content.pre_defined_extensions))
             template_machine.render_to_target(template=template, target_path=path, context=predefs)
         except jinja2.UndefinedError as e:
-            print(f"Not all of the required values to render the '{TEMPLATES.get_target_filename(TEMPLATES.BASE_DOCKERFILE)}' template. ({e.message})")
+            print(f"Not all of the required values to render the '{TEMPLATES.get_target_filename(template_file)}' template. ({e.message})")
         return 0

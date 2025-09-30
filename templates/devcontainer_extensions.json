@@ -1,0 +1,13 @@
+{
+  "pre-defined-extensions": {
+      "name" : "",
+      "build_docker_container": true,
+      "dockerfile" : "",
+      "image" : "",
+      "remote_auto_forward_ports" : false,
+      "remote_restore_forwarded_ports" : false, 
+      "enable_x11" : true,
+      "network_mode" : "host", 
+      "mount_ssh_keys" : true
+  }
+}

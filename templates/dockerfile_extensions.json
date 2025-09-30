@@ -1,5 +1,5 @@
 {
-    "pre-defined-customizations": {
+    "pre-defined-extensions": {
         "image" : "",
         "image_tag": "",
         "pre_package_install" : [""],

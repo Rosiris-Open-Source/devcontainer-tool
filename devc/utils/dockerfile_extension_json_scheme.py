@@ -21,7 +21,7 @@ from typing import Any
 from devc.utils.file_handler_interface import FileHandler
 
 @dataclass
-class PredefinedCustomizations:
+class PredefinedExtensions:
     image: str = ""
     image_tag: str = ""
     pre_package_install: List[str] = field(default_factory=list)
@@ -41,7 +41,7 @@ class Insertion:
 
 @dataclass
 class DockerfileExtension:
-    pre_defined_customizations: PredefinedCustomizations
+    pre_defined_extensions: PredefinedExtensions
     insertions: List[Insertion]
 
 
@@ -50,14 +50,14 @@ class DockerfileHandler(FileHandler[DockerfileExtension]):
     @override
     def parse_file(self, file) -> DockerfileExtension:
         data: Dict[str, Any] = json.load(file)
-        predefs = PredefinedCustomizations(
+        predefs = PredefinedExtensions(
             image=data.get("image", None),
             image_tag=data.get("image_tag", None),
-            pre_package_install=data.get("pre-defined-customizations", {}).get("pre_package_install", []),
-            additional_apt_packages=data.get("pre-defined-customizations", {}).get("additional_apt_packages", []),
-            post_package_install=data.get("pre-defined-customizations", {}).get("post_package_install", []),
-            additional_sudo_commands=data.get("pre-defined-customizations", {}).get("additional_sudo_commands", []),
-            additional_user_commands=data.get("pre-defined-customizations", {}).get("additional_user_commands", []),
+            pre_package_install=data.get("pre-defined-extensions", {}).get("pre_package_install", []),
+            additional_apt_packages=data.get("pre-defined-extensions", {}).get("additional_apt_packages", []),
+            post_package_install=data.get("pre-defined-extensions", {}).get("post_package_install", []),
+            additional_sudo_commands=data.get("pre-defined-extensions", {}).get("additional_sudo_commands", []),
+            additional_user_commands=data.get("pre-defined-extensions", {}).get("additional_user_commands", []),
         )
 
         insertions = [
@@ -71,7 +71,7 @@ class DockerfileHandler(FileHandler[DockerfileExtension]):
             if isinstance(ins, dict)
         ]
 
-        return DockerfileExtension(pre_defined_customizations=predefs, insertions=insertions)
+        return DockerfileExtension(pre_defined_extensions=predefs, insertions=insertions)
 
 
     @override

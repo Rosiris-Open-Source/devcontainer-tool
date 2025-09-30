@@ -35,7 +35,7 @@ class TemplateLoader(TemplateLoaderABC):
             loader=FileSystemLoader(str(template_dir)),
             undefined=undefined,
         )
-        self.env.filters['require'] = self._require_filter
+        self.env.filters['required'] = self._required_filter
 
         self.template_dir = template_dir
 
@@ -49,7 +49,7 @@ class TemplateLoader(TemplateLoaderABC):
             raise FileNotFoundError(f"Template not found: {template_name}") from e
 
     @staticmethod
-    def _require_filter(value, field_name="field"):
+    def _required_filter(value, field_name=""):
         """Require non-empty value or raise error."""
         if not value or (isinstance(value, str) and not value.strip()):
             raise UndefinedError(f"Required field '{field_name}' cannot be empty")
