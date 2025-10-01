@@ -22,7 +22,7 @@ setup(
     version="0.0.0",
     packages=find_packages(exclude=["test"]),
     data_files=[],
-    install_requires=["argcomplete", "jinja2", "packaging", "typing_extensions"],
+    install_requires=["argcomplete", "jinja2", "packaging", "typing_extensions", "rich"],
     zip_safe=True,
     author="Manuel Muth",
     author_email="manuel.muth@rosiris.de",

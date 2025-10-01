@@ -31,7 +31,7 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
     # top level parser
     parser = argparse.ArgumentParser(
         description=description,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         '--use-python-default-buffering',

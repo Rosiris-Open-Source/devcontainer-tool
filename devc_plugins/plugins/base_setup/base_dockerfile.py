@@ -11,19 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import jinja2
-
-from pathlib import Path
-from dataclasses import asdict
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.templates import TEMPLATES
-from devc.template_loader import TemplateLoader
-from devc.template_machine import TemplateMachine
+from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
+from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
+from devc.core.models.dockerfile_options import DockerfileOptions
+from devc.core.template_loader import TemplateLoader
+from devc.core.template_machine import TemplateMachine
+from devc.dockerfile_creation_service import DockerfileCreationService
 from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
-from devc.models.dockerfile_extension_json_scheme import DockerfileHandler
 
+console = Console()
 class BaseDockerfilePlugin(Plugin):
     """Create the a basic development container setup."""
 
@@ -63,32 +65,39 @@ class BaseDockerfilePlugin(Plugin):
         
 
     def main(self, *, args):
-        template_machine = TemplateMachine()
-        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
-        template_file = TEMPLATES.BASE_DOCKERFILE
+        options = DockerfileOptions(
+            image=args.image,
+            image_tag=args.image_tag,
+            path=args.path,
+            extend_with=args.extend_with,
+            override=args.override
+        )
 
+        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
+        dockerfile_creator = DockerfileCreationService(template_machine=TemplateMachine(), loader=loader)
         try:
-            template = loader.load_template(template_file)
-        except FileNotFoundError:
-            print(f"Could not find the '{TEMPLATES.get_target_filename(template_file)}' template in the template directory '{TEMPLATES.TEMPLATE_DIR}'.")
+            dockerfile_creator.create_dockerfile(options=options, template_file=TEMPLATES.BASE_DOCKERFILE, dockerfile_handler=DockerfileHandler)
+
+        except DockerfileTemplateNotFoundError as e:
+            console.print(Panel.fit(
+                Text(str(e), style="bold red"),
+                title="[red]Template Not Found[/red]",
+                border_style="red"
+            ))
             return 1
 
-        path : Path = args.path / TEMPLATES.get_target_filename(template_file)
-        if not args.override and path.exists():
-                print(f"The target file '{path}' already exists. Use --override to overwrite it.")
-                return 1
+        except DockerfileExistsError as e:
+            console.print(Panel.fit(
+                Text(str(e), style="bold yellow"),
+                title="[yellow]File Already Exists[/yellow]",
+                border_style="yellow"
+            ))
+            return 1
 
-        dockerfile = DockerfileHandler(args.extend_with)
-
-        # Override image and tag if provided via CLI
-        if args.image:
-            dockerfile.content.pre_defined_extensions.image = args.image
-        if args.image_tag:
-            dockerfile.content.pre_defined_extensions.image_tag = args.image_tag
-        
-        try:
-            predefs = dict(asdict(dockerfile.content.pre_defined_extensions))
-            template_machine.render_to_target(template=template, target_path=path, context=predefs)
-        except jinja2.UndefinedError as e:
-            print(f"Not all of the required values to render the '{TEMPLATES.get_target_filename(template_file)}' template. ({e.message})")
-        return 0
+        except DockerfileTemplateRenderError as e:
+            console.print(Panel.fit(
+                Text(str(e), style="bold red"),
+                title="[red]Template Render Error[/red]",
+                border_style="red"
+            ))
+            return 1

@@ -11,20 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-import jinja2
-
-from pathlib import Path
-from dataclasses import asdict
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.templates import TEMPLATES
-from devc.template_loader import TemplateLoader
-from devc.template_machine import TemplateMachine
+from devc.core.error.devcontainer_json_errors import DevJsonTemplateNotFoundError, DevJsonTemplateRenderError, DevJsonExistsError
+from devc.core.models.devcontainer_extension_json_scheme import DevcontainerHandler
+from devc.core.models.devcontainer_json_options import DevContainerJsonOptions
+from devc.core.template_loader import TemplateLoader
+from devc.core.template_machine import TemplateMachine
+from devc.devcontainer_json_creation_service import DevcontainerJsonCreationService
 from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
-from devc.models.devcontainer_extension_json_scheme import DevcontainerHandler
 
+console = Console()
 class BaseDevJsonPlugin(Plugin):
     def __init__(self) -> None:
         self.template_file = TEMPLATES.DEVCONTAINER_JSON
@@ -73,33 +74,40 @@ class BaseDevJsonPlugin(Plugin):
         
 
     def main(self, *, args):
-        template_machine = TemplateMachine()
-        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
+        options = DevContainerJsonOptions(
+            name=args.name,
+            image=args.image,
+            dockerfile=args.dockerfile,
+            path=args.path,
+            extend_with=args.extend_with,
+            override=args.override
+        )
 
+        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
+        dev_json_creator = DevcontainerJsonCreationService(template_machine=TemplateMachine(), loader=loader)
         try:
-            template = loader.load_template(self.template_file)
-        except FileNotFoundError:
-            print(f"Could not find the '{TEMPLATES.get_target_filename(self.template_file)}' template in the template directory '{TEMPLATES.TEMPLATE_DIR}'.")
+            dev_json_creator.create_devcontainer_json(options=options, template_file=TEMPLATES.DEVCONTAINER_JSON, dev_json_handler=DevcontainerHandler)
+
+        except DevJsonTemplateNotFoundError as e:
+            console.print(Panel.fit(
+                Text(str(e), style="bold red"),
+                title="[red]Template Not Found[/red]",
+                border_style="red"
+            ))
             return 1
 
-        path : Path = args.path / TEMPLATES.get_target_filename(self.template_file)
-        if not args.override and path.exists():
-                print(f"The target file '{path}' already exists. Use --override to overwrite it.")
-                return 1
+        except DevJsonExistsError as e:
+            console.print(Panel.fit(
+                Text(str(e), style="bold yellow"),
+                title="[yellow]File Already Exists[/yellow]",
+                border_style="yellow"
+            ))
+            return 1
 
-        devcontainer_json = DevcontainerHandler(args.extend_with)
-
-        # Override image and tag if provided via CLI
-        if args.name:
-            devcontainer_json.content.pre_defined_extensions.name = args.name
-        if args.image:
-            devcontainer_json.content.pre_defined_extensions.image = args.image
-        if args.dockerfile:
-            devcontainer_json.content.pre_defined_extensions.dockerfile = args.dockerfile
-
-        try:
-            predefs = dict(asdict(devcontainer_json.content.pre_defined_extensions))
-            template_machine.render_to_target(template=template, target_path=path, context=predefs)
-        except jinja2.UndefinedError as e:
-            print(f"Not all of the required values to render the '{TEMPLATES.get_target_filename(self.template_file)}' template. ({e.message})")
-        return 0
+        except DevJsonTemplateRenderError as e:
+            console.print(Panel.fit(
+                Text(str(e), style="bold red"),
+                title="[red]Template Render Error[/red]",
+                border_style="red"
+            ))
+            return 1
