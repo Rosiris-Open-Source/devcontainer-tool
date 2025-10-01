@@ -17,13 +17,13 @@ from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc_cli_plugin_system.command import CommandExtension
 
 
-class ImageCommand(CommandExtension):
-    """Entry point to create docker image for a development environment."""
+class DockerfileCommand(CommandExtension):
+    """Entry point to create a Dockerfile for a development environment."""
 
     def add_arguments(self, parser, cli_name):
         self._subparser = parser
         # get plugins and let them add their arguments
-        add_subparsers_on_demand(parser, cli_name, "_plugin", "devc_commands.image.plugins", required=False)
+        add_subparsers_on_demand(parser, cli_name, "_plugin", "devc_commands.dockerfile.plugins", required=False)
 
     def main(self, *, parser, args):
         if not hasattr(args, "_plugin"):

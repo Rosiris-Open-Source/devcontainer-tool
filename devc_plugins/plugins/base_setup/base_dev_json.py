@@ -23,7 +23,7 @@ from devc.constants.templates import TEMPLATES
 from devc.template_loader import TemplateLoader
 from devc.template_machine import TemplateMachine
 from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
-from devc.utils.devcontainer_extension_json_scheme import DevcontainerHandler
+from devc.models.devcontainer_extension_json_scheme import DevcontainerHandler
 
 class BaseDevJsonPlugin(Plugin):
     def __init__(self) -> None:

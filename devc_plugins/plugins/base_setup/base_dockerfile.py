@@ -22,9 +22,9 @@ from devc.constants.templates import TEMPLATES
 from devc.template_loader import TemplateLoader
 from devc.template_machine import TemplateMachine
 from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
-from devc.utils.dockerfile_extension_json_scheme import DockerfileHandler
+from devc.models.dockerfile_extension_json_scheme import DockerfileHandler
 
-class BaseImagePlugin(Plugin):
+class BaseDockerfilePlugin(Plugin):
     """Create the a basic development container setup."""
 
     def add_arguments(self, parser, cli_name):
