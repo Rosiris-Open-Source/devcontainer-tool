@@ -13,8 +13,6 @@
 # limitations under the License.
 
 from devc_cli_plugin_system.plugin import Plugin
-from devc.constants.templates import TEMPLATES
-from devc.template_loader import TemplateLoader
 
 class BaseContainerPlugin(Plugin):
     """Create the a basic devcontainer development environment setup."""
@@ -34,11 +32,3 @@ class BaseContainerPlugin(Plugin):
         )
 
     def main(self, *, args):#
-        print(f"Creating base devcontainer setup in '{args.path}' for ROS {args.ros_distro}...")
-        print(f"{TEMPLATES.TEMPLATE_DIR}")
-        print(f"{TEMPLATES.BASE_DOCKERFILE} -> {TEMPLATES.get_target_path(TEMPLATES.BASE_DOCKERFILE)}")
-        print(f"{TEMPLATES.DEVCONTAINER_JSON} -> {TEMPLATES.get_target_path(TEMPLATES.DEVCONTAINER_JSON)}")
-        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
-        template = loader.load_template(TEMPLATES.BASE_DOCKERFILE)
-        print(loader.render_template(TEMPLATES.BASE_DOCKERFILE, {"pre_package_install" :"RUN banane"}))
-        return 0

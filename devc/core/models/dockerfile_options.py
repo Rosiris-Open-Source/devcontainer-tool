@@ -18,7 +18,6 @@ from pathlib import Path
 @dataclass
 class DockerfileOptions:
     image: str = ""
-    image_tag: str = ""
     path: Path = Path("")
     extend_with: str = ""
     override: bool = False

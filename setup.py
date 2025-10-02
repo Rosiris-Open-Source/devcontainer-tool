@@ -64,7 +64,7 @@ setup(
         'devc_cli.command': [
             'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',
             'extensions = devc_cli_plugin_system.command.extensions:ExtensionsCommand',
-            'container = devc_plugins.commands.container_cmd:ContainerCommand',
+            'devcontainer = devc_plugins.commands.container_cmd:ContainerCommand',
             'dev-json = devc_plugins.commands.dev_json_cmd:DevJsonCommand',
             'dockerfile = devc_plugins.commands.dockerfile_cmd:DockerfileCommand',
         ],

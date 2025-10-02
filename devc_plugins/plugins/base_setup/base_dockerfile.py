@@ -37,12 +37,6 @@ class BaseDockerfilePlugin(Plugin):
             nargs="?"
         )
         parser.add_argument(
-            "--image-tag",
-            help="tag to use",
-            default="", 
-            nargs="?"
-        )
-        parser.add_argument(
             "--path",
             help="Where to create the devcontainer folder and files.",
             type=IsEmptyOrNewDir(must_be_empty=False),
@@ -67,7 +61,6 @@ class BaseDockerfilePlugin(Plugin):
     def main(self, *, args):
         options = DockerfileOptions(
             image=args.image,
-            image_tag=args.image_tag,
             path=args.path,
             extend_with=args.extend_with,
             override=args.override

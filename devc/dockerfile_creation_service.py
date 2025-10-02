@@ -53,9 +53,6 @@ class DockerfileCreationService:
         # Override image and tag if provided via CLI
         if options.image:
             dockerfile.content.pre_defined_extensions.image = options.image
-        if options.image_tag:
-            dockerfile.content.pre_defined_extensions.image_tag = options.image_tag
-        
 
         try:
             predefs = dict(asdict(dockerfile.content.pre_defined_extensions))

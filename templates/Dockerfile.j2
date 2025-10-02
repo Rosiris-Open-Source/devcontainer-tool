@@ -1,5 +1,5 @@
 # Docker - Pull base image
-FROM {{ image | required('image') }}:{{ image_tag | required('image_tag') }}
+FROM {{ image | required('image') }}
 
 # Environment - Setup ARGs and ENV, after FROM reset all args.
 ARG DEBIAN_FRONTEND=noninteractive
