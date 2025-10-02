@@ -19,6 +19,7 @@ from typing_extensions import override
 from typing import Any
 
 from devc.utils.file_handler_interface import FileHandler
+from devc.utils.json_parsing import normalize_list
 
 @dataclass
 class PredefinedExtensions:
@@ -53,11 +54,11 @@ class DockerfileHandler(FileHandler[DockerfileExtension]):
         predefs = PredefinedExtensions(
             image=data.get("image", None),
             image_tag=data.get("image_tag", None),
-            pre_package_install=data.get("pre-defined-extensions", {}).get("pre_package_install", []),
-            additional_apt_packages=data.get("pre-defined-extensions", {}).get("additional_apt_packages", []),
-            post_package_install=data.get("pre-defined-extensions", {}).get("post_package_install", []),
-            additional_sudo_commands=data.get("pre-defined-extensions", {}).get("additional_sudo_commands", []),
-            additional_user_commands=data.get("pre-defined-extensions", {}).get("additional_user_commands", []),
+            pre_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("pre_package_install", [])),
+            additional_apt_packages=normalize_list(data.get("pre-defined-extensions", {}).get("additional_apt_packages", [])),
+            post_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("post_package_install", [])),
+            additional_sudo_commands=normalize_list(data.get("pre-defined-extensions", {}).get("additional_sudo_commands", [])),
+            additional_user_commands=normalize_list(data.get("pre-defined-extensions", {}).get("additional_user_commands", [])),
         )
 
         insertions = [

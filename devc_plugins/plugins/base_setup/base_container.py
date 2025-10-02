@@ -32,3 +32,4 @@ class BaseContainerPlugin(Plugin):
         )
 
     def main(self, *, args):#
+        pass

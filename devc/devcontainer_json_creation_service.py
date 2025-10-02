@@ -59,6 +59,7 @@ class DevcontainerJsonCreationService:
 
         try:
             predefs = dict(asdict(devcontainer_json.content.pre_defined_extensions))
+            print(predefs)
             self.template_machine.render_to_target(
                 template=template, target_path=path, context=predefs
             )

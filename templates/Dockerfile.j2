@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     {%- for pkg in additional_apt_packages %}
         {{ pkg }}{% if not loop.last %} \{% endif %}
-    {%- endfor %} \
+    {%- endfor %}
     && rm -rf /var/lib/apt/lists/*
 
 {%- if post_package_install %}

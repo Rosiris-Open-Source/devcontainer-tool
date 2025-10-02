@@ -19,8 +19,8 @@
             "extensions": [
             ],
             "settings": {
-                "remote.autoForwardPorts": {{ remote_auto_forward_ports | default('false') }},
-                "remote.restoreForwardedPorts": {{ remote_restore_forwarded_ports | default('false') }},
+                "remote.autoForwardPorts": {{ remote_auto_forward_ports | tojson |default('false') }},
+                "remote.restoreForwardedPorts": {{ remote_restore_forwarded_ports | tojson |default('false') }},
             }
         }
     },
@@ -42,9 +42,6 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USER}/workspace/,type=bind,consistency=cached",
     "workspaceFolder": "/home/${localEnv:USER}/workspace/",
     "mounts": [
-    {%- if enable_x11 | default(true) %}
-        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
-    {%- endif %}
     {%- if mount_ssh_keys | default(true) %}
         "source=${env:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,consistency=cached",
     {%- endif %}
