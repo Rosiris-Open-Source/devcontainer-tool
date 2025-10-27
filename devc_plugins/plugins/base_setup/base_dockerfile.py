@@ -16,6 +16,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from devc_cli_plugin_system.plugin import Plugin
+from devc.constants.defaults import DEFAULTS
 from devc.constants.templates import TEMPLATES
 from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
@@ -32,8 +33,8 @@ class BaseDockerfilePlugin(Plugin):
     def add_arguments(self, parser, cli_name):
         parser.add_argument(
             "--image",
-            help="Image to use.",
-            default="", 
+            help=f"Image to use. (Default: {DEFAULTS.DEFAULT_UBUNTU_IMG})",
+            default=f"{DEFAULTS.DEFAULT_UBUNTU_IMG}", 
             nargs="?"
         )
         parser.add_argument(
