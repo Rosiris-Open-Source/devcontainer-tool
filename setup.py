@@ -49,10 +49,6 @@ setup(
         'console_scripts': [
             'devc = devc_cli_plugin_system.cli:main',
         ],
-        'devc_commands.container.plugins': [
-            'ros2 = devc_plugins.plugins.ros2.ros2_container:Ros2ContainerPlugin',
-            'base-setup = devc_plugins.plugins.base_setup.base_container:BaseContainerPlugin',
-        ],
         'devc_commands.dev_json.plugins': [
             'ros2 = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin',
             'base-setup = devc_plugins.plugins.base_setup.base_dev_json:BaseDevJsonPlugin',
@@ -64,13 +60,11 @@ setup(
         'devc_cli.command': [
             'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',
             'extensions = devc_cli_plugin_system.command.extensions:ExtensionsCommand',
-            'devcontainer = devc_plugins.commands.container_cmd:ContainerCommand',
             'dev-json = devc_plugins.commands.dev_json_cmd:DevJsonCommand',
             'dockerfile = devc_plugins.commands.dockerfile_cmd:DockerfileCommand',
         ],
         'devc_cli.extension_point': [
             'devc_cli.command = devc_cli_plugin_system.command:CommandExtension',
-            'devc_commands.container.plugins = devc_cli_plugin_system.plugin:Plugin',
             'devc_commands.dev_json.plugins = devc_cli_plugin_system.plugin:Plugin',
             'devc_commands.dockerfile.plugins = devc_cli_plugin_system.plugin:Plugin',
         ],
