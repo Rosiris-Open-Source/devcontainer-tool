@@ -7,7 +7,6 @@
       "remote_auto_forward_ports" : false,
       "remote_restore_forwarded_ports" : false, 
       "enable_x11" : true,
-      "network_mode" : "host", 
-      "mount_ssh_keys" : true
+      "network_mode" : "host"
   }
 }

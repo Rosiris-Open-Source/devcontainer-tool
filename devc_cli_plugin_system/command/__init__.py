@@ -24,6 +24,7 @@ from devc_cli_plugin_system.entry_points import get_first_line_doc
 from devc_cli_plugin_system.plugin_system import instantiate_extensions
 from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
+from devc_cli_plugin_system.plugin_extensions import PluginExtensionContext
 
 
 class CommandExtension:
@@ -50,6 +51,9 @@ class CommandExtension:
     def add_arguments(self, parser, cli_name, *, argv=None):
         pass
 
+    def register_plugin_extensions(self, parser):
+        pass
+
     def main(self, *, parser, args):
         raise NotImplementedError()
 
@@ -74,6 +78,23 @@ class MutableString:
     def __iter__(self):
         return self.value.__iter__()
 
+def add_plugin_extensions(group_name, parser, defaults, exclude_names=None) -> PluginExtensionContext:
+    """
+    Dynamically load all extensions for a plugin group and register their CLI args.
+
+    Each plugin can register arguments, and this function tracks which arguments
+    belong to which plugin so they can be cleanly separated later.
+
+    returns PluginExtensionContext of the available plugins 
+    """
+    extensions = instantiate_extensions(group_name, exclude_names=None)
+    plugin_data = PluginExtensionContext()
+    for ext in extensions.values():
+        # Let the plugin register its CLI args
+        ext.register_arguments_to_parser(parser, defaults)
+        plugin_data.add_available_plugin_extension(ext)
+
+    return plugin_data
 
 def add_subparsers_on_demand(
     parser, cli_name, dest, group_name, hide_extensions=None,
@@ -138,7 +159,7 @@ def add_subparsers_on_demand(
             _, _, _, comp_words, _ = split_line(os.environ['COMP_LINE'])
             args = comp_words[1:]
         try:
-            known_args, _ = root_parser.parse_known_args(args=args)
+            known_args, not_knwon = root_parser.parse_known_args(args=args)
         except SystemExit:
             if not _is_completion_requested():
                 raise
@@ -183,6 +204,12 @@ def add_subparsers_on_demand(
                 kwargs['argv'] = argv
             extension.add_arguments(
                 command_parser, f'{cli_name} {name}', **kwargs)
+            del command_parser._root_parser
+        
+        if hasattr(extension, 'register_plugin_extensions'):
+            command_parser = command_parsers[name]
+            command_parser._root_parser = root_parser
+            extension.register_plugin_extensions(command_parser)
             del command_parser._root_parser
 
     return subparser

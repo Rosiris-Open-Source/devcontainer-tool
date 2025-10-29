@@ -49,12 +49,14 @@ setup(
         'console_scripts': [
             'devc = devc_cli_plugin_system.cli:main',
         ],
+        'devc_commands.dev_json.plugins.extensions': [
+            'nvidia = devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension',
+            'ssh = devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension',
+        ],
         'devc_commands.dev_json.plugins': [
-            'ros2 = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin',
             'base-setup = devc_plugins.plugins.base_setup.base_dev_json:BaseDevJsonPlugin',
         ],
         'devc_commands.dockerfile.plugins': [
-            'ros2 = devc_plugins.plugins.ros2.ros2_image:Ros2ImagePlugin',
             'base-setup = devc_plugins.plugins.base_setup.base_dockerfile:BaseDockerfilePlugin',
         ],
         'devc_cli.command': [

@@ -30,7 +30,6 @@ class DevcontainerPredefinedExtensions:
     remote_restore_forwarded_ports: bool = False
     enable_x11: bool = True
     network_mode: str = "host"
-    mount_ssh_keys: bool = True
 
 
 @dataclass
@@ -55,7 +54,6 @@ class DevcontainerHandler(FileHandler[DevcontainerConfig]):
                 remote_restore_forwarded_ports=predefs.get("remote_restore_forwarded_ports", False),
                 enable_x11=predefs.get("enable_x11", True),
                 network_mode=predefs.get("network_mode", "host"),
-                mount_ssh_keys=predefs.get("mount_ssh_keys", True),
             )
         )
 

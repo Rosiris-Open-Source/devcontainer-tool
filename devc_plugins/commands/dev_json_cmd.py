@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-from devc_cli_plugin_system.command import add_subparsers_on_demand
+from devc_cli_plugin_system.command import add_subparsers_on_demand, add_plugin_extensions
 from devc_cli_plugin_system.command import CommandExtension
-
+from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonExtensionManager
 
 class DevJsonCommand(CommandExtension):
     """Entry point to create dev_json for a development environment."""
@@ -24,6 +24,11 @@ class DevJsonCommand(CommandExtension):
         self._subparser = parser
         # get plugins and let them add their arguments
         add_subparsers_on_demand(parser, cli_name, "_plugin", "devc_commands.dev_json.plugins", required=False)
+    
+    def register_plugin_extensions(self, parser):
+        self._plugin_extensions = add_plugin_extensions(
+            'devc_commands.dev_json.plugins.extensions', parser, defaults={}
+        )
 
     def main(self, *, parser, args):
         if not hasattr(args, "_plugin"):
@@ -31,7 +36,10 @@ class DevJsonCommand(CommandExtension):
             self._subparser.print_help()
             return 0
 
-        extension = getattr(args, "_plugin")
+        ext_manager = DevJsonExtensionManager(self._plugin_extensions, args)
+        print(ext_manager.called_extensions)
+        print(ext_manager.get_combined_updates())
 
+        plugin = getattr(args, "_plugin")
         # call the plugin's main method
-        return extension.main(args=args)
+        return plugin.main(args=args)

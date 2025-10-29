@@ -45,6 +45,7 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
     # add arguments for command extension(s)
     if extension:
         extension.add_arguments(parser, script_name)
+        extension.register_plugin_extensions(parser)
     else:
         # get command entry points as needed
         selected_extension_key = '_command'
@@ -93,3 +94,7 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
     except RuntimeError as e:
         rc = str(e)
     return rc
+
+# used to have a entrypoint for the debugger
+if __name__ == "__main__":
+    sys.exit(main(script_name="devc"))
