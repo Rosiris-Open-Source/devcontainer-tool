@@ -19,7 +19,6 @@ from devc.constants.templates import TEMPLATES
 from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
 from devc.core.logging import logger
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
-from devc.core.models.dockerfile_options import DockerfileOptions
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
 
@@ -30,7 +29,6 @@ class DockerfileCreationService:
 
     def create_dockerfile(
         self,
-        options: DockerfileOptions,
         template_file: str,
         dockerfile_handler: DockerfileHandler
     ) -> None:
@@ -42,20 +40,13 @@ class DockerfileCreationService:
                          TEMPLATES.TEMPLATE_DIR)
             raise DockerfileTemplateNotFoundError(f"Template {template_file} not found")
 
-        path: Path = options.path / TEMPLATES.get_target_filename(template_file)
-        if not options.override and path.exists():
+        path: Path = dockerfile_handler.options.path / TEMPLATES.get_target_filename(template_file)
+        if not dockerfile_handler.options.override and path.exists():
             logger.warning("Target file %s already exists", path)
             raise DockerfileExistsError(f"The target file '{path}' already exists.")
 
-        dockerfile : DockerfileHandler = dockerfile_handler(options.extend_with)
-
-        # Apply overrides
-        # Override image and tag if provided via CLI
-        if options.image:
-            dockerfile.content.pre_defined_extensions.image = options.image
-
         try:
-            predefs = dict(asdict(dockerfile.content.pre_defined_extensions))
+            predefs = dict(asdict(dockerfile_handler.content.pre_defined_extensions))
             self.template_machine.render_to_target(
                 template=template, target_path=path, context=predefs
             )

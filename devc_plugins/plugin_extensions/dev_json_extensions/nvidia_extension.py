@@ -7,13 +7,12 @@ class NvidiaExtension(DevJsonPluginExtension):
         if nvidia_flag: 
             return {
                 "runArgs": [
-                    "-e", "DISPLAY=${env:DISPLAY}",
-                    "--gpus=all",
-                    "--group-add", "dialout"
+                    "--gpus=all"
                 ]
         }
         return {}
 
+    @staticmethod
     def get_name() -> str:
         return "nvidia"
 

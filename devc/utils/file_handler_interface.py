@@ -16,15 +16,18 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, TypeVar, Union
 
+from devc.core.models.options import Options
+
 
 T = TypeVar("T")  # content type
 
 
 class FileHandler(ABC, Generic[T]):
-    def __init__(self, path: Optional[Union[str, Path]]) -> None:
-        self.path = Path(path)
+    def __init__(self, options: Options) -> None:
+        self.options: Options = options
+        self.extend_file_path = Path(options.extend_with)
         self.content: Optional[T] = None
-        self.load_file(self.path)
+        self.load_file(self.extend_file_path)
 
     def load_file(self, path: Path) -> None:
         if not isinstance(path, Path):

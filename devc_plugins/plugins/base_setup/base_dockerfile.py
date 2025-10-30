@@ -20,7 +20,7 @@ from devc.constants.defaults import DEFAULTS
 from devc.constants.templates import TEMPLATES
 from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
-from devc.core.models.dockerfile_options import DockerfileOptions
+from devc.core.models.options import DockerfileOptions
 from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
 from devc.dockerfile_creation_service import DockerfileCreationService
@@ -57,20 +57,31 @@ class BaseDockerfilePlugin(Plugin):
             action="store_true",
             default=False
         )
-        
-
-    def main(self, *, args):
+    
+    def _create_handler_from_args(self, args) -> DockerfileHandler:
         options = DockerfileOptions(
             image=args.image,
             path=args.path,
             extend_with=args.extend_with,
             override=args.override
         )
+        dockerfile_handler : DockerfileHandler = DockerfileHandler(options)
+
+        # Apply overrides
+        # Override image and tag if provided via CLI
+        if options.image:
+            dockerfile_handler.content.pre_defined_extensions.image = options.image
+
+        return dockerfile_handler
+        
+
+    def main(self, *, args):
+        dockerfile_handler: DockerfileHandler = self._create_handler_from_args(args)
 
         loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
         dockerfile_creator = DockerfileCreationService(template_machine=TemplateMachine(), loader=loader)
         try:
-            dockerfile_creator.create_dockerfile(options=options, template_file=TEMPLATES.BASE_DOCKERFILE, dockerfile_handler=DockerfileHandler)
+            dockerfile_creator.create_dockerfile(template_file=TEMPLATES.BASE_DOCKERFILE, dockerfile_handler=dockerfile_handler)
 
         except DockerfileTemplateNotFoundError as e:
             console.print(Panel.fit(

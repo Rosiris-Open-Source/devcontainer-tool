@@ -20,18 +20,13 @@
             ],
             "settings": {
                 "remote.autoForwardPorts": {{ remote_auto_forward_ports | tojson |default('false') }},
-                "remote.restoreForwardedPorts": {{ remote_restore_forwarded_ports | tojson |default('false') }},
+                "remote.restoreForwardedPorts": {{ remote_restore_forwarded_ports | tojson |default('false') }}
             }
         }
     },
-    "containerEnv": {
-    {%- if enable_x11 | default(true) %}
-        "DISPLAY": "unix:0",
-    {%- endif %}
-    },
     "runArgs": [
     {%- if enable_x11 | default(true) %}
-        "-e", "DISPLAY",
+        "-e", "DISPLAY=${env:DISPLAY}",
         "-v", "/tmp/.X11-unix:/tmp/.X11-unix",
     {%- endif %}
     {%- if network_mode | default(true) %}

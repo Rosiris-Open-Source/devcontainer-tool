@@ -8,7 +8,7 @@ class SshExtension(DevJsonPluginExtension):
         if ssh_flag == 'forward':
             return {
                 "runArgs": [
-                    "-e", "SSH_AUTH_SOCK",
+                    "-e", "SSH_AUTH_SOCK=${env:SSH_AUTH_SOCK}",
                     "-v", "${env:SSH_AUTH_SOCK}:${env:SSH_AUTH_SOCK}"
                 ]
             }
@@ -20,6 +20,7 @@ class SshExtension(DevJsonPluginExtension):
             }
         return {}
 
+    @staticmethod
     def get_name() -> str:
         return "ssh"
 

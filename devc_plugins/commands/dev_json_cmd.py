@@ -37,9 +37,7 @@ class DevJsonCommand(CommandExtension):
             return 0
 
         ext_manager = DevJsonExtensionManager(self._plugin_extensions, args)
-        print(ext_manager.called_extensions)
-        print(ext_manager.get_combined_updates())
 
         plugin = getattr(args, "_plugin")
         # call the plugin's main method
-        return plugin.main(args=args)
+        return plugin.main(ext_manager=ext_manager, args=args)

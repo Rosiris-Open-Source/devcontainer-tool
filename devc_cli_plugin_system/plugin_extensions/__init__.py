@@ -68,7 +68,7 @@ class PluginExtensionContext:
 
     def add_available_plugin_extension(self, plugin_extension: PluginExtension):
         """Register a plugin extension and record its argument names."""
-        name = plugin_extension.get_name
+        name = plugin_extension.get_name()
         self._available_extensions[name] = plugin_extension
 
     def get_extension(self, name: str) -> PluginExtension:

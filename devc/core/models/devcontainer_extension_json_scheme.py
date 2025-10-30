@@ -21,7 +21,7 @@ from devc.utils.file_handler_interface import FileHandler
 
 
 @dataclass
-class DevcontainerPredefinedExtensions:
+class DevJsonPredefinedExtensions:
     name: str = ""
     build_docker_container: bool = True
     dockerfile: str = ""
@@ -33,19 +33,19 @@ class DevcontainerPredefinedExtensions:
 
 
 @dataclass
-class DevcontainerConfig:
-    pre_defined_extensions: DevcontainerPredefinedExtensions
+class DevJsonConfig:
+    pre_defined_extensions: DevJsonPredefinedExtensions
 
 
-class DevcontainerHandler(FileHandler[DevcontainerConfig]):
+class DevJsonHandler(FileHandler[DevJsonConfig]):
 
     @override
-    def parse_file(self, file) -> DevcontainerConfig:
+    def parse_file(self, file) -> DevJsonConfig:
         data: Dict[str, Any] = json.load(file)
         predefs = data.get("pre-defined-extensions", {})
 
-        return DevcontainerConfig(
-            pre_defined_extensions=DevcontainerPredefinedExtensions(
+        return DevJsonConfig(
+            pre_defined_extensions=DevJsonPredefinedExtensions(
                 name=predefs.get("name", ""),
                 build_docker_container=predefs.get("build_docker_container", True),
                 dockerfile=predefs.get("dockerfile", ""),

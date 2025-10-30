@@ -16,10 +16,11 @@ from rich.panel import Panel
 from rich.text import Text
 
 from devc_cli_plugin_system.plugin import Plugin
+from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonExtensionManager
 from devc.constants.templates import TEMPLATES
 from devc.core.error.devcontainer_json_errors import DevJsonTemplateNotFoundError, DevJsonTemplateRenderError, DevJsonExistsError
-from devc.core.models.devcontainer_extension_json_scheme import DevcontainerHandler
-from devc.core.models.devcontainer_json_options import DevContainerJsonOptions
+from devc.core.models.devcontainer_extension_json_scheme import DevJsonHandler
+from devc.core.models.options import DevContainerJsonOptions
 from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
 from devc.devcontainer_json_creation_service import DevcontainerJsonCreationService
@@ -72,8 +73,7 @@ class BaseDevJsonPlugin(Plugin):
             default=False
         )
         
-
-    def main(self, *, args):
+    def _create_handler_from_args(self, args) -> DevJsonHandler:
         options = DevContainerJsonOptions(
             name=args.name,
             image=args.image,
@@ -82,11 +82,25 @@ class BaseDevJsonPlugin(Plugin):
             extend_with=args.extend_with,
             override=args.override
         )
+        devcontainer_json : DevJsonHandler = DevJsonHandler(options)
+
+        # Apply overrides
+        if options.name:
+            devcontainer_json.content.pre_defined_extensions.name = options.name
+        if options.image:
+            devcontainer_json.content.pre_defined_extensions.image = options.image
+        if options.dockerfile:
+            devcontainer_json.content.pre_defined_extensions.dockerfile = options.dockerfile
+
+        return devcontainer_json
+
+    def main(self, *, ext_manager: DevJsonExtensionManager, args):
+        dev_json_handler: DevJsonHandler = self._create_handler_from_args(args)
 
         loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
-        dev_json_creator = DevcontainerJsonCreationService(template_machine=TemplateMachine(), loader=loader)
+        dev_json_creator = DevcontainerJsonCreationService(template_machine=TemplateMachine(), loader=loader, ext_manager=ext_manager)
         try:
-            dev_json_creator.create_devcontainer_json(options=options, template_file=TEMPLATES.DEVCONTAINER_JSON, dev_json_handler=DevcontainerHandler)
+            dev_json_creator.create_devcontainer_json(template_file=TEMPLATES.DEVCONTAINER_JSON, dev_json=dev_json_handler)
 
         except DevJsonTemplateNotFoundError as e:
             console.print(Panel.fit(

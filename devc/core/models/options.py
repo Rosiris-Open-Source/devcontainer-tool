@@ -16,8 +16,17 @@ from dataclasses import dataclass
 from pathlib import Path
 
 @dataclass
-class DockerfileOptions:
-    image: str = ""
+class Options:
     path: Path = Path("")
     extend_with: str = ""
     override: bool = False
+
+@dataclass
+class DockerfileOptions(Options):
+    image: str = ""
+
+@dataclass
+class DevContainerJsonOptions(Options):
+    name: str = ""
+    image: str = ""
+    dockerfile: Path = Path("")
