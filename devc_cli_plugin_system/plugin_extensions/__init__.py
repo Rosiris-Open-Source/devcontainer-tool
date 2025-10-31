@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import ABC, abstractmethod
+from typing import List
 
 class PluginExtension(ABC):
     """The base class for Rocker extension points"""
@@ -36,7 +37,7 @@ class PluginExtension(ABC):
         raise NotImplementedError
     
     @classmethod
-    def arg_name(cls) -> str:
+    def as_arg_name(cls) -> List[str]:
         return '--%s' % cls.get_name().replace('_', '-')
         
     def register_arguments_to_parser(self, parser, defaults):
@@ -45,16 +46,15 @@ class PluginExtension(ABC):
         existing_dests = {a.dest for a in parser._actions}
 
         # Let plugin adds args
-        self.register_arguments(parser, defaults=defaults)
+        self._register_arguments(parser, defaults=defaults)
 
         # Determine newly added arguments
         new_dests = {a.dest for a in parser._actions} - existing_dests
         self._registered_args = new_dests
 
-
     @abstractmethod
-    def register_arguments(self, defaults):
-        pass
+    def _register_arguments(self, defaults):
+        raise NotImplementedError
 
 from typing import Dict, Set
 from pprint import pformat
@@ -63,7 +63,7 @@ class PluginExtensionContext:
     """Holds and manages all available plugin extensions."""
 
     def __init__(self):
-        # mapping: name -> {"extension": PluginExtension, "arg_names": set[str]}
+        # mapping: name -> {"extension": PluginExtension}
         self._available_extensions: Dict[str, PluginExtension] = {}
 
     def add_available_plugin_extension(self, plugin_extension: PluginExtension):

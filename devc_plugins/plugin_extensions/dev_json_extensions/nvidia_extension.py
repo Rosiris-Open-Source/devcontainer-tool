@@ -2,7 +2,7 @@ from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonPluginExte
 
 class NvidiaExtension(DevJsonPluginExtension):
 
-    def get_devcontainer_updates(self, cliargs):
+    def _get_devcontainer_updates(self, cliargs):
         nvidia_flag = cliargs.get(NvidiaExtension.get_name(), None)
         if nvidia_flag: 
             return {
@@ -16,8 +16,8 @@ class NvidiaExtension(DevJsonPluginExtension):
     def get_name() -> str:
         return "nvidia"
 
-    def register_arguments(self, parser, defaults):
-            parser.add_argument(NvidiaExtension.arg_name(),
+    def _register_arguments(self, parser, defaults):
+            parser.add_argument(NvidiaExtension.as_arg_name(),
             choices=['auto', 'runtime', 'gpus'],
             nargs='?',
             const='auto',

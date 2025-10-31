@@ -2,7 +2,7 @@ from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonPluginExte
 
 class SshExtension(DevJsonPluginExtension):
 
-    def get_devcontainer_updates(self, cliargs):
+    def _get_devcontainer_updates(self, cliargs):
         ssh_flag = cliargs.get(SshExtension.get_name(), None)
 
         if ssh_flag == 'forward':
@@ -24,8 +24,8 @@ class SshExtension(DevJsonPluginExtension):
     def get_name() -> str:
         return "ssh"
 
-    def register_arguments(self, parser, defaults):
-            parser.add_argument(SshExtension.arg_name(),
+    def _register_arguments(self, parser, defaults):
+            parser.add_argument(SshExtension.as_arg_name(),
             choices=['forward', 'mount'],
             nargs='?',
             const='forward',

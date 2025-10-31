@@ -22,14 +22,14 @@ class DevJsonPluginExtension(PluginExtension):
     """The base class for Rocker extension points"""
     
     @abstractmethod
-    def get_devcontainer_updates(self, cliargs):
+    def _get_devcontainer_updates(self, cliargs):
         """ Changes to be applied to the devcontainer.json file."""
-        pass
+        raise NotImplementedError
 
-    def invoke_plugin_extension(self) -> dict:
-        self.validate_environment
-        self.precondition_environment()
-        return self.get_devcontainer_updates()
+    def get_devcontainer_updates(self, cliargs) -> dict:
+        self.precondition_environment(cliargs)
+        self.validate_environment(cliargs)
+        return self._get_devcontainer_updates(cliargs)
 
 
 class DevJsonExtensionManager(ExtensionManager):
@@ -41,7 +41,7 @@ class DevJsonExtensionManager(ExtensionManager):
     def get_combined_updates(self) -> Dict[str, Any]:
         """Merge updates from all called extensions."""
         merged = {}
-        for _, ext in self._called.items():
+        for _, ext in self.called_extensions.items():
             updates = ext.get_devcontainer_updates(vars(self.args))
             merged = self._merge_updates(merged, updates)
         return merged

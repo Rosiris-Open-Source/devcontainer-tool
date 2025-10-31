@@ -35,7 +35,7 @@ class DevJsonCommand(CommandExtension):
             # in case no plugin was passed
             self._subparser.print_help()
             return 0
-
+        
         ext_manager = DevJsonExtensionManager(self._plugin_extensions, args)
 
         plugin = getattr(args, "_plugin")
