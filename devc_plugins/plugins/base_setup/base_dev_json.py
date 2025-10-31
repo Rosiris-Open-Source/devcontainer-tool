@@ -94,7 +94,7 @@ class BaseDevJsonPlugin(Plugin):
 
         return devcontainer_json
 
-    def main(self, *, ext_manager: DevJsonExtensionManager, args):
+    def main(self, *, ext_manager: DevJsonExtensionManager, parser, args):
         dev_json_handler: DevJsonHandler = self._create_handler_from_args(args)
 
         loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
@@ -120,7 +120,7 @@ class BaseDevJsonPlugin(Plugin):
 
         except DevJsonTemplateRenderError as e:
             console.print(Panel.fit(
-                Text(str(e), style="bold red"),
+                Text(str(e) + "\nType -h for help.", style="bold red"),
                 title="[red]Template Render Error[/red]",
                 border_style="red"
             ))

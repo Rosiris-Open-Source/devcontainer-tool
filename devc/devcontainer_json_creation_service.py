@@ -107,7 +107,7 @@ class DevcontainerJsonCreationService:
         except jinja2.UndefinedError as e:
             logger.error("Template render error: %s", e.message)
             raise DevJsonTemplateRenderError(
-                f"Missing required values to render template {template_file}: {e.message}"
+                f"Missing required values to render template {template_file}: {e.message}."
             )
 
         # make sure no trailing commas and the like

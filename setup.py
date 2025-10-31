@@ -52,6 +52,7 @@ setup(
         'devc_commands.dev_json.plugins.extensions': [
             'nvidia = devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension',
             'ssh = devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension',
+            'privileged = devc_plugins.plugin_extensions.dev_json_extensions.privileged_extension:PrivilegedExtension',
         ],
         'devc_commands.dev_json.plugins': [
             'base-setup = devc_plugins.plugins.base_setup.base_dev_json:BaseDevJsonPlugin',

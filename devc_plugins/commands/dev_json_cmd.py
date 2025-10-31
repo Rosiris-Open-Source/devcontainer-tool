@@ -40,4 +40,4 @@ class DevJsonCommand(CommandExtension):
 
         plugin = getattr(args, "_plugin")
         # call the plugin's main method
-        return plugin.main(ext_manager=ext_manager, args=args)
+        return plugin.main(ext_manager=ext_manager, parser=parser, args=args)
