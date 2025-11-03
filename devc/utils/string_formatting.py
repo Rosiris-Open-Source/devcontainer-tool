@@ -12,21 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
-from pathlib import Path
+from string import Formatter
 
-@dataclass
-class Options:
-    path: Path = Path("")
-    extend_with: Path = Path("")
-    override: bool = False
-
-@dataclass
-class DockerfileOptions(Options):
-    image: str = ""
-
-@dataclass
-class DevContainerJsonOptions(Options):
-    name: str = ""
-    image: str = ""
-    dockerfile: Path = Path("")
+def can_format_with(string: str, fmt: str) -> bool:
+    formatter = Formatter()
+    for _, field_name, _, _ in formatter.parse(string):
+        if field_name == fmt:
+            return True
+    return False

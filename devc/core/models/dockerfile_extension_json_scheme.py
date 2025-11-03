@@ -18,13 +18,12 @@ from typing import List, Dict, Any
 from typing_extensions import override
 from typing import Any
 
-from devc.utils.file_handler_interface import FileHandler
+from devc.core.file_handler_interface import FileHandler
 from devc.utils.json_parsing import normalize_list
 
 @dataclass
 class PredefinedExtensions:
     image: str = ""
-    image_tag: str = ""
     pre_package_install: List[str] = field(default_factory=list)
     additional_apt_packages: List[str] = field(default_factory=list)
     post_package_install: List[str] = field(default_factory=list)
@@ -53,7 +52,6 @@ class DockerfileHandler(FileHandler[DockerfileExtension]):
         data: Dict[str, Any] = json.load(file)
         predefs = PredefinedExtensions(
             image=data.get("image", None),
-            image_tag=data.get("image_tag", None),
             pre_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("pre_package_install", [])),
             additional_apt_packages=normalize_list(data.get("pre-defined-extensions", {}).get("additional_apt_packages", [])),
             post_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("post_package_install", [])),

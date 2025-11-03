@@ -16,7 +16,8 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 @dataclass(frozen=True)
-class DEFAULTS:
+class DEFAULT_IMAGES:
 
     # Default Ubuntu image
-    DEFAULT_UBUNTU_IMG: ClassVar[str] = "ubuntu:24.04"
+    UBUNTU: ClassVar[str] = "ubuntu:24.04"
+    ROS2_DESKTOP_FULL: ClassVar[str] = "osrf/ros:{ros_distro}-desktop-full"

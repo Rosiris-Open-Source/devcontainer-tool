@@ -60,6 +60,7 @@ setup(
         ],
         'devc_commands.dockerfile.plugins': [
             'base-setup = devc_plugins.plugins.base_setup.base_dockerfile:BaseDockerfilePlugin',
+            'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full:Ros2DesktopFullImagePlugin',
         ],
         'devc_cli.command': [
             'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',

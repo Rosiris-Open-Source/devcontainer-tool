@@ -14,6 +14,7 @@
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
+from pathlib import Path
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.defaults import DEFAULT_IMAGES
@@ -24,17 +25,26 @@ from devc.core.models.options import DockerfileOptions
 from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
 from devc.dockerfile_creation_service import DockerfileCreationService
-from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
+from devc.utils.path_utils import IsEmptyOrNewDir
+from devc.utils.string_formatting import can_format_with
 
 console = Console()
-class BaseDockerfilePlugin(Plugin):
-    """Create the a basic development container setup."""
+class Ros2DesktopFullImagePlugin(Plugin):
+    """Create the a basic ROS2 development container setup."""
 
     def add_arguments(self, parser, cli_name):
-        parser.add_argument(
+        img_group = parser.add_mutually_exclusive_group(required=False)
+        img_group.add_argument(
             "--image",
-            help=f"Image to use. (Default: {DEFAULT_IMAGES.UBUNTU})",
-            default=f"{DEFAULT_IMAGES.UBUNTU}", 
+            help=f"Image to use if not use the {DEFAULT_IMAGES.ROS2_DESKTOP_FULL}",
+            default=f"{DEFAULT_IMAGES.ROS2_DESKTOP_FULL}", 
+            nargs="?"
+        )
+        img_group.add_argument(
+            "--ros-distro",
+            help="ROS 2 distribution to use (Humble or newer). Image based on osrf/ros:ros_distro-desktop-full.",
+            choices=["humble", "iron", "jazzy", "kilted", "rolling"], 
+            default="rolling", 
             nargs="?"
         )
         parser.add_argument(
@@ -45,35 +55,33 @@ class BaseDockerfilePlugin(Plugin):
             nargs="?"
         )
         parser.add_argument(
-            "--extend-with",
-            help="path to a .json file to extend the Dockerfile.",
-            type=IsExistingFile(),
-            default=str(TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)), 
-            nargs="?"
-        )
-        parser.add_argument(
             "--override",
             help="Override the existing Dockerfile if it exists.",
             action="store_true",
             default=False
         )
-    
+
     def _create_handler_from_args(self, args) -> DockerfileHandler:
+
         options = DockerfileOptions(
-            image=args.image,
+            image="",
             path=args.path,
-            extend_with=args.extend_with,
+            extend_with=Path(__file__).parent / "ros2_desktop_full_image_patch.json",
             override=args.override
         )
         dockerfile_handler : DockerfileHandler = DockerfileHandler(options)
 
         # Apply overrides
-        # Override image and tag if provided via CLI
-        if options.image:
-            dockerfile_handler.content.pre_defined_extensions.image = options.image
+        # Override image with osrf/ros:{ros_distro}-desktop-full or user given one
+        if args.image and can_format_with(args.image, "ros_distro"):
+            if args.ros_distro:
+                dockerfile_handler.content.pre_defined_extensions.image = args.image.format(ros_distro=args.ros_distro)
+            else:
+                raise ValueError("The passed image should be formatted with \"ros_distro\", but no ros_distro passes as argument. Pass ros_distro with --ros-distro=<ros_distro>.")
+        elif args.image:
+            dockerfile_handler.content.pre_defined_extensions.image = args.image
 
         return dockerfile_handler
-        
 
     def main(self, *, args):
         dockerfile_handler: DockerfileHandler = self._create_handler_from_args(args)

@@ -28,17 +28,18 @@ RUN apt-get update && apt-get install -y \
     git \
     lsb-release \
     sudo \
+    trash-cli \
     tree \
     vim \
     wget \
     {%- for pkg in additional_apt_packages %}
-        {{ pkg }}{% if not loop.last %} \{% endif %}
+    {{ pkg }} \
     {%- endfor %}
     && rm -rf /var/lib/apt/lists/*
 
-{%- if post_package_install %}
-{{ post_package_install }}
-{%- endif %}
+{%- for command in post_package_install %}
+{{ command }}
+{%- endfor %}
 
 # Remove existing ubuntu user if it exists and conflicts
 RUN if id "ubuntu" &>/dev/null; then \
@@ -62,9 +63,9 @@ RUN groupadd --gid "${GID}" "${USER}" && \
     chmod 0440 /etc/sudoers.d/sudogrp && \
     chown ${UID}:${GID} -R /home/${USER}
 
-{%- if additional_sudo_commands %}
-{{ additional_sudo_commands }}
-{%- endif %}
+{%- for command in additional_sudo_commands %}
+{{ command }}
+{%- endfor %}
 
 USER $USER
 WORKDIR /home/$USER
@@ -72,9 +73,9 @@ WORKDIR /home/$USER
 # Create workspace directory with correct ownership
 RUN mkdir -p /home/$USER/workspace
 
-{%- if additional_user_commands %}
-{{ additional_user_commands }}
-{%- endif %}
+{%- for command in additional_user_commands %}
+{{ command }}
+{%- endfor %}
 
 # Set up entrypoint
 ENTRYPOINT ["/bin/bash", "-c", "exec bash"]
