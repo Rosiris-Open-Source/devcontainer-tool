@@ -104,7 +104,7 @@ class BaseDevJsonPlugin(Plugin):
 
         except DevJsonTemplateNotFoundError as e:
             console.print(Panel.fit(
-                Text(str(e), style="bold red"),
+                Text(str(e)),
                 title="[red]Template Not Found[/red]",
                 border_style="red"
             ))
@@ -112,7 +112,7 @@ class BaseDevJsonPlugin(Plugin):
 
         except DevJsonExistsError as e:
             console.print(Panel.fit(
-                Text(str(e), style="bold yellow"),
+                Text(str(e)),
                 title="[yellow]File Already Exists[/yellow]",
                 border_style="yellow"
             ))
@@ -120,7 +120,7 @@ class BaseDevJsonPlugin(Plugin):
 
         except DevJsonTemplateRenderError as e:
             console.print(Panel.fit(
-                Text(str(e) + "\nType -h for help.", style="bold red"),
+                Text(str(e) + "\nType -h for help."),
                 title="[red]Template Render Error[/red]",
                 border_style="red"
             ))

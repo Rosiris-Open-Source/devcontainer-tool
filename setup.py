@@ -59,7 +59,7 @@ setup(
             'base-setup = devc_plugins.plugins.base_setup.base_dev_json:BaseDevJsonPlugin',
         ],
         'devc_commands.dockerfile.plugins': [
-            'base-setup = devc_plugins.plugins.base_setup.base_dockerfile:BaseDockerfilePlugin',
+            'base-setup = devc_plugins.plugins.base_setup.base_dockerfile:DockerfilePlugin',
             'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full:Ros2DesktopFullImagePlugin',
         ],
         'devc_cli.command': [

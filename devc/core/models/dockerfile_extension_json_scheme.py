@@ -19,6 +19,7 @@ from typing_extensions import override
 from typing import Any
 
 from devc.core.file_handler_interface import FileHandler
+from devc.core.models.options import DockerfileOptions
 from devc.utils.json_parsing import normalize_list
 
 @dataclass
@@ -46,6 +47,10 @@ class DockerfileExtension:
 
 
 class DockerfileHandler(FileHandler[DockerfileExtension]):
+    options: DockerfileOptions
+
+    def override_image(self, image: str) -> None:
+        self.content.pre_defined_extensions.image = image
 
     @override
     def parse_file(self, file) -> DockerfileExtension:

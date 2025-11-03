@@ -11,98 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
 
-from devc_cli_plugin_system.plugin import Plugin
+from pathlib import Path
+
+from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.constants.defaults import DEFAULT_IMAGES
 from devc.constants.templates import TEMPLATES
-from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
-from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
-from devc.core.models.options import DockerfileOptions
-from devc.core.template_loader import TemplateLoader
-from devc.core.template_machine import TemplateMachine
-from devc.dockerfile_creation_service import DockerfileCreationService
-from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
 
-console = Console()
-class BaseDockerfilePlugin(Plugin):
-    """Create the a basic development container setup."""
+class DockerfilePlugin(DockerfilePluginBase):
+    """Create a basic development container setup."""
+    DEFAULT_IMAGE = DEFAULT_IMAGES.UBUNTU
 
-    def add_arguments(self, parser, cli_name):
-        parser.add_argument(
-            "--image",
-            help=f"Image to use. (Default: {DEFAULT_IMAGES.UBUNTU})",
-            default=f"{DEFAULT_IMAGES.UBUNTU}", 
-            nargs="?"
-        )
-        parser.add_argument(
-            "--path",
-            help="Where to create the devcontainer folder and files.",
-            type=IsEmptyOrNewDir(must_be_empty=False),
-            default=str(TEMPLATES.get_target_default_dir(TEMPLATES.BASE_DOCKERFILE)), 
-            nargs="?"
-        )
-        parser.add_argument(
-            "--extend-with",
-            help="path to a .json file to extend the Dockerfile.",
-            type=IsExistingFile(),
-            default=str(TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)), 
-            nargs="?"
-        )
-        parser.add_argument(
-            "--override",
-            help="Override the existing Dockerfile if it exists.",
-            action="store_true",
-            default=False
-        )
-    
-    def _create_handler_from_args(self, args) -> DockerfileHandler:
-        options = DockerfileOptions(
-            image=args.image,
-            path=args.path,
-            extend_with=args.extend_with,
-            override=args.override
-        )
-        dockerfile_handler : DockerfileHandler = DockerfileHandler(options)
-
-        # Apply overrides
-        # Override image and tag if provided via CLI
-        if options.image:
-            dockerfile_handler.content.pre_defined_extensions.image = options.image
-
-        return dockerfile_handler
-        
-
-    def main(self, *, args):
-        dockerfile_handler: DockerfileHandler = self._create_handler_from_args(args)
-
-        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
-        dockerfile_creator = DockerfileCreationService(template_machine=TemplateMachine(), loader=loader)
-        try:
-            dockerfile_creator.create_dockerfile(template_file=TEMPLATES.BASE_DOCKERFILE, dockerfile_handler=dockerfile_handler)
-
-        except DockerfileTemplateNotFoundError as e:
-            console.print(Panel.fit(
-                Text(str(e), style="bold red"),
-                title="[red]Template Not Found[/red]",
-                border_style="red"
-            ))
-            return 1
-
-        except DockerfileExistsError as e:
-            console.print(Panel.fit(
-                Text(str(e), style="bold yellow"),
-                title="[yellow]File Already Exists[/yellow]",
-                border_style="yellow"
-            ))
-            return 1
-
-        except DockerfileTemplateRenderError as e:
-            console.print(Panel.fit(
-                Text(str(e), style="bold red"),
-                title="[red]Template Render Error[/red]",
-                border_style="red"
-            ))
-            return 1
+    def _get_extend_file(self) -> Path:
+        # extend with the default extension stub
+        return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)
