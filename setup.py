@@ -47,7 +47,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'devc = devc_cli_plugin_system.cli:main',
+            'devc = devc_cli_plugin_system.cli:main', # Global entry point for devc (devcontainer-tool)
         ],
         'devc_commands.dev_json.plugins.extensions': [
             'nvidia = devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension',

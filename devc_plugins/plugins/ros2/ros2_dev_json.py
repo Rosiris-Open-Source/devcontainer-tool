@@ -41,11 +41,6 @@ class Ros2DevJsonPlugin(Plugin):
         )
 
     def main(self, *, args):#
-        print(f"Creating base devcontainer setup in '{args.path}' for ROS {args.ros_distro}...")
-        print(f"{TEMPLATES.TEMPLATE_DIR}")
-        print(f"{TEMPLATES.BASE_DOCKERFILE} -> {TEMPLATES.get_target_path(TEMPLATES.BASE_DOCKERFILE)}")
-        print(f"{TEMPLATES.DEVCONTAINER_JSON} -> {TEMPLATES.get_target_path(TEMPLATES.DEVCONTAINER_JSON)}")
         loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
         template = loader.load_template(TEMPLATES.BASE_DOCKERFILE)
-        print(loader.render_template(TEMPLATES.BASE_DOCKERFILE, {"pre_package_install" :"RUN banane"}))
         return 0

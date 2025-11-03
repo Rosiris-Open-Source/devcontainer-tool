@@ -11,9 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from copy import deepcopy
 from dataclasses import asdict
-from devc.core.logging import logger
 from pathlib import Path
 from pathlib import Path
 from typing import Any, Dict
@@ -24,11 +22,13 @@ import re
 from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonExtensionManager
 from devc.constants.templates import TEMPLATES
 from devc.core.error.devcontainer_json_errors import DevJsonTemplateNotFoundError, DevJsonTemplateRenderError, DevJsonExistsError
-from devc.core.logging import logger
 from devc.core.models.devcontainer_extension_json_scheme import DevJsonHandler
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
+from devc.utils.logging import get_logger
 from devc.utils.merge_dicts import AppendListMerge
+
+logger = get_logger(__name__)
 
 class DevcontainerJsonCreationService:
     def __init__(self, *, template_machine: TemplateMachine, loader: TemplateLoaderABC, ext_manager: DevJsonExtensionManager):

@@ -17,11 +17,12 @@ import jinja2
 
 from devc.constants.templates import TEMPLATES
 from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
-from devc.core.logging import logger
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
+from devc.utils.logging import get_logger
 
+logger = get_logger(__name__)
 class DockerfileCreationService:
     def __init__(self, template_machine: TemplateMachine, loader: TemplateLoaderABC):
         self.template_machine = template_machine

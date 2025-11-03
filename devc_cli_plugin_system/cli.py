@@ -21,9 +21,12 @@ import signal
 import sys
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
+from devc.utils.logging import setup_logging
 
 
 def main(*, script_name='devc', argv=None, description=None, extension=None):
+    # setup the logger once globally
+    logger = setup_logging()
     if description is None:
         description = f'{script_name} is an extensible command-line tool ' \
             'for creating development containers.'
@@ -58,7 +61,8 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
     # register argcomplete hook if available
     try:
         from argcomplete import autocomplete
-    except ImportError:
+    except ImportError as e:
+        logger.debug("Argcomplete could not be imported. Error when importing: {e}")
         pass
     else:
         autocomplete(parser, exclude=['-h', '--help'])
@@ -72,10 +76,11 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
         # https://docs.python.org/3/library/io.html#io.TextIOWrapper.reconfigure
         try:
             sys.stdout.reconfigure(line_buffering=True)
-        except AttributeError:
+        except AttributeError as e:
             # if stdout is not a TextIoWrapper instance, or we're using python older than 3.7,
             # force line buffering by patching print
             builtins.print = functools.partial(print, flush=True)
+            logger.debug(f"Attribute Error: {e}, when reconfiguring sys.stdout.reconfigure(line_buffering=True)")
 
     if extension is None:
         # get extension identified by the passed command (if available)

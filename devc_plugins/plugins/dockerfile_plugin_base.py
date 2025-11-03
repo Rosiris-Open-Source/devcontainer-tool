@@ -12,25 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import ABC, abstractmethod
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
 from pathlib import Path
 
 from devc_cli_plugin_system.plugin import Plugin
-from devc.constants.templates import TEMPLATES
 from devc.constants.defaults import DEFAULT_IMAGES
-from devc.core.models.options import DockerfileOptions
+from devc.constants.templates import TEMPLATES
+from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
+from devc.core.models.options import DockerfileOptions
 from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
 from devc.dockerfile_creation_service import DockerfileCreationService
+from devc.utils.console import print_error, print_warning
 from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
-from devc.core.error.dockerfile_errors import (
-    DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
-)
-
-console = Console()
 
 class DockerfilePluginBase(Plugin, ABC):
     """Abstract base for all Dockerfile-creating plugins."""
@@ -73,13 +67,13 @@ class DockerfilePluginBase(Plugin, ABC):
         try:
             creator.create_dockerfile(template_file=self.DEFAULT_TEMPLATE, dockerfile_handler=dockerfile_handler)
         except DockerfileTemplateNotFoundError as e:
-            self._print_error("Template Not Found", str(e))
+            print_error("Template Not Found", str(e))
             return 1
         except DockerfileExistsError as e:
-            self._print_warning("File Already Exists", str(e))
+            print_warning("File Already Exists", str(e))
             return 1
         except DockerfileTemplateRenderError as e:
-            self._print_error("Template Render Error", str(e))
+            print_error("Template Render Error", str(e))
             return 1
 
     @abstractmethod
@@ -107,11 +101,3 @@ class DockerfilePluginBase(Plugin, ABC):
         dockerfile_handler = DockerfileHandler(options)
         self._apply_args_to_handler(dockerfile_handler, args)
         return dockerfile_handler
-
-    def _print_error(self, title, message):
-        color = "red"
-        console.print(Panel.fit(Text(message), title=f"[{color}]{title}[/{color}]", border_style=color))
-
-    def _print_warning(self, title, message):
-        color = "yellow"
-        console.print(Panel.fit(Text(message), title=f"[{color}]{title}[/{color}]", border_style=color))
