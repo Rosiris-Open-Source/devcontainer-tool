@@ -17,7 +17,7 @@ from dataclasses import dataclass, asdict
 from typing import Dict, Any
 from typing_extensions import override
 
-from devc.utils.file_handler_interface import FileHandler
+from devc.core.file_handler_interface import FileHandler
 
 
 @dataclass
