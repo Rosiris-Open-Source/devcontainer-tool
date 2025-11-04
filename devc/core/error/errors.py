@@ -1,0 +1,2 @@
+class DependencyMissing(RuntimeError):
+    pass
