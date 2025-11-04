@@ -22,7 +22,7 @@ from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.core.models.options import DockerfileOptions
 from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
-from devc.dockerfile_creation_service import DockerfileCreationService
+from devc.core.dockerfile_creation_service import DockerfileCreationService
 from devc.utils.console import print_error, print_warning
 from devc.utils.argparse_validators import IsEmptyOrNewDir, IsExistingFile
 

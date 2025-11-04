@@ -23,7 +23,7 @@ from devc.core.models.devcontainer_extension_json_scheme import DevJsonHandler
 from devc.core.models.options import DevContainerJsonOptions
 from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
-from devc.devcontainer_json_creation_service import DevcontainerJsonCreationService
+from devc.core.devcontainer_json_creation_service import DevcontainerJsonCreationService
 from devc.utils.argparse_validators import IsEmptyOrNewDir, IsExistingFile
 from devc.utils.console import print_error, print_warning
 
