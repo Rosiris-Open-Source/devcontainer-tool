@@ -33,6 +33,28 @@ class IsEmptyOrNewDir:
 
         return p
     
+class IsExistingFile:
+        
+    def __call__(self, path: Optional[Union[str, Path]]) -> Path:
+        p = Path(path).expanduser().resolve()
+
+        if not p.exists():
+            raise argparse.ArgumentTypeError(f"The passed file {p} does not exist.")
+        if p.is_dir():
+            raise argparse.ArgumentTypeError(f"The passed path {p} is a directory, expected a file.")
+
+        return p
+    
+class IsPositiveInt:
+    def __call__(self, value: str) -> int:
+        try:
+            ivalue = int(value)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"{value!r} is not a valid integer.")
+        if ivalue < 0:
+            raise argparse.ArgumentTypeError("Not a positive integer.")
+        return ivalue
+    
 class IsValidFileType:
     def __init__(self, valid_file_types: List[str]):
         self.valid_file_types = [ ending if ending.startswith(".") else f".{ending}" for ending in valid_file_types ]
@@ -49,15 +71,3 @@ class IsValidFileType:
 
         return p
     
-class IsExistingFile:
-        
-    def __call__(self, path: Optional[Union[str, Path]]) -> Path:
-        p = Path(path).expanduser().resolve()
-
-        if not p.exists():
-            raise argparse.ArgumentTypeError(f"The passed file {p} does not exist.")
-        if p.is_dir():
-            raise argparse.ArgumentTypeError(f"The passed path {p} is a directory, expected a file.")
-
-
-        return p

@@ -56,10 +56,11 @@ setup(
             'usb = devc_plugins.plugin_extensions.dev_json_extensions.usb_extension:UsbExtension',
         ],
         'devc_commands.dev_json.plugins': [
-            'base-setup = devc_plugins.plugins.base_setup.base_dev_json:DevJsonPlugin',
+            'base-setup = devc_plugins.plugins.dev_json_plugin_base:DevJsonPluginBase',
+            'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin'
         ],
         'devc_commands.dockerfile.plugins': [
-            'base-setup = devc_plugins.plugins.base_setup.base_dockerfile:DockerfilePlugin',
+            'base-setup = devc_plugins.plugins.dockerfile_plugin_base:DockerfilePluginBase',
             'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full:Ros2DesktopFullImagePlugin',
         ],
         'devc_cli.command': [

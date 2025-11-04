@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from abc import ABC, abstractmethod
 from pathlib import Path
 from typing_extensions import override
 
@@ -25,10 +24,10 @@ from devc.core.template_loader import TemplateLoader
 from devc.core.template_machine import TemplateMachine
 from devc.dockerfile_creation_service import DockerfileCreationService
 from devc.utils.console import print_error, print_warning
-from devc.utils.path_utils import IsEmptyOrNewDir, IsExistingFile
+from devc.utils.argparse_validators import IsEmptyOrNewDir, IsExistingFile
 
-class DockerfilePluginBase(Plugin, ABC):
-    """Abstract base for all Dockerfile-creating plugins."""
+class DockerfilePluginBase(Plugin):
+    """Create a basic Dockerfile."""
 
     DEFAULT_IMAGE = DEFAULT_IMAGES.UBUNTU
     DEFAULT_TEMPLATE = TEMPLATES.BASE_DOCKERFILE
@@ -79,10 +78,9 @@ class DockerfilePluginBase(Plugin, ABC):
             print_error(title="Template Render Error", message=str(e))
             return 1
 
-    @abstractmethod
     def _get_extend_file(self) -> Path:
         """Override to get path to patch file for Dockerfile file."""
-        pass
+        return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)
 
     def _add_custom_arguments(self, parser, cli_name) -> None:
         """Override to add extra plugin-specific args."""

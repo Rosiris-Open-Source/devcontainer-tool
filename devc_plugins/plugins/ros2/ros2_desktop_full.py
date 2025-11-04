@@ -35,9 +35,11 @@ class Ros2DesktopFullImagePlugin(DockerfilePluginBase):
             default="rolling", nargs="?"
         )
 
+    @override
     def _get_extend_file(self) -> Path:
         return Path(__file__).parent / "ros2_desktop_full_image_patch.json"
 
+    @override
     def _apply_args_to_handler(self, dockerfile_handler: DockerfileHandler, args):
         if args.image and can_format_with(args.image, "ros_distro"):
             dockerfile_handler.override_image(args.image.format(ros_distro=args.ros_distro))

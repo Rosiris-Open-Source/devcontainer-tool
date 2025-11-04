@@ -15,8 +15,9 @@
 from abc import abstractmethod
 from typing import Any, Dict
 
-from devc_cli_plugin_system.plugin_extensions import PluginExtension
 from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
+from devc_cli_plugin_system.plugin_extensions import PluginExtension, PluginExtensionContext
+from devc.utils.merge_dicts import MergeDictsStrategy, AppendListMerge
 
 class DevJsonPluginExtension(PluginExtension):
     """The base class for Rocker extension points"""
@@ -38,11 +39,20 @@ class DevJsonExtensionManager(ExtensionManager):
     """
     _called: Dict[str, DevJsonPluginExtension]
 
+    def __init__(self, context: PluginExtensionContext, args, merge_updates_strategy: MergeDictsStrategy = AppendListMerge()):
+        super().__init__(context, args, merge_updates_strategy)
+        self._additional_updates: list[dict[str, Any]] = []
+
     def get_combined_updates(self) -> Dict[str, Any]:
         """Merge updates from all called extensions."""
         merged = {}
         for _, ext in self.called_extensions.items():
             updates = ext.get_devcontainer_updates(vars(self.args))
             merged = self._merge_updates(merged, updates)
+        for update in self._additional_updates:
+            merged = self._merge_updates(merged, update)
         return merged
+    
+    def add_update(self, update:  Dict[str, Any]) -> None:
+        self._additional_updates.append(update)
 
