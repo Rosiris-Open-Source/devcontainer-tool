@@ -13,13 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from abc import ABC, abstractmethod
+from pathlib import Path
 
 from devc_cli_plugin_system.plugin_system import instantiate_extensions
 from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
 
 
-class Plugin:
+class Plugin(ABC):
     """
     The interface for a plugin.
 
@@ -37,6 +39,15 @@ class Plugin:
         super(Plugin, self).__init__()
         satisfies_version(PLUGIN_SYSTEM_VERSION, '^0.1')
 
+    @abstractmethod
+    def add_arguments(self, parser, cli_name):
+        pass
+
+    @abstractmethod
+    def main(self, *args, **kwargs) -> int:
+        """Main entry point for the plugin."""
+        pass
+    
 
 def get_plugin(name):
     extensions = instantiate_extensions(name)

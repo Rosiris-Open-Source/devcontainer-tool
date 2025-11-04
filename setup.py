@@ -56,7 +56,7 @@ setup(
             'usb = devc_plugins.plugin_extensions.dev_json_extensions.usb_extension:UsbExtension',
         ],
         'devc_commands.dev_json.plugins': [
-            'base-setup = devc_plugins.plugins.base_setup.base_dev_json:BaseDevJsonPlugin',
+            'base-setup = devc_plugins.plugins.base_setup.base_dev_json:DevJsonPlugin',
         ],
         'devc_commands.dockerfile.plugins': [
             'base-setup = devc_plugins.plugins.base_setup.base_dockerfile:DockerfilePlugin',

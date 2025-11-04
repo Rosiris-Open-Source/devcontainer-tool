@@ -13,6 +13,7 @@
 # limitations under the License.
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing_extensions import override
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.defaults import DEFAULT_IMAGES
@@ -32,7 +33,8 @@ class DockerfilePluginBase(Plugin, ABC):
     DEFAULT_IMAGE = DEFAULT_IMAGES.UBUNTU
     DEFAULT_TEMPLATE = TEMPLATES.BASE_DOCKERFILE
 
-    def add_arguments(self, parser, cli_name):
+    @override
+    def add_arguments(self, parser, cli_name) -> None:
         parser.add_argument(
             "--image",
             help=f"Base image to use. (Default: {self.DEFAULT_IMAGE})",
@@ -60,32 +62,33 @@ class DockerfilePluginBase(Plugin, ABC):
         )
         self._add_custom_arguments(parser, cli_name)
 
-    def main(self, *, args):
+    @override
+    def main(self, *, args) -> int:
         dockerfile_handler = self._create_handler_from_args(args)
         loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
         creator = DockerfileCreationService(template_machine=TemplateMachine(), loader=loader)
         try:
             creator.create_dockerfile(template_file=self.DEFAULT_TEMPLATE, dockerfile_handler=dockerfile_handler)
         except DockerfileTemplateNotFoundError as e:
-            print_error("Template Not Found", str(e))
+            print_error(title="Template Not Found", message=str(e))
             return 1
         except DockerfileExistsError as e:
-            print_warning("File Already Exists", str(e))
+            print_warning(title="File Already Exists",message=str(e))
             return 1
         except DockerfileTemplateRenderError as e:
-            print_error("Template Render Error", str(e))
+            print_error(title="Template Render Error", message=str(e))
             return 1
 
     @abstractmethod
     def _get_extend_file(self) -> Path:
-        """Override to apply patch to Dockerfile. Each plugin must define JSON patch file."""
+        """Override to get path to patch file for Dockerfile file."""
         pass
 
-    def _add_custom_arguments(self, parser, cli_name):
+    def _add_custom_arguments(self, parser, cli_name) -> None:
         """Override to add extra plugin-specific args."""
         pass
 
-    def _apply_args_to_handler(self, dockerfile_handler: DockerfileHandler, args):
+    def _apply_args_to_handler(self, dockerfile_handler: DockerfileHandler, args) -> None:
         """Override to modify the DockerfileHandler after creation. Don't forget to override the image if set with args."""
         if args.image:
             dockerfile_handler.override_image(args.image)
@@ -100,4 +103,5 @@ class DockerfilePluginBase(Plugin, ABC):
 
         dockerfile_handler = DockerfileHandler(options)
         self._apply_args_to_handler(dockerfile_handler, args)
+
         return dockerfile_handler

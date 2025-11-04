@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pathlib import Path
+from typing_extensions import override
 
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.constants.defaults import DEFAULT_IMAGES
@@ -20,8 +21,8 @@ from devc.constants.templates import TEMPLATES
 
 class DockerfilePlugin(DockerfilePluginBase):
     """Create a basic development container setup."""
-    DEFAULT_IMAGE = DEFAULT_IMAGES.UBUNTU
 
+    @override
     def _get_extend_file(self) -> Path:
-        # extend with the default extension stub
+        # get the default patch defined in the templates dir
         return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)

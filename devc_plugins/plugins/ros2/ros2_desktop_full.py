@@ -14,6 +14,7 @@
 # devc/plugins/dockerfile_ros2_plugin.py
 
 from pathlib import Path
+from typing_extensions import override
 
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.constants.defaults import DEFAULT_IMAGES
@@ -25,6 +26,7 @@ class Ros2DesktopFullImagePlugin(DockerfilePluginBase):
 
     DEFAULT_IMAGE = DEFAULT_IMAGES.ROS2_DESKTOP_FULL
 
+    @override
     def _add_custom_arguments(self, parser, cli_name):
         parser.add_argument(
             "--ros-distro",
