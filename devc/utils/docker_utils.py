@@ -1,6 +1,6 @@
 import docker
 from packaging.version import Version
-from devc.core.error.errors import DependencyMissing
+from devc.core.exceptions.devc_exceptions import DependencyMissing
 
 
 def get_docker_client():

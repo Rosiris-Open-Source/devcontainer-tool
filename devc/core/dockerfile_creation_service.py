@@ -16,7 +16,7 @@ from pathlib import Path
 import jinja2
 
 from devc.constants.templates import TEMPLATES
-from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
+from devc.core.exceptions.dockerfile_exceptions import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine

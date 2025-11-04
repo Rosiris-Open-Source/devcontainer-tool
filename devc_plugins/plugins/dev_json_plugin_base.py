@@ -18,7 +18,7 @@ from typing import Any, Dict
 from devc_cli_plugin_system.plugin import Plugin
 from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonExtensionManager
 from devc.constants.templates import TEMPLATES
-from devc.core.error.devcontainer_json_errors import DevJsonTemplateNotFoundError, DevJsonTemplateRenderError, DevJsonExistsError
+from devc.core.exceptions.devcontainer_json_exception import DevJsonTemplateNotFoundError, DevJsonTemplateRenderError, DevJsonExistsError
 from devc.core.models.devcontainer_extension_json_scheme import DevJsonHandler
 from devc.core.models.options import DevContainerJsonOptions
 from devc.core.template_loader import TemplateLoader

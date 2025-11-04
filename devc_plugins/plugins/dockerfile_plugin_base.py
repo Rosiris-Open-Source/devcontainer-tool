@@ -17,7 +17,7 @@ from typing_extensions import override
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.defaults import DEFAULT_IMAGES
 from devc.constants.templates import TEMPLATES
-from devc.core.error.dockerfile_errors import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
+from devc.core.exceptions.dockerfile_exceptions import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.core.models.options import DockerfileOptions
 from devc.core.template_loader import TemplateLoader
