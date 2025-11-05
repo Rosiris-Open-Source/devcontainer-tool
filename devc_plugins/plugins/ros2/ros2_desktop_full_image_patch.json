@@ -1,6 +1,6 @@
 {
     "pre-defined-extensions": {
-        "image" : "",
+        "image" : "osrf/ros:${ROS_DISTRO}-desktop-full",
         "pre_package_install" : [""],
         "additional_apt_packages" : ["build-essential", "cmake", "gdb", "net-tools", "python3", "python3-pip", "python3-venv", "ros-dev-tools", "software-properties-common"], 
         "post_package_install" : [

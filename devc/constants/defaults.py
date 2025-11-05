@@ -21,4 +21,3 @@ class DEFAULT_IMAGES:
 
     # Default Ubuntu image
     UBUNTU: ClassVar[str] = "ubuntu:24.04"
-    ROS2_DESKTOP_FULL: ClassVar[str] = "osrf/ros:{ros_distro}-desktop-full"

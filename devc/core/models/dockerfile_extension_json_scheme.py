@@ -47,7 +47,6 @@ class DockerfileExtension:
 
 
 class DockerfileHandler(FileHandler[DockerfileExtension]):
-    options: DockerfileOptions
 
     def override_image(self, image: str) -> None:
         self.content.pre_defined_extensions.image = image
@@ -56,7 +55,7 @@ class DockerfileHandler(FileHandler[DockerfileExtension]):
     def parse_file(self, file) -> DockerfileExtension:
         data: Dict[str, Any] = json.load(file)
         predefs = PredefinedExtensions(
-            image=data.get("image", None),
+            image=data.get("pre-defined-extensions", {}).get("image", None),
             pre_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("pre_package_install", [])),
             additional_apt_packages=normalize_list(data.get("pre-defined-extensions", {}).get("additional_apt_packages", [])),
             post_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("post_package_install", [])),

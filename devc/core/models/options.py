@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-
+from typing import Any, Dict
 @dataclass
 class Options:
     path: Path = Path("")

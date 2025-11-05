@@ -20,6 +20,7 @@ from devc.core.exceptions.dockerfile_exceptions import DockerfileTemplateNotFoun
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
+from devc.core.models.options import DockerfileOptions
 from devc.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -31,7 +32,8 @@ class DockerfileCreationService:
     def create_dockerfile(
         self,
         template_file: str,
-        dockerfile_handler: DockerfileHandler
+        dockerfile_handler: DockerfileHandler,
+        options: DockerfileOptions
     ) -> None:
         try:
             template = self.loader.load_template(template_file)
@@ -41,8 +43,8 @@ class DockerfileCreationService:
                          TEMPLATES.TEMPLATE_DIR)
             raise DockerfileTemplateNotFoundError(f"Template {template_file} not found")
 
-        path: Path = dockerfile_handler.options.path / TEMPLATES.get_target_filename(template_file)
-        if not dockerfile_handler.options.override and path.exists():
+        path: Path = options.path / TEMPLATES.get_target_filename(template_file)
+        if not options.override and path.exists():
             logger.warning("Target file %s already exists", path)
             raise DockerfileExistsError(f"The target file '{path}' already exists.")
 

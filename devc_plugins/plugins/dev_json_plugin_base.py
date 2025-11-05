@@ -75,14 +75,24 @@ class DevJsonPluginBase(Plugin):
         )
         self._add_custom_arguments(parser, cli_name)
     
+    def _get_extend_file(self) -> Path:
+        """Override to apply patch though an extension file (jinja template) to devcontainer.json file."""
+        return TEMPLATES.get_template_path(TEMPLATES.DEVCONTAINER_EXTENSIONS_JSON)
+
+    def _add_custom_arguments(self, parser, cli_name) -> None:
+        """Override to add extra plugin-specific args."""
+        pass
+        
     @override
     def main(self, *, ext_manager: DevJsonExtensionManager, parser, args) -> int:
-        dev_json_handler: DevJsonHandler = self._create_handler_from_args(args)
-        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
-        self._add_direct_json_patch(ext_manager, args)
-        dev_json_creator = DevcontainerJsonCreationService(template_machine=TemplateMachine(), loader=loader, ext_manager=ext_manager)
+        self._add_live_json_patch(ext_manager, args)
+        # create the file patch handler and update with given arguments
+        dev_json_handler = self._create_handler_from_args(args)
+        self._apply_overrides_to_handler_content(dev_json_handler, args)
+        options = self._create_options_from_args(args)
+        dev_json_creator = DevcontainerJsonCreationService(template_machine=TemplateMachine(), loader=TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR), ext_manager=ext_manager)
         try:
-            dev_json_creator.create_devcontainer_json(template_file=self.DEFAULT_TEMPLATE, dev_json=dev_json_handler)
+            dev_json_creator.create_devcontainer_json(template_file=self.DEFAULT_TEMPLATE, dev_json=dev_json_handler, options=options)
 
         except DevJsonTemplateNotFoundError as e:
             print_error(title="Template Not Found", message=str(e))
@@ -95,24 +105,19 @@ class DevJsonPluginBase(Plugin):
         except DevJsonTemplateRenderError as e:
             print_error(title="Template Render Error", message=str(e))
             return 1
-    
-    def _get_direct_json_patch(self, args) -> Dict[str, Any]:
-        """Override to apply a patch direct to devcontainer.json. This is possible since json is a structured format."""
-        return {}
-    
-    def _add_direct_json_patch(self, ext_manager:DevJsonExtensionManager, args):
+        
+    def _add_live_json_patch(self, ext_manager: DevJsonExtensionManager, args):
         patch = self._get_direct_json_patch(args)
         ext_manager.add_update(patch)
 
-    def _add_custom_arguments(self, parser, cli_name) -> None:
-        """Override to add extra plugin-specific args."""
-        pass
+    def _get_direct_json_patch(self, args) -> Dict[str, Any]:
+        """Override to apply a patch direct to devcontainer.json. This is possible since json is a structured format."""
+        return {}
+       
+    def _create_handler_from_args(self, args) -> DevJsonHandler:
+        return DevJsonHandler(args.extend_with)
 
-    def _get_extend_file(self) -> Path:
-        """Override to apply patch though an extension file (jinja template) to devcontainer.json file."""
-        return TEMPLATES.get_template_path(TEMPLATES.DEVCONTAINER_EXTENSIONS_JSON)
-
-    def _apply_args_to_handler(self, dev_json_handler: DevJsonHandler, args) -> None:
+    def _apply_overrides_to_handler_content(self, dev_json_handler: DevJsonHandler, args) -> None:
         """Override to modify the DevJsonHandler after creation. Don't forget to override the image if set with args."""
         # Apply overrides
         if args.name:
@@ -121,18 +126,11 @@ class DevJsonPluginBase(Plugin):
             dev_json_handler.content.pre_defined_extensions.image = args.image
         if args.dockerfile:
             dev_json_handler.content.pre_defined_extensions.dockerfile = args.dockerfile
-        
-    def _create_handler_from_args(self, args) -> DevJsonHandler:
-        options = DevContainerJsonOptions(
-            name=args.name,
-            image=args.image,
-            dockerfile=args.dockerfile,
-            path=args.path,
-            extend_with=args.extend_with,
-            override=args.override
-        )
-        
-        dev_json_handler : DevJsonHandler = DevJsonHandler(options)
-        self._apply_args_to_handler(dev_json_handler, args)
-
-        return dev_json_handler
+    
+    def _create_options_from_args(self, args) -> DevContainerJsonOptions:
+        return DevContainerJsonOptions(name=args.name,
+                                        image=args.image,
+                                        dockerfile=args.dockerfile,
+                                        path=args.path,
+                                        extend_with=args.extend_with,
+                                        override=args.override)

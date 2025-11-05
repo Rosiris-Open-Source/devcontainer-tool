@@ -61,13 +61,22 @@ class DockerfilePluginBase(Plugin):
         )
         self._add_custom_arguments(parser, cli_name)
 
+    def _get_extend_file(self) -> Path:
+        """Override to get path to patch file for Dockerfile file."""
+        return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)
+
+    def _add_custom_arguments(self, parser, cli_name) -> None:
+        """Override to add extra plugin-specific args."""
+        pass
+
     @override
     def main(self, *, args) -> int:
         dockerfile_handler = self._create_handler_from_args(args)
-        loader = TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR)
-        creator = DockerfileCreationService(template_machine=TemplateMachine(), loader=loader)
+        self._apply_overrides_to_handler_content(dockerfile_handler, args)
+        options = self._create_options_from_args(args)
+        creator = DockerfileCreationService(template_machine=TemplateMachine(), loader=TemplateLoader(template_dir=TEMPLATES.TEMPLATE_DIR))
         try:
-            creator.create_dockerfile(template_file=self.DEFAULT_TEMPLATE, dockerfile_handler=dockerfile_handler)
+            creator.create_dockerfile(template_file=self.DEFAULT_TEMPLATE, dockerfile_handler=dockerfile_handler, options=options)
         except DockerfileTemplateNotFoundError as e:
             print_error(title="Template Not Found", message=str(e))
             return 1
@@ -78,28 +87,17 @@ class DockerfilePluginBase(Plugin):
             print_error(title="Template Render Error", message=str(e))
             return 1
 
-    def _get_extend_file(self) -> Path:
-        """Override to get path to patch file for Dockerfile file."""
-        return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)
-
-    def _add_custom_arguments(self, parser, cli_name) -> None:
-        """Override to add extra plugin-specific args."""
-        pass
-
-    def _apply_args_to_handler(self, dockerfile_handler: DockerfileHandler, args) -> None:
+    def _apply_overrides_to_handler_content(self, dockerfile_handler: DockerfileHandler, args) -> None:
         """Override to modify the DockerfileHandler after creation. Don't forget to override the image if set with args."""
         if args.image:
             dockerfile_handler.override_image(args.image)
 
     def _create_handler_from_args(self, args) -> DockerfileHandler:
-        options = DockerfileOptions(
-            image=args.image,
-            path=args.path,
-            extend_with=args.extend_with,
-            override=args.override
-        )
-
-        dockerfile_handler = DockerfileHandler(options)
+        return DockerfileHandler(args.extend_with)
         self._apply_args_to_handler(dockerfile_handler, args)
-
-        return dockerfile_handler
+    
+    def _create_options_from_args(self, args) -> DockerfileOptions:
+        return DockerfileOptions(image=args.image,
+                                    path=args.path,
+                                    extend_with=args.extend_with,
+                                    override=args.override)

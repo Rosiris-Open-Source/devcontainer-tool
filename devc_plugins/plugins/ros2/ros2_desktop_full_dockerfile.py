@@ -17,14 +17,13 @@ from pathlib import Path
 from typing_extensions import override
 
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
-from devc.constants.defaults import DEFAULT_IMAGES
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
-from devc.utils.string_formatting import can_format_with
+from devc.utils.substitute_placeholders import substitute_placeholders
 
-class Ros2DesktopFullImagePlugin(DockerfilePluginBase):
+class Ros2DesktopFullDockerfilePlugin(DockerfilePluginBase):
     """Create a ROS2 desktop-full development container setup."""
 
-    DEFAULT_IMAGE = DEFAULT_IMAGES.ROS2_DESKTOP_FULL
+    DEFAULT_IMAGE = "" # use default img from patch
 
     @override
     def _add_custom_arguments(self, parser, cli_name):
@@ -40,8 +39,12 @@ class Ros2DesktopFullImagePlugin(DockerfilePluginBase):
         return Path(__file__).parent / "ros2_desktop_full_image_patch.json"
 
     @override
-    def _apply_args_to_handler(self, dockerfile_handler: DockerfileHandler, args):
-        if args.image and can_format_with(args.image, "ros_distro"):
-            dockerfile_handler.override_image(args.image.format(ros_distro=args.ros_distro))
-        elif args.image:
-            dockerfile_handler.override_image(args.image)
+    def _apply_overrides_to_handler_content(self, dockerfile_handler: DockerfileHandler, args):
+        env = {"ROS_DISTRO": args.ros_distro}
+        # if image is given with args, we override the image given in the patch file
+        if args.image:
+            dockerfile_handler.override_image(substitute_placeholders(args.image, env))
+        
+        substitute_placeholders(dockerfile_handler.content, env)
+
+        

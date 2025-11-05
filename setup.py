@@ -50,18 +50,21 @@ setup(
             'devc = devc_cli_plugin_system.cli:main', # Global entry point for devc (devcontainer-tool)
         ],
         'devc_commands.dev_json.plugins.extensions': [
+            'gpu = devc_plugins.plugin_extensions.dev_json_extensions.gpu_device_extension:GpuDeviceExtension',
             'nvidia = devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension',
-            'ssh = devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension',
             'privileged = devc_plugins.plugin_extensions.dev_json_extensions.privileged_extension:PrivilegedExtension',
+            'ssh = devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension',
             'usb = devc_plugins.plugin_extensions.dev_json_extensions.usb_extension:UsbExtension',
         ],
         'devc_commands.dev_json.plugins': [
             'base-setup = devc_plugins.plugins.dev_json_plugin_base:DevJsonPluginBase',
+            'godot = devc_plugins.plugins.godot.godot_dev_json:GodotDevJsonPlugin',
             'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin'
         ],
         'devc_commands.dockerfile.plugins': [
             'base-setup = devc_plugins.plugins.dockerfile_plugin_base:DockerfilePluginBase',
-            'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full:Ros2DesktopFullImagePlugin',
+            'godot = devc_plugins.plugins.godot.godot_dockerfile:GodotDockerfilePlugin',
+            'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full_dockerfile:Ros2DesktopFullDockerfilePlugin',
         ],
         'devc_cli.command': [
             'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',

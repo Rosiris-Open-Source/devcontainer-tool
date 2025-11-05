@@ -27,6 +27,7 @@ from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
 from devc.utils.logging import get_logger
 from devc.utils.merge_dicts import AppendListMerge
+from devc.core.models.options import DevContainerJsonOptions
 
 logger = get_logger(__name__)
 
@@ -86,15 +87,16 @@ class DevcontainerJsonCreationService:
     def create_devcontainer_json(
         self,
         template_file: str,
-        dev_json: DevJsonHandler
+        dev_json: DevJsonHandler,
+        options: DevContainerJsonOptions
     ) -> None:
 
         template = self._load_template(template_file=template_file)
 
-        logger.info(f"Create a [bold blue]devcontainer.json[/bold blue] with following options:\n{dev_json.options}")
+        logger.info(f"Create a [bold blue]devcontainer.json[/bold blue] with following options:\n{options}")
         # check path
-        path: Path = dev_json.options.path / TEMPLATES.get_target_filename(template_file)
-        if not dev_json.options.override and path.exists():
+        path: Path = options.path / TEMPLATES.get_target_filename(template_file)
+        if not options.override and path.exists():
             logger.warning("Target file %s already exists", path)
             raise DevJsonExistsError(f"The target file '{path}' already exists.")
 

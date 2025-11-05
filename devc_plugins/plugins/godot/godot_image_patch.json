@@ -1,0 +1,20 @@
+{
+    "pre-defined-extensions": {
+        "image" : "",
+        "pre_package_install" : [""],
+        "additional_apt_packages" : [ "unzip", "build-essential", "python3", "python3-pip", "scons", "pkg-config", "libx11-dev", "libxcursor-dev", "libxrandr-dev", "libxinerama-dev", "libgl1-mesa-dev", "libpulse-dev", "libasound2-dev", "libxkbcommon0", "libxi6"], 
+        "post_package_install" : [
+          "# Make python and pip globally available if missing",
+          "RUN [ ! -e /usr/bin/python ] && ln -s /usr/bin/python3 /usr/bin/python || true &&  \\",
+          "\t[ ! -e /usr/bin/pip ] && ln -s /usr/bin/pip3 /usr/bin/pip || true",
+          "# Install Godot",
+          "RUN wget -O /tmp/${GODOT_ZIP} ${GODOT_URL} \\",
+          "\t&& unzip /tmp/${GODOT_ZIP} -d /opt/godot \\",
+          "\t&& rm /tmp/${GODOT_ZIP}",
+          "# link to make run able from cli",
+          "RUN ln -s /opt/godot/${GODOT} /usr/local/bin/godot"
+        ],
+        "additional_sudo_commands" : [""], 
+        "additional_user_commands" : [""]
+    }
+}

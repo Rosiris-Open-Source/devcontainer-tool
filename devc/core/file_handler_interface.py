@@ -23,9 +23,8 @@ T = TypeVar("T")  # content type
 
 
 class FileHandler(ABC, Generic[T]):
-    def __init__(self, options: Options) -> None:
-        self.options: Options = options
-        self.extend_file_path = Path(options.extend_with)
+    def __init__(self, file_path: Path) -> None:
+        self.extend_file_path = file_path
         self.content: Optional[T] = None
         self.load_file(self.extend_file_path)
 
