@@ -68,7 +68,8 @@ repos:
       - id: black
         args: ["--line-length=100"]
 
-  # Docs - RestructuredText hooks
+  ### Docs hooks ###
+  # RestructuredText
   - repo: https://github.com/PyCQA/doc8
     rev: v1.1.2
     hooks:
@@ -84,6 +85,7 @@ repos:
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
 
+  ### Miscellaneous  hooks ###
   # Spellcheck in comments and docs
   # skipping of *.svg files is not working...
   - repo: https://github.com/codespell-project/codespell
