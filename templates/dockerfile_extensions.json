@@ -2,9 +2,9 @@
     "pre-defined-extensions": {
         "image" : "",
         "pre_package_install" : [""],
-        "additional_apt_packages" : [""], 
+        "additional_apt_packages" : [""],
         "post_package_install" : [""],
-        "additional_sudo_commands" : [""], 
+        "additional_sudo_commands" : [""],
         "additional_user_commands" : [""]
     },
   "insertions": [

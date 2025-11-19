@@ -13,11 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""CommandExtension is the base for all plugins."""
+from abc import ABC, abstractmethod
 import argparse
 import inspect
 import os
 import types
+from typing import Any
+from collections.abc import Iterator
 
 from devc_cli_plugin_system.entry_points import get_entry_points
 from devc_cli_plugin_system.entry_points import get_first_line_doc
@@ -27,7 +30,7 @@ from devc_cli_plugin_system.plugin_system import satisfies_version
 from devc_cli_plugin_system.plugin_extensions import PluginExtensionContext
 
 
-class CommandExtension:
+class CommandExtension(ABC):
     """
     The extension point for 'command' extensions.
 
@@ -42,25 +45,26 @@ class CommandExtension:
     """
 
     NAME = None
-    EXTENSION_POINT_VERSION = '0.1'
+    EXTENSION_POINT_VERSION = "0.1"
 
-    def __init__(self):
-        super(CommandExtension, self).__init__()
-        satisfies_version(PLUGIN_SYSTEM_VERSION, '^0.1')
+    def __init__(self) -> None:
+        super().__init__()
+        satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
 
-    def add_arguments(self, parser, cli_name, *, argv=None):
+    def add_arguments(
+        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
+    ) -> None:
         pass
 
-    def register_plugin_extensions(self, parser):
+    def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
         pass
 
-    def main(self, *, parser, args):
-        raise NotImplementedError()
+    @abstractmethod
+    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int: ...
 
 
-def get_command_extensions(group_name, *, exclude_names=None):
-    extensions = instantiate_extensions(
-        group_name, exclude_names=exclude_names)
+def get_command_extensions(group_name: str, *, exclude_names: set[str] | None = None) -> dict:
+    extensions = instantiate_extensions(group_name, exclude_names=exclude_names)
     for name, extension in extensions.items():
         extension.NAME = name
     return extensions
@@ -69,25 +73,31 @@ def get_command_extensions(group_name, *, exclude_names=None):
 class MutableString:
     """Behave like str with the ability to change the value of an instance."""
 
-    def __init__(self):
-        self.value = ''
+    def __init__(self) -> None:
+        self.value = ""
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         return getattr(self.value, name)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return self.value.__iter__()
 
-def add_plugin_extensions(group_name, parser, defaults, exclude_names=None) -> PluginExtensionContext:
+
+def add_plugin_extensions(
+    group_name: str,
+    parser: argparse.ArgumentParser,
+    defaults: dict,
+    exclude_names: set[str] | None = None,
+) -> PluginExtensionContext:
     """
     Dynamically load all extensions for a plugin group and register their CLI args.
 
     Each plugin can register arguments, and this function tracks which arguments
     belong to which plugin so they can be cleanly separated later.
 
-    returns PluginExtensionContext of the available plugins 
+    returns PluginExtensionContext of the available plugins
     """
-    extensions = instantiate_extensions(group_name, exclude_names=None)
+    extensions = instantiate_extensions(group_name, exclude_names=exclude_names)
     plugin_data = PluginExtensionContext()
     for ext in extensions.values():
         # Let the plugin register its CLI args
@@ -96,10 +106,16 @@ def add_plugin_extensions(group_name, parser, defaults, exclude_names=None) -> P
 
     return plugin_data
 
+
 def add_subparsers_on_demand(
-    parser, cli_name, dest, group_name, hide_extensions=None,
-    required=True, argv=None
-):
+    parser: argparse.ArgumentParser,
+    cli_name: str,
+    dest: str,
+    group_name: str,
+    hide_extensions: list[str] | None = None,
+    required: bool = True,
+    argv: list[str] | None = None,
+) -> argparse._SubParsersAction:
     """
     Create argparse subparser for each extension on demand.
 
@@ -130,12 +146,14 @@ def add_subparsers_on_demand(
     """
     # add subparser without a description for now
     mutable_description = MutableString()
-    subparser = parser.add_subparsers(
-        title='Commands', description=mutable_description,
-        metavar=f'Call `{cli_name} <command> -h` for more detailed usage.')
+    subparser: argparse._SubParsersAction = parser.add_subparsers(
+        title="Commands",
+        description=mutable_description,
+        metavar=f"Call `{cli_name} <command> -h` for more detailed usage.",
+    )  # type: ignore[call-overload]
     # use a name which doesn't collide with any argument
     # but is readable when shown as part of the the usage information
-    subparser.dest = ' ' + dest.lstrip('_')
+    subparser.dest = " " + dest.lstrip("_")
     subparser.required = required
 
     # add entry point specific sub-parsers but without a description and
@@ -144,19 +162,20 @@ def add_subparsers_on_demand(
     command_parsers = {}
     for name in sorted(entry_points.keys()):
         command_parser = subparser.add_parser(
-            name,
-            formatter_class=argparse.RawDescriptionHelpFormatter)
+            name, formatter_class=argparse.RawDescriptionHelpFormatter
+        )
         command_parsers[name] = command_parser
 
     # temporarily attach root parser to each command parser
     # in order to parse known args
-    root_parser = getattr(parser, '_root_parser', parser)
+    root_parser = getattr(parser, "_root_parser", parser)
     with SuppressUsageOutput({parser} | set(command_parsers.values())):
         args = argv
         # for completion use the arguments provided by the argcomplete env var
         if _is_completion_requested():
             from argcomplete import split_line
-            _, _, _, comp_words, _ = split_line(os.environ['COMP_LINE'])
+
+            _, _, _, comp_words, _ = split_line(os.environ["COMP_LINE"])
             args = comp_words[1:]
         try:
             known_args, not_knwon = root_parser.parse_known_args(args=args)
@@ -172,41 +191,44 @@ def add_subparsers_on_demand(
         # add description for all command extensions to the root parser
         command_extensions = get_command_extensions(group_name)
         if command_extensions:
-            description = ''
+            description = ""
             max_length = max(
-                len(name) for name in command_extensions.keys()
-                if hide_extensions is None or name not in hide_extensions)
+                len(name)
+                for name in command_extensions.keys()
+                if hide_extensions is None or name not in hide_extensions
+            )
             for name in sorted(command_extensions.keys()):
                 if hide_extensions is not None and name in hide_extensions:
                     continue
                 extension = command_extensions[name]
-                description += '%s  %s\n' % (
-                    name.ljust(max_length), get_first_line_doc(extension))
+                description += "{}  {}\n".format(
+                    name.ljust(max_length), get_first_line_doc(extension)
+                )
                 command_parser = command_parsers[name]
                 command_parser.set_defaults(**{dest: extension})
             mutable_description.value = description
     else:
         # add description for the selected command extension to the subparser
         command_extensions = get_command_extensions(
-            group_name, exclude_names=set(entry_points.keys() - {name}))
+            group_name, exclude_names=set(entry_points.keys() - {name})
+        )
         extension = command_extensions[name]
         command_parser = command_parsers[name]
         command_parser.set_defaults(**{dest: extension})
         command_parser.description = get_first_line_doc(extension)
 
         # add the arguments for the requested extension
-        if hasattr(extension, 'add_arguments'):
+        if hasattr(extension, "add_arguments"):
             command_parser = command_parsers[name]
             command_parser._root_parser = root_parser
             signature = inspect.signature(extension.add_arguments)
             kwargs = {}
-            if 'argv' in signature.parameters:
-                kwargs['argv'] = argv
-            extension.add_arguments(
-                command_parser, f'{cli_name} {name}', **kwargs)
+            if "argv" in signature.parameters:
+                kwargs["argv"] = argv
+            extension.add_arguments(command_parser, f"{cli_name} {name}", **kwargs)
             del command_parser._root_parser
-        
-        if hasattr(extension, 'register_plugin_extensions'):
+
+        if hasattr(extension, "register_plugin_extensions"):
             command_parser = command_parsers[name]
             command_parser._root_parser = root_parser
             extension.register_plugin_extensions(command_parser)
@@ -218,33 +240,33 @@ def add_subparsers_on_demand(
 class SuppressUsageOutput:
     """Context manager to suppress help action during `parse_known_args`."""
 
-    def __init__(self, parsers):
+    def __init__(self, parsers: set[argparse.ArgumentParser]) -> None:
         """
         Construct a SuppressUsageOutput.
 
         :param parsers: The parsers
         """
         self._parsers = parsers
-        self._callbacks = {}
+        self._callbacks: dict = {}
 
-    def __enter__(self):  # noqa: D105
+    def __enter__(self):  # type: ignore[no-untyped-def]
         for p in self._parsers:
             self._callbacks[p] = p.print_help, p.exit
             # temporary prevent printing usage early if help is requested
-            p.print_help = lambda: None
+            p.print_help = lambda: None  # type: ignore[assignment, method-assign, misc]
             # temporary prevent help action to exit early,
             # but keep exiting on invalid arguments
-            p.exit = types.MethodType(_ignore_zero_exit(p.exit), p)
+            p.exit = types.MethodType(_ignore_zero_exit(p.exit), p)  # type: ignore[method-assign]
 
         return self
 
-    def __exit__(self, *args):  # noqa: D105
+    def __exit__(self, *args):  # type: ignore[no-untyped-def]
         for p, callbacks in self._callbacks.items():
             p.print_help, p.exit = callbacks
 
 
-def _ignore_zero_exit(original_exit_handler):
-    def exit_(self, status=0, message=None):
+def _ignore_zero_exit(original_exit_handler):  # type: ignore[no-untyped-def]
+    def exit_(self, status=0, message=None):  # type: ignore[no-untyped-def]
         nonlocal original_exit_handler
         if status == 0:
             return
@@ -253,5 +275,5 @@ def _ignore_zero_exit(original_exit_handler):
     return exit_
 
 
-def _is_completion_requested():
-    return os.environ.get('_ARGCOMPLETE') == '1'
+def _is_completion_requested() -> bool:
+    return os.environ.get("_ARGCOMPLETE") == "1"

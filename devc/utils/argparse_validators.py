@@ -14,11 +14,11 @@
 
 
 from pathlib import Path
-from typing import List, Optional, Union
 import argparse
 
+
 class IsEmptyOrNewDir:
-    def __init__(self, must_be_empty=True):
+    def __init__(self, must_be_empty: bool = True) -> None:
         self.must_be_empty = must_be_empty
 
     def __call__(self, path_str: str) -> Path:
@@ -32,19 +32,23 @@ class IsEmptyOrNewDir:
             raise argparse.ArgumentTypeError(f"{p} already exists and is not empty.")
 
         return p
-    
+
+
 class IsExistingFile:
-        
-    def __call__(self, path: Optional[Union[str, Path]]) -> Path:
+
+    def __call__(self, path: str | Path) -> Path:
         p = Path(path).expanduser().resolve()
 
         if not p.exists():
             raise argparse.ArgumentTypeError(f"The passed file {p} does not exist.")
         if p.is_dir():
-            raise argparse.ArgumentTypeError(f"The passed path {p} is a directory, expected a file.")
+            raise argparse.ArgumentTypeError(
+                f"The passed path {p} is a directory, expected a file."
+            )
 
         return p
-    
+
+
 class IsPositiveInt:
     def __call__(self, value: str) -> int:
         try:
@@ -54,20 +58,27 @@ class IsPositiveInt:
         if ivalue < 0:
             raise argparse.ArgumentTypeError("Not a positive integer.")
         return ivalue
-    
+
+
 class IsValidFileType:
-    def __init__(self, valid_file_types: List[str]):
-        self.valid_file_types = [ ending if ending.startswith(".") else f".{ending}" for ending in valid_file_types ]
-        
+    def __init__(self, valid_file_types: list[str]):
+        self.valid_file_types = [
+            ending if ending.startswith(".") else f".{ending}" for ending in valid_file_types
+        ]
+
     def __call__(self, path_str: str) -> Path:
         p = Path(path_str).expanduser().resolve()
 
         if not p.exists():
             raise argparse.ArgumentTypeError(f"The passed file {p} does not exist.")
         elif p.is_dir():
-            raise argparse.ArgumentTypeError(f"The passed path {p} is a directory. A file is of type {', '.join(self.valid_file_types)} required.")
+            raise argparse.ArgumentTypeError(
+                f"The passed path {p} is a directory."
+                + "A file is of type {', '.join(self.valid_file_types)} required."
+            )
         elif p.suffix not in self.valid_file_types:
-            raise argparse.ArgumentTypeError(f"{p} is not a file of type {', '.join(self.valid_file_types)}.")
+            raise argparse.ArgumentTypeError(
+                f"{p} is not a file of type {', '.join(self.valid_file_types)}."
+            )
 
         return p
-    

@@ -1,5 +1,8 @@
+"""Helpers ro allow ${VAR} substitutions in strings."""
+
 from string import Template
 from typing import Any
+
 
 def substitute_placeholders(obj: Any, env: dict) -> Any:
     """Recursively replace ${VAR} placeholders in strings within nested structures."""

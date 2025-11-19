@@ -15,13 +15,14 @@
 # limitations under the License.
 
 from collections import OrderedDict
+from typing import Any
 import logging
 
 from packaging.version import Version
 
 from devc_cli_plugin_system.entry_points import load_entry_points
 
-PLUGIN_SYSTEM_VERSION = '0.1'
+PLUGIN_SYSTEM_VERSION = "0.1"
 
 logger = logging.getLogger(__name__)
 
@@ -32,19 +33,21 @@ class PluginException(Exception):
     pass
 
 
-_extension_instances = {}
+_extension_instances: dict = {}
 
 
 def instantiate_extensions(
-    group_name, *, exclude_names=None, unique_instance=False
-):
-    extension_types = load_entry_points(
-        group_name, exclude_names=exclude_names)
+    group_name: str, *, exclude_names: set[str] | None = None, unique_instance: bool = False
+) -> dict:
+    extension_types = load_entry_points(group_name, exclude_names=exclude_names)
     extension_instances = {}
     for extension_name, extension_class in extension_types.items():
         extension_instance = _instantiate_extension(
-            group_name, extension_name, extension_class,
-            unique_instance=unique_instance)
+            group_name,
+            extension_name,
+            extension_class,
+            unique_instance=unique_instance,
+        )
         if extension_instance is None:
             continue
         extension_instances[extension_name] = extension_instance
@@ -52,8 +55,8 @@ def instantiate_extensions(
 
 
 def _instantiate_extension(
-    group_name, extension_name, extension_class, *, unique_instance=False
-):
+    group_name: str, extension_name: str, extension_class: Any, *, unique_instance: bool = False
+) -> Any:
     global _extension_instances
     if not unique_instance and extension_class in _extension_instances:
         return _extension_instances[extension_class]
@@ -62,54 +65,52 @@ def _instantiate_extension(
         extension_instance = extension_class()
     except PluginException as e:  # noqa: F841
         logger.warning(
-            f"Failed to instantiate '{group_name}' extension "
-            f"'{extension_name}': {e}")
+            f"Failed to instantiate '{group_name}' extension " f"'{extension_name}': {e}"
+        )
         return None
     except Exception as e:  # noqa: F841
-        logger.error(
-            f"Failed to instantiate '{group_name}' extension "
-            f"'{extension_name}': {e}")
+        logger.error(f"Failed to instantiate '{group_name}' extension " f"'{extension_name}': {e}")
         return None
     if not unique_instance:
         _extension_instances[extension_class] = extension_instance
     return extension_instance
 
 
-def order_extensions(extensions, key_function, *, reverse=False):
-    return OrderedDict(
-        sorted(extensions.items(), key=key_function, reverse=reverse))
+def order_extensions(extensions: Any, key_function: Any, *, reverse: bool = False) -> dict:
+    return OrderedDict(sorted(extensions.items(), key=key_function, reverse=reverse))
 
 
-def order_extensions_by_name(extensions):
+def order_extensions_by_name(extensions: Any) -> dict:
     return order_extensions(extensions, lambda pair: pair[0])
 
 
-def satisfies_version(version, caret_range):
-    assert caret_range.startswith('^'), 'Only supports caret ranges'
+def satisfies_version(version: str | Version, caret_range: str | Version) -> None:
+    assert caret_range.startswith("^"), "Only supports caret ranges"
     extension_point_version = Version(version)
     extension_version = Version(caret_range[1:])
-    next_extension_version = get_upper_bound_caret_version(
-        extension_version)
+    next_extension_version = get_upper_bound_caret_version(extension_version)
 
     if extension_point_version < extension_version:
         raise PluginException(
-            'Extension point is too old (%s), the extension requires '
-            "'%s'" % (extension_point_version, extension_version))
+            "Extension point is too old (%s), the extension requires "
+            "'%s'" % (extension_point_version, extension_version)
+        )
 
     if extension_point_version >= next_extension_version:
         raise PluginException(
-            'Extension point is newer (%s), than what the extension '
-            "supports '%s'" % (extension_point_version, extension_version))
+            "Extension point is newer (%s), than what the extension "
+            "supports '%s'" % (extension_point_version, extension_version)
+        )
 
 
-def get_upper_bound_caret_version(version):
-    parts = version.base_version.split('.')
+def get_upper_bound_caret_version(version: Version) -> Version:
+    parts = version.base_version.split(".")
     if len(parts) < 2:
         parts += [0] * (2 - len(parts))
-    major, minor = [int(p) for p in parts[:2]]
+    major, minor = (int(p) for p in parts[:2])
     if major > 0:
         major += 1
         minor = 0
     else:
         minor += 1
-    return Version('%d.%d.0' % (major, minor))
+    return Version("%d.%d.0" % (major, minor))

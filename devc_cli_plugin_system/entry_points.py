@@ -15,26 +15,25 @@
 # limitations under the License.
 
 from collections import defaultdict
+from typing import Any, cast
 import logging
 
 try:
     import importlib.metadata as importlib_metadata
 except ModuleNotFoundError:
-    import importlib_metadata
+    import importlib_metadata  # type: ignore[no-redef]
 
-"""
-The group name for entry points identifying extension points.
-
-While all entry points in this package start with ``devc_cli.`` other
-distributions might define entry points with a different prefix.
-Those need to be declared using this group name.
-"""
-EXTENSION_POINT_GROUP_NAME = 'devc_cli.extension_point'
+# The group name for entry points identifying extension points.
+#
+# While all entry points in this package start with ``devc_cli.`` other
+# distributions might define entry points with a different prefix.
+# Those need to be declared using this group name.
+EXTENSION_POINT_GROUP_NAME = "devc_cli.extension_point"
 
 logger = logging.getLogger(__name__)
 
 
-def get_all_entry_points():
+def get_all_entry_points() -> dict:
     """
     Get all entry points related to ``devc_cli`` and any of its extensions.
 
@@ -43,7 +42,7 @@ def get_all_entry_points():
     """
     extension_points = get_entry_points(EXTENSION_POINT_GROUP_NAME)
 
-    entry_points = defaultdict(dict)
+    entry_points: dict = defaultdict(dict)
 
     for dist in importlib_metadata.distributions():
         for ep in dist.entry_points:
@@ -55,7 +54,7 @@ def get_all_entry_points():
     return entry_points
 
 
-def get_entry_points(group_name):
+def get_entry_points(group_name: str) -> dict:
     """
     Get the entry points for a specific group.
 
@@ -65,17 +64,17 @@ def get_entry_points(group_name):
     :rtype: dict
     """
     entry_points_impl = importlib_metadata.entry_points()
-    if hasattr(entry_points_impl, 'select'):
+    if hasattr(entry_points_impl, "select"):
         groups = entry_points_impl.select(group=group_name)
     else:
-        groups = entry_points_impl.get(group_name, [])
+        groups = entry_points_impl.get(group_name, [])  # type: ignore[attr-defined]
     entry_points = {}
     for entry_point in groups:
         entry_points[entry_point.name] = entry_point
     return entry_points
 
 
-def load_entry_points(group_name, *, exclude_names=None):
+def load_entry_points(group_name: str, *, exclude_names: set[str] | None = None) -> dict:
     """
     Load the entry points for a specific group.
 
@@ -91,21 +90,20 @@ def load_entry_points(group_name, *, exclude_names=None):
         try:
             extension_type = entry_point.load()
         except Exception as e:  # noqa: F841
-            logger.warning(
-                f"Failed to load entry point '{entry_point.name}': {e}")
+            logger.warning(f"Failed to load entry point '{entry_point.name}': {e}")
             continue
         extension_types[entry_point.name] = extension_type
     return extension_types
 
 
-def get_first_line_doc(any_type):
+def get_first_line_doc(any_type: Any) -> str:
     if not any_type.__doc__:
-        return ''
+        return ""
     lines = any_type.__doc__.splitlines()
     if not lines:
-        return ''
+        return ""
     if lines[0]:
         line = lines[0]
     elif len(lines) > 1:
         line = lines[1]
-    return line.strip().rstrip('.')
+    return cast(str, line.strip().rstrip("."))

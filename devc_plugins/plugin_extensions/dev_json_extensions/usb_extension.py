@@ -1,8 +1,14 @@
-from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonPluginExtension
+from typing import Any
+import argparse
+
+from devc_plugins.plugin_extensions.dev_json_extensions import (
+    DevJsonPluginExtension,
+)
+
 
 class UsbExtension(DevJsonPluginExtension):
 
-    def _get_devcontainer_updates(self, cliargs):
+    def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
         usb_args = self._parse_cli(cliargs=cliargs)
 
         if not usb_args:
@@ -14,13 +20,13 @@ class UsbExtension(DevJsonPluginExtension):
 
         # Enable USB support
         if usb_args.get("usb_all"):
-            run_args.extend([
-                "--device=/dev/bus/usb"
-            ])
-            mounts.extend([
-                "source=/dev/bus/usb,target=/dev/bus/usb,type=bind",
-                "source=/run/udev,target=/run/udev,type=bind"
-            ])
+            run_args.extend(["--device=/dev/bus/usb"])
+            mounts.extend(
+                [
+                    "source=/dev/bus/usb,target=/dev/bus/usb,type=bind",
+                    "source=/run/udev,target=/run/udev,type=bind",
+                ]
+            )
 
         # Add specific devices (if provided)
         if usb_args.get("usb_devices"):
@@ -44,29 +50,28 @@ class UsbExtension(DevJsonPluginExtension):
     def get_name() -> str:
         return "Usb"
 
-    def _register_arguments(self, parser, defaults):
+    def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         usb_parser = parser.add_argument_group("USB options")
         usb_parser.add_argument(
             "--usb-all",
             action="store_true",
-            help="Expose all USB devices (/dev/bus/usb) to the container"
+            help="Expose all USB devices (/dev/bus/usb) to the container",
         )
         usb_parser.add_argument(
             "--usb-devices",
             nargs="+",
             metavar="PATH",
-            help="Specific USB devices to pass,(e.g. --usb-devices=/dev/ttyUSB0,/dev/ttyACM0 )"
+            help="Specific USB devices to pass,(e.g. --usb-devices=/dev/ttyUSB0,/dev/ttyACM0 )",
         )
         usb_parser.add_argument(
             "--usb-dialout",
             action="store_true",
-            help="Do not add the 'dialout' group (use if not dealing with serial devices)"
+            help="Do not add the 'dialout' group (use if not dealing with serial devices)",
         )
 
-    def _parse_cli(self, cliargs):
-        """Convert CLI flags into structured dict"""
+    def _parse_cli(self, cliargs: argparse.Namespace) -> dict:
+        """Convert CLI flags into structured dict."""
         parsed_args = {}
         for arg in self._registered_args:
             parsed_args[arg] = cliargs.get(arg, None)
         return parsed_args
-

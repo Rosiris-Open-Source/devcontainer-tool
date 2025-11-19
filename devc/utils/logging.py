@@ -3,7 +3,8 @@ from rich.logging import RichHandler
 
 LOGGER_NAME = "devc"
 
-def setup_logging(level=logging.INFO):
+
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
     if not logging.getLogger().handlers:  # only configure once
         logging.basicConfig(
             level="NOTSET",
@@ -15,5 +16,6 @@ def setup_logging(level=logging.INFO):
     root.setLevel(level)
     return root
 
-def get_logger(name=None):
+
+def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(f"{LOGGER_NAME}.{name}" if name else LOGGER_NAME)

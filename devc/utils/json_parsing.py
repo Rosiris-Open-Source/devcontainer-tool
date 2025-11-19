@@ -11,9 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import List
+"""Helper functions used for parsing .json files."""
+from collections.abc import Iterable
 
-def normalize_list(value: List[str]) -> List[str]:
+
+def filter_empty_strings(value: Iterable[str]) -> list[str]:
+    r"""
+    Filter out empty or non-renderable strings from an iterable.
+
+    This removes strings that are empty or contain only whitespace characters,
+    such as '', '\n', or '\t'.
+
+    Args:
+        value: An iterable of strings, or None.
+
+    Returns
+    -------
+    List[str]: A list containing only non-empty strings.
+
+    """
     if not value:
         return []
     return [v for v in value if v.strip()]

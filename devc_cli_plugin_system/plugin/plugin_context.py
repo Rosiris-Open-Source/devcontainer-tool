@@ -11,25 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
 
-from dataclasses import dataclass
-from pathlib import Path
-
-
-@dataclass
-class Options:
-    path: Path = Path("")
-    extend_with: Path = Path("")
-    override: bool = False
+from devc_plugins.plugin_extensions.dev_json_extensions import (
+    DevJsonExtensionManager,
+)
 
 
-@dataclass
-class DockerfileOptions(Options):
-    image: str = ""
-
-
-@dataclass
-class DevContainerJsonOptions(Options):
-    name: str = ""
-    image: str = ""
-    dockerfile: Path = Path("")
+class PluginContext:
+    def __init__(
+        self,
+        *,
+        args: argparse.Namespace,
+        parser: argparse.ArgumentParser,
+        ext_manager: DevJsonExtensionManager | None = None,
+    ) -> None:
+        self.args = args
+        self.parser = parser
+        self.ext_manager = ext_manager

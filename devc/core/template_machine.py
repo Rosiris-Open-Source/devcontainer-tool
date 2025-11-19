@@ -14,24 +14,24 @@
 
 from jinja2 import Template, meta
 from pathlib import Path
-from typing import Any, Dict, Set
-
-class TemplateMachine:    
-
-    def get_undeclared_variables(self, template: Template) -> Set[str]:
-        """
-        Return the set of undeclared variables (no default provided in the template).
-        """
-        return meta.find_undeclared_variables(template)
+from typing import Any
 
 
-    def render_template(self, template: Template, context: Dict[str, Any]) -> str:
-        """
-        Render the template with the given context dictionary.
-        """
-        return template.render(**context)
+class TemplateMachine:
 
-    def render_to_target(self, template: Template, target_path: Path, context: Dict[str, Any]) -> None:
+    def get_undeclared_variables(self, template: Template) -> set[str]:
+        """Return the set of undeclared variables (no default provided in the template)."""
+        res: set[str] = meta.find_undeclared_variables(template)
+        return res
+
+    def render_template(self, template: Template, context: dict[str, Any]) -> str:
+        """Render the template with the given context dictionary."""
+        res: str = template.render(**context)
+        return res
+
+    def render_to_target(
+        self, template: Template, target_path: Path, context: dict[str, Any]
+    ) -> None:
         """
         Render the template and write it to the target path.
         Creates parent directories if needed.

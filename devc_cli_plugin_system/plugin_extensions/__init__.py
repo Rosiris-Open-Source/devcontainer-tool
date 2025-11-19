@@ -12,21 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import ABC, abstractmethod
-from typing import List
+from pprint import pformat
+import argparse
+
 
 class PluginExtension(ABC):
-    """The base class for Rocker extension points"""
+    """The base class for plugin extension points of the plugins."""
 
-    def precondition_environment(self, cliargs):
-        """Modify the local environment such as setup tempfiles"""
+    def precondition_environment(self, cliargs: argparse.Namespace) -> None:
+        """Modify the local environment such as setup tempfiles."""
         pass
 
-    def validate_environment(self, cliargs) -> bool:
-        """ Check that the environment is something that can be used.
-        This will check that we're on the right base OS and that the 
-        necessary resources are available, like hardware."""
+    def validate_environment(self, cliargs: argparse.Namespace) -> bool:
+        """
+        Check that the environment is something that can be used.
+        This will check that we're on the right base OS and that the
+        necessary resources are available, like hardware.
+        """
         return True
-    
+
     def get_registered_args(self) -> set:
         """Return argument dest names added by this plugin."""
         return getattr(self, "_registered_args", set())
@@ -35,51 +39,49 @@ class PluginExtension(ABC):
     @abstractmethod
     def get_name() -> str:
         raise NotImplementedError
-    
+
     @classmethod
-    def as_arg_name(cls) -> List[str]:
-        return '--%s' % cls.get_name().replace('_', '-')
-        
-    def register_arguments_to_parser(self, parser, defaults):
-        """Wrapper that tracks which arguments were registered. This is called by the cli infrastructure"""
+    def as_arg_name(cls) -> str:
+        return "--%s" % cls.get_name().replace("_", "-")
+
+    def register_arguments_to_parser(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
+        """Track which arguments were registered. This is called by the cli infrastructure."""
         # Snapshot parser state before plugin registers
         existing_dests = {a.dest for a in parser._actions}
 
         # Let plugin adds args
-        self._register_arguments(parser, defaults=defaults)
+        self._register_arguments(parser=parser, defaults=defaults)
 
         # Determine newly added arguments
         new_dests = {a.dest for a in parser._actions} - existing_dests
         self._registered_args = new_dests
 
     @abstractmethod
-    def _register_arguments(self, defaults):
+    def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         raise NotImplementedError
 
-from typing import Dict, Set
-from pprint import pformat
 
 class PluginExtensionContext:
     """Holds and manages all available plugin extensions."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # mapping: name -> {"extension": PluginExtension}
-        self._available_extensions: Dict[str, PluginExtension] = {}
+        self._available_extensions: dict[str, PluginExtension] = {}
 
-    def add_available_plugin_extension(self, plugin_extension: PluginExtension):
+    def add_available_plugin_extension(self, plugin_extension: PluginExtension) -> None:
         """Register a plugin extension and record its argument names."""
         name = plugin_extension.get_name()
         self._available_extensions[name] = plugin_extension
 
-    def get_extension(self, name: str) -> PluginExtension:
+    def get_extension(self, name: str) -> PluginExtension | None:
         """Retrieve a specific extension by name."""
         return self._available_extensions.get(name)
 
     def list_names(self) -> list[str]:
         """Return all registered extension names."""
         return list(self._available_extensions.keys())
-    
-    def get_called_extensions(self, args) -> dict[str, PluginExtension]:
+
+    def get_called_extensions(self, args: argparse.Namespace) -> dict[str, PluginExtension]:
         """Determine which extensions have been triggered by CLI args."""
         called = {}
         for name, plugin in self._available_extensions.items():

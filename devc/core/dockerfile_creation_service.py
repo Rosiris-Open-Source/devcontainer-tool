@@ -16,7 +16,11 @@ from pathlib import Path
 import jinja2
 
 from devc.constants.templates import TEMPLATES
-from devc.core.exceptions.dockerfile_exceptions import DockerfileTemplateNotFoundError, DockerfileExistsError, DockerfileTemplateRenderError
+from devc.core.exceptions.dockerfile_exceptions import (
+    DockerfileTemplateNotFoundError,
+    DockerfileExistsError,
+    DockerfileTemplateRenderError,
+)
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
@@ -24,6 +28,8 @@ from devc.core.models.options import DockerfileOptions
 from devc.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+
 class DockerfileCreationService:
     def __init__(self, template_machine: TemplateMachine, loader: TemplateLoaderABC):
         self.template_machine = template_machine
@@ -33,14 +39,16 @@ class DockerfileCreationService:
         self,
         template_file: str,
         dockerfile_handler: DockerfileHandler,
-        options: DockerfileOptions
+        options: DockerfileOptions,
     ) -> None:
         try:
             template = self.loader.load_template(template_file)
         except FileNotFoundError:
-            logger.error("Template %s not found in %s", 
-                         TEMPLATES.get_target_filename(template_file), 
-                         TEMPLATES.TEMPLATE_DIR)
+            logger.error(
+                "Template %s not found in %s",
+                TEMPLATES.get_target_filename(template_file),
+                TEMPLATES.TEMPLATE_DIR,
+            )
             raise DockerfileTemplateNotFoundError(f"Template {template_file} not found")
 
         path: Path = options.path / TEMPLATES.get_target_filename(template_file)

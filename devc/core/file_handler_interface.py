@@ -14,9 +14,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Generic, Optional, TypeVar, Union
-
-from devc.core.models.options import Options
+from typing import Generic, TextIO, TypeVar
 
 
 T = TypeVar("T")  # content type
@@ -25,20 +23,15 @@ T = TypeVar("T")  # content type
 class FileHandler(ABC, Generic[T]):
     def __init__(self, file_path: Path) -> None:
         self.extend_file_path = file_path
-        self.content: Optional[T] = None
-        self.load_file(self.extend_file_path)
+        self.content: T = self.load_file(self.extend_file_path)
 
-    def load_file(self, path: Path) -> None:
-        if not isinstance(path, Path):
-            path = Path(path)
+    def load_file(self, path: Path) -> T:
         with path.open("r", encoding="utf-8") as f:
-            self.content = self.parse_file(f)
-
+            return self.parse_file(f)
 
     @abstractmethod
-    def parse_file(self, file) -> Any:
+    def parse_file(self, file: TextIO) -> T:
         pass
-
 
     @abstractmethod
     def to_dict(self) -> dict:

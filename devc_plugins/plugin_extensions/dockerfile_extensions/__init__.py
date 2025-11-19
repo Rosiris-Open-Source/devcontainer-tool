@@ -11,15 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
 from devc_cli_plugin_system.plugin_extensions import PluginExtension
 
-class DockerfilePluginExtension(PluginExtension):
-    """The base class for Rocker extension points"""
 
-    def get_root_docker_snippet(self, cliargs):
-        """ Get a dockerfile snippet to be executed as ROOT in the dockerfile."""
-        return ''
-    
-    def get_user_docker_snippet(self, cliargs):
-        """ Get a dockerfile snippet to be executed after switching to the expected USER in the dockerfile."""
-        return ''
+class DockerfilePluginExtension(PluginExtension):
+    """The base class for plugin extension for the dockerfile plugin."""
+
+    def get_root_docker_snippet(self, cliargs: argparse.Namespace) -> str:
+        """Return a dockerfile snippet which is executed as ROOT in the dockerfile."""
+        return ""
+
+    def get_user_docker_snippet(self, cliargs: argparse.Namespace) -> str:
+        """Return a dockerfile snippet which is executed after switching to the USER in the dockerfile."""  # noqa: E501
+        return ""

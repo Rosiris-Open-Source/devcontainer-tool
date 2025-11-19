@@ -14,24 +14,27 @@
 # devc/plugins/dockerfile_ros2_plugin.py
 
 from pathlib import Path
-from typing_extensions import override
+from typing import override
+import argparse
 
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.utils.substitute_placeholders import substitute_placeholders
 
+
 class Ros2DesktopFullDockerfilePlugin(DockerfilePluginBase):
     """Create a ROS2 desktop-full development container setup."""
 
-    DEFAULT_IMAGE = "" # use default img from patch
+    DEFAULT_IMAGE = ""  # use default img from patch
 
     @override
-    def _add_custom_arguments(self, parser, cli_name):
+    def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         parser.add_argument(
             "--ros-distro",
             help="ROS 2 distribution (humble, iron, jazzy, rolling...)",
             choices=["humble", "iron", "jazzy", "kilted", "rolling"],
-            default="rolling", nargs="?"
+            default="rolling",
+            nargs="?",
         )
 
     @override
@@ -39,12 +42,12 @@ class Ros2DesktopFullDockerfilePlugin(DockerfilePluginBase):
         return Path(__file__).parent / "ros2_desktop_full_image_patch.json"
 
     @override
-    def _apply_overrides_to_handler_content(self, dockerfile_handler: DockerfileHandler, args):
+    def _apply_overrides_to_handler_content(
+        self, dockerfile_handler: DockerfileHandler, args: argparse.Namespace
+    ) -> None:
         env = {"ROS_DISTRO": args.ros_distro}
         # if image is given with args, we override the image given in the patch file
         if args.image:
             dockerfile_handler.override_image(substitute_placeholders(args.image, env))
-        
-        substitute_placeholders(dockerfile_handler.content, env)
 
-        
+        substitute_placeholders(dockerfile_handler.content, env)

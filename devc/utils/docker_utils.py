@@ -3,7 +3,7 @@ from packaging.version import Version
 from devc.core.exceptions.devc_exceptions import DependencyMissing
 
 
-def get_docker_client():
+def get_docker_client() -> docker.APIClient:
     """Return a Docker client connected to the local daemon."""
     try:
         client = docker.from_env().api  # Docker SDK >= 2.0

@@ -11,33 +11,55 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
+from typing import override
 
 
-from devc_cli_plugin_system.command import add_subparsers_on_demand, add_plugin_extensions
+from devc_cli_plugin_system.command import (
+    add_subparsers_on_demand,
+    add_plugin_extensions,
+)
 from devc_cli_plugin_system.command import CommandExtension
-from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonExtensionManager
+from devc_plugins.plugin_extensions.dev_json_extensions import (
+    DevJsonExtensionManager,
+)
+from devc_cli_plugin_system.plugin.plugin_context import PluginContext
+from devc_cli_plugin_system.plugin import Plugin
+
 
 class DevJsonCommand(CommandExtension):
     """Entry point to create dev_json for a development environment."""
 
-    def add_arguments(self, parser, cli_name):
+    @override
+    def add_arguments(
+        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
+    ) -> None:
         self._subparser = parser
         # get plugins and let them add their arguments
-        add_subparsers_on_demand(parser, cli_name, "_plugin", "devc_commands.dev_json.plugins", required=False)
-    
-    def register_plugin_extensions(self, parser):
-        self._plugin_extensions = add_plugin_extensions(
-            'devc_commands.dev_json.plugins.extensions', parser, defaults={}
+        add_subparsers_on_demand(
+            parser,
+            cli_name,
+            "_plugin",
+            "devc_commands.dev_json.plugins",
+            required=False,
         )
 
-    def main(self, *, parser, args):
+    @override
+    def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
+        self._plugin_extensions = add_plugin_extensions(
+            "devc_commands.dev_json.plugins.extensions", parser, defaults={}
+        )
+
+    @override
+    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         if not hasattr(args, "_plugin"):
             # in case no plugin was passed
             self._subparser.print_help()
             return 0
-        
+
         ext_manager = DevJsonExtensionManager(self._plugin_extensions, args)
 
-        plugin = getattr(args, "_plugin")
+        plugin: Plugin = getattr(args, "_plugin")
+        context = PluginContext(args=args, parser=parser, ext_manager=ext_manager)
         # call the plugin's main method
-        return plugin.main(ext_manager=ext_manager, parser=parser, args=args)
+        return plugin.main(context)

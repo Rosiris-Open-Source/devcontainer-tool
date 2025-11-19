@@ -12,24 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any
-from typing_extensions import override
-from typing import Any
+from typing import Any, TextIO
+from typing import override
+import json
 
 from devc.core.file_handler_interface import FileHandler
-from devc.core.models.options import DockerfileOptions
-from devc.utils.json_parsing import normalize_list
+from devc.utils.json_parsing import filter_empty_strings
+
 
 @dataclass
 class PredefinedExtensions:
     image: str = ""
-    pre_package_install: List[str] = field(default_factory=list)
-    additional_apt_packages: List[str] = field(default_factory=list)
-    post_package_install: List[str] = field(default_factory=list)
-    additional_sudo_commands: List[str] = field(default_factory=list)
-    additional_user_commands: List[str] = field(default_factory=list)
+    pre_package_install: list[str] = field(default_factory=list)
+    additional_apt_packages: list[str] = field(default_factory=list)
+    post_package_install: list[str] = field(default_factory=list)
+    additional_sudo_commands: list[str] = field(default_factory=list)
+    additional_user_commands: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -37,30 +36,41 @@ class Insertion:
     anchor: str
     position: str
     is_regex: bool
-    lines: List[str]
+    lines: list[str]
 
 
 @dataclass
 class DockerfileExtension:
     pre_defined_extensions: PredefinedExtensions
-    insertions: List[Insertion]
+    insertions: list[Insertion]
 
 
 class DockerfileHandler(FileHandler[DockerfileExtension]):
 
     def override_image(self, image: str) -> None:
+        assert self.content is not None
         self.content.pre_defined_extensions.image = image
 
     @override
-    def parse_file(self, file) -> DockerfileExtension:
-        data: Dict[str, Any] = json.load(file)
+    def parse_file(self, file: TextIO) -> DockerfileExtension:
+        data: dict[str, Any] = json.load(file)
         predefs = PredefinedExtensions(
             image=data.get("pre-defined-extensions", {}).get("image", None),
-            pre_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("pre_package_install", [])),
-            additional_apt_packages=normalize_list(data.get("pre-defined-extensions", {}).get("additional_apt_packages", [])),
-            post_package_install=normalize_list(data.get("pre-defined-extensions", {}).get("post_package_install", [])),
-            additional_sudo_commands=normalize_list(data.get("pre-defined-extensions", {}).get("additional_sudo_commands", [])),
-            additional_user_commands=normalize_list(data.get("pre-defined-extensions", {}).get("additional_user_commands", [])),
+            pre_package_install=filter_empty_strings(
+                data.get("pre-defined-extensions", {}).get("pre_package_install", [])
+            ),
+            additional_apt_packages=filter_empty_strings(
+                data.get("pre-defined-extensions", {}).get("additional_apt_packages", [])
+            ),
+            post_package_install=filter_empty_strings(
+                data.get("pre-defined-extensions", {}).get("post_package_install", [])
+            ),
+            additional_sudo_commands=filter_empty_strings(
+                data.get("pre-defined-extensions", {}).get("additional_sudo_commands", [])
+            ),
+            additional_user_commands=filter_empty_strings(
+                data.get("pre-defined-extensions", {}).get("additional_user_commands", [])
+            ),
         )
 
         insertions = [
@@ -76,7 +86,7 @@ class DockerfileHandler(FileHandler[DockerfileExtension]):
 
         return DockerfileExtension(pre_defined_extensions=predefs, insertions=insertions)
 
-
     @override
     def to_dict(self) -> dict:
+        assert self.content is not None
         return asdict(self.content)

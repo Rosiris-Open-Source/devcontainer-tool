@@ -13,15 +13,20 @@
 # limitations under the License.
 from dataclasses import asdict
 from pathlib import Path
-from pathlib import Path
-from typing import Any, Dict
-import jinja2 
+from typing import Any
+import jinja2
 import json
 import re
 
-from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonExtensionManager
+from devc_plugins.plugin_extensions.dev_json_extensions import (
+    DevJsonExtensionManager,
+)
 from devc.constants.templates import TEMPLATES
-from devc.core.exceptions.devcontainer_json_exception import DevJsonTemplateNotFoundError, DevJsonTemplateRenderError, DevJsonExistsError
+from devc.core.exceptions.devcontainer_json_exception import (
+    DevJsonTemplateNotFoundError,
+    DevJsonTemplateRenderError,
+    DevJsonExistsError,
+)
 from devc.core.models.devcontainer_extension_json_scheme import DevJsonHandler
 from devc.core.template_loader import TemplateLoaderABC
 from devc.core.template_machine import TemplateMachine
@@ -31,20 +36,29 @@ from devc.core.models.options import DevContainerJsonOptions
 
 logger = get_logger(__name__)
 
+
 class DevcontainerJsonCreationService:
-    def __init__(self, *, template_machine: TemplateMachine, loader: TemplateLoaderABC, ext_manager: DevJsonExtensionManager):
-        self._template_machine : TemplateMachine = template_machine
-        self._loader : TemplateLoaderABC = loader
-        self._ext_manager : DevJsonExtensionManager = ext_manager
+    def __init__(
+        self,
+        *,
+        template_machine: TemplateMachine,
+        loader: TemplateLoaderABC,
+        ext_manager: DevJsonExtensionManager,
+    ):
+        self._template_machine: TemplateMachine = template_machine
+        self._loader: TemplateLoaderABC = loader
+        self._ext_manager: DevJsonExtensionManager = ext_manager
         self._json_update_strategy = AppendListMerge()
 
     def _load_template(self, template_file: str) -> jinja2.Template:
         try:
             template = self._loader.load_template(template_file)
         except FileNotFoundError:
-            logger.error("Template %s not found in %s", 
-                         TEMPLATES.get_target_filename(template_file), 
-                         TEMPLATES.TEMPLATE_DIR)
+            logger.error(
+                "Template %s not found in %s",
+                TEMPLATES.get_target_filename(template_file),
+                TEMPLATES.TEMPLATE_DIR,
+            )
             raise DevJsonTemplateNotFoundError(f"Template {template_file} not found")
         return template
 
@@ -54,22 +68,22 @@ class DevcontainerJsonCreationService:
             logger.debug("No devcontainer.json plugin updates to apply.")
             return
 
-        current_data: Dict[str, Any] = json.loads(path.read_text())
+        current_data: dict[str, Any] = json.loads(path.read_text())
         merged = self._json_update_strategy.merge_dicts(current_data, updates)
         path.write_text(json.dumps(merged, indent=4))
-        logger.info("Applied following plugin extensions to [bold blue]devcontainer.json[/bold blue] at %s", path)
+        logger.info(
+            "Applied following plugin extensions to [bold blue]devcontainer.json[/bold blue] at %s",
+            path,
+        )
         for ext_name in self._ext_manager.called_extensions.keys():
             logger.info(f"\t - {ext_name}")
-  
 
     def _postprocess_rendered_json(self, path: Path) -> None:
-        """
-        Clean up trailing commas and ensure valid JSON formatting.
-        """
+        """Clean up trailing commas and ensure valid JSON formatting."""
         text = path.read_text()
 
         # remove trailing commas before } or ]
-        cleaned = re.sub(r',(\s*[}\]])', r'\1', text)
+        cleaned = re.sub(r",(\s*[}\]])", r"\1", text)
 
         try:
             # validate and pretty-print the JSON
@@ -83,17 +97,19 @@ class DevcontainerJsonCreationService:
         # write validated, formatted JSON
         path.write_text(json.dumps(parsed, indent=4))
         logger.debug("Postprocessed and cleaned JSON at %s", path)
-    
+
     def create_devcontainer_json(
         self,
         template_file: str,
         dev_json: DevJsonHandler,
-        options: DevContainerJsonOptions
+        options: DevContainerJsonOptions,
     ) -> None:
 
         template = self._load_template(template_file=template_file)
 
-        logger.info(f"Create a [bold blue]devcontainer.json[/bold blue] with following options:\n{options}")
+        logger.info(
+            f"Create a [bold blue]devcontainer.json[/bold blue] with following options:\n{options}"
+        )
         # check path
         path: Path = options.path / TEMPLATES.get_target_filename(template_file)
         if not options.override and path.exists():
@@ -118,4 +134,7 @@ class DevcontainerJsonCreationService:
         # Apply plugin updates
         self._update_created_dev_json_with_extensions(path=path)
 
-        logger.info("Creation of [bold blue]devcontainer.json[/bold blue] successfully at %s", path)
+        logger.info(
+            "Creation of [bold blue]devcontainer.json[/bold blue] successfully at %s",
+            path,
+        )

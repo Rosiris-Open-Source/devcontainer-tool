@@ -14,8 +14,8 @@
 
 import json
 from dataclasses import dataclass, asdict
-from typing import Dict, Any
-from typing_extensions import override
+from typing import Any, TextIO
+from typing import override
 
 from devc.core.file_handler_interface import FileHandler
 
@@ -40,8 +40,8 @@ class DevJsonConfig:
 class DevJsonHandler(FileHandler[DevJsonConfig]):
 
     @override
-    def parse_file(self, file) -> DevJsonConfig:
-        data: Dict[str, Any] = json.load(file)
+    def parse_file(self, file: TextIO) -> DevJsonConfig:
+        data: dict[str, Any] = json.load(file)
         predefs = data.get("pre-defined-extensions", {})
 
         return DevJsonConfig(
@@ -59,4 +59,5 @@ class DevJsonHandler(FileHandler[DevJsonConfig]):
 
     @override
     def to_dict(self) -> dict:
+        assert self.content is not None
         return asdict(self.content)

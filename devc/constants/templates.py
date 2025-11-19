@@ -14,7 +14,8 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar, Dict, List
+from typing import ClassVar
+
 
 @dataclass(frozen=True)
 class TEMPLATES:
@@ -27,32 +28,32 @@ class TEMPLATES:
     DOCKERFILE_EXTENSIONS_JSON: ClassVar[str] = "dockerfile_extensions.json"
     DEVCONTAINER_EXTENSIONS_JSON: ClassVar[str] = "devcontainer_extensions.json"
 
-    _TEMPLATE_FILES: ClassVar[List[ſtr]] = [
+    _TEMPLATE_FILES: ClassVar[list[ſtr]] = [
         DEVCONTAINER_JSON,
         BASE_DOCKERFILE,
         DOCKERFILE_EXTENSIONS_JSON,
-        DEVCONTAINER_EXTENSIONS_JSON
+        DEVCONTAINER_EXTENSIONS_JSON,
     ]
 
     # Mapping template filename -> destination path in devcontainer
-    __mapping_to_default_path: ClassVar[Dict[str, Path]] = {
+    __mapping_to_default_path: ClassVar[dict[str, Path]] = {
         DEVCONTAINER_JSON: Path(".devcontainer/devcontainer.json"),
         BASE_DOCKERFILE: Path(".docker/Dockerfile"),
     }
 
-    __mapping_to_default_dir: ClassVar[Dict[str, Path]] = {
+    __mapping_to_default_dir: ClassVar[dict[str, Path]] = {
         DEVCONTAINER_JSON: Path(".devcontainer/"),
         BASE_DOCKERFILE: Path(".docker/"),
     }
 
-    __mapping_to_filename: ClassVar[Dict[str, Path]] = {
+    __mapping_to_filename: ClassVar[dict[str, Path]] = {
         DEVCONTAINER_JSON: Path("devcontainer.json"),
         BASE_DOCKERFILE: Path("Dockerfile"),
     }
 
     @classmethod
     def get_template_path(cls, template_name: str) -> Path:
-        """Returns the absolute path to the template file."""
+        """Return the absolute path to the template file."""
         if template_name not in cls._TEMPLATE_FILES:
             raise ValueError(f"Unknown template: {template_name}")
         template_file = cls.TEMPLATE_DIR / template_name
@@ -62,7 +63,7 @@ class TEMPLATES:
 
     @classmethod
     def get_target_default_path(cls, template_name: str) -> Path:
-        """Returns the path inside the devcontainer where the template should be copied."""
+        """Return the path inside the devcontainer where the template should be copied."""
         target = cls.__mapping_to_default_path.get(template_name)
         if target is None:
             raise ValueError(f"Unknown template: {template_name}")
@@ -70,15 +71,15 @@ class TEMPLATES:
 
     @classmethod
     def get_target_default_dir(cls, template_name: str) -> Path:
-        """Returns the path inside the devcontainer where the template should be copied."""
+        """Return the path inside the devcontainer where the template should be copied."""
         target = cls.__mapping_to_default_dir.get(template_name)
         if target is None:
             raise ValueError(f"Unknown template: {template_name}")
         return target
-    
+
     @classmethod
     def get_target_filename(cls, template_name: str) -> Path:
-        """Returns the path inside the devcontainer where the template should be copied."""
+        """Return the path inside the devcontainer where the template should be copied."""
         target = cls.__mapping_to_filename.get(template_name)
         if target is None:
             raise ValueError(f"Unknown template: {template_name}")

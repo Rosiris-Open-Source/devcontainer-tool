@@ -16,6 +16,7 @@
 
 import unittest
 
+
 class TestListContainers(unittest.TestCase):
-    def test_expected(self):
+    def test_expected(self) -> None:
         self.assertTrue(True)

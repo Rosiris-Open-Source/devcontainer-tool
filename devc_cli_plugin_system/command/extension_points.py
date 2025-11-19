@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
+from typing import Any, override
 
 from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.entry_points import EXTENSION_POINT_GROUP_NAME
@@ -23,26 +25,32 @@ from devc_cli_plugin_system.entry_points import get_first_line_doc
 class ExtensionPointsCommand(CommandExtension):
     """List extension points."""
 
-    def add_arguments(self, parser, cli_name):
+    @override
+    def add_arguments(
+        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
+    ) -> None:
         parser.add_argument(
-            '--all', '-a',
-            action='store_true',
+            "--all",
+            "-a",
+            action="store_true",
             default=False,
-            help='Also show extension points which failed to be imported. '
-                 '(prefixed with `- `)')
+            help="Also show extension points which failed to be imported. " "(prefixed with `- `)",
+        )
         parser.add_argument(
-            '--verbose', '-v',
-            action='store_true',
+            "--verbose",
+            "-v",
+            action="store_true",
             default=False,
-            help='Show more information for each extension point')
+            help="Show more information for each extension point",
+        )
 
-    def main(self, *, parser, args):
+    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         extension_points = get_entry_points(EXTENSION_POINT_GROUP_NAME)
         for name in sorted(extension_points.keys()):
-            self.print_extension_point(
-                args, name, extension_points[name])
+            self.print_extension_point(args, name, extension_points[name])
+        return 0
 
-    def print_extension_point(self, args, name, entry_point):
+    def print_extension_point(self, args: argparse.Namespace, name: str, entry_point: Any) -> None:
         exception = None
         try:
             extension_point = entry_point.load()
@@ -53,17 +61,20 @@ class ExtensionPointsCommand(CommandExtension):
             exception = e
             extension_point = None
 
-        prefix = '' if exception is None else '- '
-        print(prefix + name + ':', get_first_line_doc(extension_point))
+        prefix = "" if exception is None else "- "
+        print(prefix + name + ":", get_first_line_doc(extension_point))
 
         if args.verbose:
-            print(prefix, ' ', 'module_name:', entry_point.module_name)
+            print(prefix, " ", "module_name:", entry_point.module_name)
             if entry_point.attrs:
-                print(prefix, ' ', 'attributes:', '.'.join(entry_point.attrs))
-            if hasattr(extension_point, 'EXTENSION_POINT_VERSION'):
+                print(prefix, " ", "attributes:", ".".join(entry_point.attrs))
+            if hasattr(extension_point, "EXTENSION_POINT_VERSION"):
                 print(
-                    prefix, ' ', 'version:',
-                    extension_point.EXTENSION_POINT_VERSION)
+                    prefix,
+                    " ",
+                    "version:",
+                    extension_point.EXTENSION_POINT_VERSION,
+                )
 
         if exception:
-            print(prefix, ' ', 'reason:', str(exception))
+            print(prefix, " ", "reason:", str(exception))

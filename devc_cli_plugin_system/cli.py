@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Entry point for the devc command line tool."""
 
 import argparse
 import builtins
@@ -22,14 +23,25 @@ import sys
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc.utils.logging import setup_logging
+from devc.utils.console import print_error
+from devc_cli_plugin_system.command import CommandExtension
 
 
-def main(*, script_name='devc', argv=None, description=None, extension=None):
+def main(
+    *,
+    script_name: str = "devc",
+    argv: list[str] | None = None,
+    description: str | None = None,
+    extension: CommandExtension | None = None,
+) -> int:
+    """Entry point for the dev-json command line tool."""
     # setup the logger once globally
     logger = setup_logging()
     if description is None:
-        description = f'{script_name} is an extensible command-line tool ' \
-            'for creating development containers.'
+        description = (
+            f"{script_name} is an extensible command-line tool "
+            "for creating development containers."
+        )
 
     # top level parser
     parser = argparse.ArgumentParser(
@@ -37,13 +49,15 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        '--use-python-default-buffering',
-        action='store_true',
+        "--use-python-default-buffering",
+        action="store_true",
         default=False,
         help=(
-            'Do not force line buffering in stdout and instead use the python default buffering, '
-            'which might be affected by PYTHONUNBUFFERED/-u and depends on whatever stdout is '
-            'interactive or not'))
+            "Do not force line buffering in stdout and instead use the python default buffering, "
+            "which might be affected by PYTHONUNBUFFERED/-u and depends on whatever stdout is "
+            "interactive or not"
+        ),
+    )
 
     # add arguments for command extension(s)
     if extension:
@@ -51,21 +65,26 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
         extension.register_plugin_extensions(parser)
     else:
         # get command entry points as needed
-        selected_extension_key = '_command'
+        selected_extension_key = "_command"
         add_subparsers_on_demand(
-            parser, script_name, selected_extension_key, 'devc_cli.command',
+            parser,
+            script_name,
+            selected_extension_key,
+            "devc_cli.command",
             # hide the special commands in the help
-            hide_extensions=['extension_points', 'extensions'],
-            required=False, argv=argv)
+            hide_extensions=["extension_points", "extensions"],
+            required=False,
+            argv=argv,
+        )
 
     # register argcomplete hook if available
     try:
         from argcomplete import autocomplete
     except ImportError as e:
-        logger.debug("Argcomplete could not be imported. Error when importing: {e}")
+        logger.debug(f"Argcomplete could not be imported. Error when importing: {e}")
         pass
     else:
-        autocomplete(parser, exclude=['-h', '--help'])
+        autocomplete(parser, exclude=["-h", "--help"])
 
     # parse the command line arguments
     args = parser.parse_args(args=argv)
@@ -74,13 +93,16 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
         # Make the output always line buffered.
         # TextIoWrapper has a reconfigure() method, call that if available.
         # https://docs.python.org/3/library/io.html#io.TextIOWrapper.reconfigure
-        try:
-            sys.stdout.reconfigure(line_buffering=True)
-        except AttributeError as e:
+        stdout = sys.stdout
+        reconfigure = getattr(stdout, "reconfigure", None)
+
+        if callable(reconfigure):
+            reconfigure(line_buffering=True)
+        else:
             # if stdout is not a TextIoWrapper instance, or we're using python older than 3.7,
             # force line buffering by patching print
-            builtins.print = functools.partial(print, flush=True)
-            logger.debug(f"Attribute Error: {e}, when reconfiguring sys.stdout.reconfigure(line_buffering=True)")
+            builtins.print = functools.partial(print, flush=True)  # type: ignore[assignment]
+            logger.debug("Forcing line buffering by patching built-in print function.")
 
     if extension is None:
         # get extension identified by the passed command (if available)
@@ -97,9 +119,11 @@ def main(*, script_name='devc', argv=None, description=None, extension=None):
     except KeyboardInterrupt:
         rc = signal.SIGINT
     except RuntimeError as e:
-        rc = str(e)
+        print_error(title="Runtime Error", message=str(e))
+        rc = 1
     return rc
 
-# used to have a entrypoint for the debugger
+
+# entrypoint for the debugger
 if __name__ == "__main__":
     sys.exit(main(script_name="devc"))

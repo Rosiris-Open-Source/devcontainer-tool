@@ -22,7 +22,14 @@ setup(
     version="0.0.0",
     packages=find_packages(exclude=["test"]),
     data_files=[],
-    install_requires=["argcomplete", "docker" , "jinja2", "packaging", "typing_extensions", "rich"],
+    install_requires=[
+        "argcomplete",
+        "docker",
+        "jinja2",
+        "packaging",
+        "typing_extensions",
+        "rich",
+    ],
     zip_safe=True,
     author="Manuel Muth",
     author_email="manuel.muth@rosiris.de",
@@ -46,36 +53,36 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': [
-            'devc = devc_cli_plugin_system.cli:main', # Global entry point for devc (devcontainer-tool)
+        "console_scripts": [
+            "devc = devc_cli_plugin_system.cli:main",  # Global entry point for devc (devcontainer-tool) # noqa: E501
         ],
-        'devc_commands.dev_json.plugins.extensions': [
-            'gpu = devc_plugins.plugin_extensions.dev_json_extensions.gpu_device_extension:GpuDeviceExtension',
-            'nvidia = devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension',
-            'privileged = devc_plugins.plugin_extensions.dev_json_extensions.privileged_extension:PrivilegedExtension',
-            'ssh = devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension',
-            'usb = devc_plugins.plugin_extensions.dev_json_extensions.usb_extension:UsbExtension',
+        "devc_commands.dev_json.plugins.extensions": [
+            "gpu = devc_plugins.plugin_extensions.dev_json_extensions.gpu_device_extension:GpuDeviceExtension",  # noqa: E501
+            "nvidia = devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension",  # noqa: E501
+            "privileged = devc_plugins.plugin_extensions.dev_json_extensions.privileged_extension:PrivilegedExtension",  # noqa: E501
+            "ssh = devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension",
+            "usb = devc_plugins.plugin_extensions.dev_json_extensions.usb_extension:UsbExtension",
         ],
-        'devc_commands.dev_json.plugins': [
-            'base-setup = devc_plugins.plugins.dev_json_plugin_base:DevJsonPluginBase',
-            'godot = devc_plugins.plugins.godot.godot_dev_json:GodotDevJsonPlugin',
-            'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin'
+        "devc_commands.dev_json.plugins": [
+            "base-setup = devc_plugins.plugins.dev_json_plugin_base:DevJsonPluginBase",
+            "godot = devc_plugins.plugins.godot.godot_dev_json:GodotDevJsonPlugin",
+            "ros2-desktop-full = devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin",
         ],
-        'devc_commands.dockerfile.plugins': [
-            'base-setup = devc_plugins.plugins.dockerfile_plugin_base:DockerfilePluginBase',
-            'godot = devc_plugins.plugins.godot.godot_dockerfile:GodotDockerfilePlugin',
-            'ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full_dockerfile:Ros2DesktopFullDockerfilePlugin',
+        "devc_commands.dockerfile.plugins": [
+            "base-setup = devc_plugins.plugins.dockerfile_plugin_base:DockerfilePluginBase",
+            "godot = devc_plugins.plugins.godot.godot_dockerfile:GodotDockerfilePlugin",
+            "ros2-desktop-full = devc_plugins.plugins.ros2.ros2_desktop_full_dockerfile:Ros2DesktopFullDockerfilePlugin",  # noqa: E501
         ],
-        'devc_cli.command': [
-            'extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand',
-            'extensions = devc_cli_plugin_system.command.extensions:ExtensionsCommand',
-            'dev-json = devc_plugins.commands.dev_json_cmd:DevJsonCommand',
-            'dockerfile = devc_plugins.commands.dockerfile_cmd:DockerfileCommand',
+        "devc_cli.command": [
+            "extension_points = devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand",  # noqa: E501
+            "extensions = devc_cli_plugin_system.command.extensions:ExtensionsCommand",
+            "dev-json = devc_plugins.commands.dev_json_cmd:DevJsonCommand",
+            "dockerfile = devc_plugins.commands.dockerfile_cmd:DockerfileCommand",
         ],
-        'devc_cli.extension_point': [
-            'devc_cli.command = devc_cli_plugin_system.command:CommandExtension',
-            'devc_commands.dev_json.plugins = devc_cli_plugin_system.plugin:Plugin',
-            'devc_commands.dockerfile.plugins = devc_cli_plugin_system.plugin:Plugin',
+        "devc_cli.extension_point": [
+            "devc_cli.command = devc_cli_plugin_system.command:CommandExtension",
+            "devc_commands.dev_json.plugins = devc_cli_plugin_system.plugin:Plugin",
+            "devc_commands.dockerfile.plugins = devc_cli_plugin_system.plugin:Plugin",
         ],
     },
 )

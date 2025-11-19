@@ -1,0 +1,94 @@
+# To use:
+#
+#     pre-commit run -a
+#
+# Or:
+#
+#     pre-commit install  # (runs every time you commit in git)
+#
+# To update this file:
+#
+#     pre-commit autoupdate
+#
+# See https://github.com/pre-commit/pre-commit
+
+# files that should be ignored globally
+exclude: ^(docs/_themes/)|^(docs/_templates/)
+
+repos:
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-yaml
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+        exclude_types: [rst]
+
+  ### Python hooks ###
+  # Modernize python syntax
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.1
+    hooks:
+    -   id: pyupgrade
+        args: [--py312-plus]
+  # Enforce docstring conventions
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.3.0
+    hooks:
+    - id: pydocstyle
+      args: ["--ignore=D100,D101,D102,D103,D104,D105,D107,D203,D205,D212"] # 1xx -> ignore missing doc strings for now, 2xx conflicts with black because of empty lines
+  # linting
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+    - id: flake8
+      args: ["--max-line-length=100"]
+  # type correctness and logic errors
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        args:
+          - "--config-file"
+          - "mypy.ini"
+  # formatting
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        args: ["--line-length=100"]
+
+  # Docs - RestructuredText hooks
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.1.2
+    hooks:
+      - id: doc8
+        args: ['--max-line-length=100', '--ignore=D001']
+        exclude: CHANGELOG\.rst$
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: rst-backticks
+        exclude: CHANGELOG\.rst$
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+
+  # Spellcheck in comments and docs
+  # skipping of *.svg files is not working...
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        args: ['--ignore-words=.codespell-ignore-words.txt', '--write-changes']
+        exclude: CHANGELOG\.rst|\.(svg|pyc|drawio|txt)$
