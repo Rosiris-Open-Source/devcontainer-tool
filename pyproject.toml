@@ -44,6 +44,10 @@ dev = [
 where = ["."]
 exclude = ["test"]
 
+[tool.setuptools.package-data]
+"devc.constants.templates" = ["*"]
+"devc_plugins.plugins" = ["**/*.json"]
+
 [project.scripts]
 devc = "devc_cli_plugin_system.cli:main"
 
