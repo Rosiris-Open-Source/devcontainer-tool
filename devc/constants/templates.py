@@ -21,7 +21,7 @@ from typing import ClassVar
 class TEMPLATES:
 
     # Base directory of templates (relative to this file)
-    TEMPLATE_DIR: ClassVar[Path] = Path(__file__).parent.parent.parent / "templates"
+    TEMPLATE_DIR: ClassVar[Path] = Path(__file__).parent / "templates"
     # Template files
     DEVCONTAINER_JSON: ClassVar[str] = "devcontainer.json.j2"
     BASE_DOCKERFILE: ClassVar[str] = "Dockerfile.j2"
