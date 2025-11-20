@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devc"
+version = "0.0.0"
+description = "Devcontainer tool"
+readme = "README.md"
+license = { text = "Apache License, Version 2.0" }
+authors = [
+    { name = "Manuel Muth", email = "manuel.muth@rosiris.de" }
+]
+maintainers = [
+    { name = "Manuel Muth", email = "manuel.muth@rosiris.de" }
+]
+urls = { "Homepage" = "https://github.com/Rosiris-Open-Source/devcontainer-tool" }
+keywords = []
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+]
+dependencies = [
+    "argcomplete",
+    "docker",
+    "jinja2",
+    "packaging",
+    "typing_extensions",
+    "rich"
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+dev = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "myst-parser",
+    "pytest"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["test"]
+
+[project.scripts]
+devc = "devc_cli_plugin_system.cli:main"
+
+[project.entry-points."devc_commands.dev_json.plugins.extensions"]
+gpu = "devc_plugins.plugin_extensions.dev_json_extensions.gpu_device_extension:GpuDeviceExtension"
+nvidia = "devc_plugins.plugin_extensions.dev_json_extensions.nvidia_extension:NvidiaExtension"
+privileged = "devc_plugins.plugin_extensions.dev_json_extensions.privileged_extension:PrivilegedExtension"
+ssh = "devc_plugins.plugin_extensions.dev_json_extensions.ssh_extension:SshExtension"
+usb = "devc_plugins.plugin_extensions.dev_json_extensions.usb_extension:UsbExtension"
+
+[project.entry-points."devc_commands.dev_json.plugins"]
+base-setup = "devc_plugins.plugins.dev_json_plugin_base:DevJsonPluginBase"
+godot = "devc_plugins.plugins.godot.godot_dev_json:GodotDevJsonPlugin"
+ros2-desktop-full = "devc_plugins.plugins.ros2.ros2_dev_json:Ros2DevJsonPlugin"
+
+[project.entry-points."devc_commands.dockerfile.plugins"]
+base-setup = "devc_plugins.plugins.dockerfile_plugin_base:DockerfilePluginBase"
+godot = "devc_plugins.plugins.godot.godot_dockerfile:GodotDockerfilePlugin"
+ros2-desktop-full = "devc_plugins.plugins.ros2.ros2_desktop_full_dockerfile:Ros2DesktopFullDockerfilePlugin"
+
+[project.entry-points."devc_cli.command"]
+extension_points = "devc_cli_plugin_system.command.extension_points:ExtensionPointsCommand"
+extensions = "devc_cli_plugin_system.command.extensions:ExtensionsCommand"
+dev-json = "devc_plugins.commands.dev_json_cmd:DevJsonCommand"
+dockerfile = "devc_plugins.commands.dockerfile_cmd:DockerfileCommand"
+
+[project.entry-points."devc_cli.extension_point"]
+"devc_cli.command" = "devc_cli_plugin_system.command:CommandExtension"
+"devc_commands.dev_json.plugins" = "devc_cli_plugin_system.plugin:Plugin"
+"devc_commands.dockerfile.plugins" = "devc_cli_plugin_system.plugin:Plugin"
