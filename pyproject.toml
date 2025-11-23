@@ -36,6 +36,7 @@ test = ["pytest"]
 dev = [
     "sphinx",
     "sphinx-rtd-theme",
+    "sphinx-copybutton",
     "myst-parser",
     "pytest"
 ]
