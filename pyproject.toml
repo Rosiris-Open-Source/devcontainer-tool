@@ -34,11 +34,12 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest"]
 dev = [
-    "sphinx",
-    "sphinx-rtd-theme",
-    "sphinx-copybutton",
     "myst-parser",
-    "pytest"
+    "pytest",
+    "sphinx-autobuild",
+    "sphinx-copybutton",
+    "sphinx-rtd-theme",
+    "sphinx",
 ]
 
 [tool.setuptools.packages.find]

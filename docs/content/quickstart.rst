@@ -29,6 +29,8 @@ Create a Dockerfile (optional):
 
     devc dockerfile <dockerfile_plugin>
 
+**ROS2 Example:**
+
 For example, to create a Dockerfile with Ubuntu 24.04 and ROS2 Rolling:
 
 .. code-block:: bash
@@ -38,7 +40,7 @@ For example, to create a Dockerfile with Ubuntu 24.04 and ROS2 Rolling:
 Create a devcontainer.json:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a devcontainer.json using a ``.docker/Dockerfile``::
+Create a devcontainer.json using a local ``Dockerfile`` located in ``.docker/Dockerfile``:
 
 .. code-block:: bash
 
@@ -49,6 +51,14 @@ If you want to use an existing image instead:
 .. code-block:: bash
 
     devc dev-json <dev-json_plugin> --name "test_project" --image="<image_name>"
+
+**ROS2 Example:**
+
+For example, to create a Dockerfile with Ubuntu 24.04 and ROS2 Rolling:
+
+.. code-block:: bash
+
+    devc dev-json --nvidia --ssh=mount ros2-desktop-full --name "ros2_rolling_project"
 
 .. note::
 
