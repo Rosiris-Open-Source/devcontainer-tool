@@ -1,3 +1,5 @@
+# PYTHON_ARGCOMPLETE_OK
+
 # Copyright 2016-2017 Dirk Thomas
 # Copyright 2017 Open Source Robotics Foundation, Inc.
 # Copyright 2025 Manuel Muth

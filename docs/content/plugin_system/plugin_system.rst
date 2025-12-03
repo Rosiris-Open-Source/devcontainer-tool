@@ -30,3 +30,4 @@ are the flags ``--name="my_ros2_project"`` and ``--ros-domain-id=5`` which are s
 
 .. toctree::
    :hidden:
+   :maxdepth: 2

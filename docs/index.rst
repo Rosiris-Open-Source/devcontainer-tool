@@ -75,9 +75,11 @@ Where to go next
 * :doc:`content/quickstart`
 * :doc:`content/plugin_system/plugin_system`
 * :doc:`content/contributing/contributing`
+* :doc:`content/faq`
 
 .. toctree::
 
    content/quickstart
    content/plugin_system/plugin_system
    content/contributing/contributing
+   content/faq
