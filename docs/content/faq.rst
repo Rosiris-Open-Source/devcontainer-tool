@@ -17,6 +17,7 @@ Make sure its activated:
 .. code-block:: bash
 
     activate-global-python-argcomplete --user
+    eval "$(register-python-argcomplete devc)"
 
 .. toctree::
    :hidden:
