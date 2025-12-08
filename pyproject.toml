@@ -27,8 +27,9 @@ dependencies = [
     "docker",
     "jinja2",
     "packaging",
-    "typing_extensions",
-    "rich"
+    "questionary",
+    "rich",
+    "typing_extensions"
 ]
 
 [project.optional-dependencies]

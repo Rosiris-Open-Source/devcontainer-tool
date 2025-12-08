@@ -42,7 +42,7 @@ def instantiate_extensions(
     extension_types = load_entry_points(group_name, exclude_names=exclude_names)
     extension_instances = {}
     for extension_name, extension_class in extension_types.items():
-        extension_instance = _instantiate_extension(
+        extension_instance = instantiate_extension(
             group_name,
             extension_name,
             extension_class,
@@ -54,7 +54,7 @@ def instantiate_extensions(
     return extension_instances
 
 
-def _instantiate_extension(
+def instantiate_extension(
     group_name: str, extension_name: str, extension_class: Any, *, unique_instance: bool = False
 ) -> Any:
     global _extension_instances

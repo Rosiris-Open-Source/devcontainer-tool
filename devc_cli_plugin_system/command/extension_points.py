@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import questionary
 from typing import Any, override
 
 from devc_cli_plugin_system.command import CommandExtension
@@ -43,6 +44,34 @@ class ExtensionPointsCommand(CommandExtension):
             default=False,
             help="Show more information for each extension point",
         )
+
+    @override
+    def interactive_creation_hook(self, parser: argparse.ArgumentParser) -> list[str]:
+        answers = questionary.checkbox(
+            "Which options do you want to enable?",
+            choices=[
+                {
+                    "name": "Also show extension points which failed to be imported. "
+                    "(prefixed with `- `)",
+                    "value": "--all",
+                },
+                {"name": "Show more information for each extension point", "value": "--verbose"},
+            ],
+        ).ask()
+
+        if answers is None:
+            # User aborted
+            return []
+
+        argv: list[str] = []
+
+        if "--all" in answers:
+            argv.append("--all")
+
+        if "--verbose" in answers:
+            argv.append("--verbose")
+
+        return argv
 
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         extension_points = get_entry_points(EXTENSION_POINT_GROUP_NAME)

@@ -56,6 +56,11 @@ class CommandExtension(ABC):
     ) -> None:
         pass
 
+    def interactive_creation_hook(self, parser: argparse.ArgumentParser) -> list[str]:
+        """Interactive create content that should be parsed. Default print help()."""
+        parser.print_help()
+        return []
+
     def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
         pass
 

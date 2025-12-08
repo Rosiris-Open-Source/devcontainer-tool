@@ -24,9 +24,13 @@ import signal
 import sys
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
-from devc.utils.logging import setup_logging
-from devc.utils.console import print_error
 from devc_cli_plugin_system.command import CommandExtension
+from devc_cli_plugin_system.interactive_creation import user_selected_extension
+from devc.utils.console import print_error
+from devc.utils.logging import setup_logging
+
+SELECTED_EXTENSION_KEY = "_command"
+EXTENSION_GROUP = "devc_cli.command"
 
 
 def main(
@@ -67,12 +71,11 @@ def main(
         extension.register_plugin_extensions(parser)
     else:
         # get command entry points as needed
-        selected_extension_key = "_command"
         add_subparsers_on_demand(
             parser,
             script_name,
-            selected_extension_key,
-            "devc_cli.command",
+            SELECTED_EXTENSION_KEY,
+            EXTENSION_GROUP,
             # hide the special commands in the help
             hide_extensions=["extension_points", "extensions"],
             required=False,
@@ -108,12 +111,15 @@ def main(
 
     if extension is None:
         # get extension identified by the passed command (if available)
-        extension = getattr(args, selected_extension_key, None)
+        extension = getattr(args, SELECTED_EXTENSION_KEY, None)
 
     # handle the case that no command was passed
     if extension is None:
-        parser.print_help()
-        return 0
+        extension = user_selected_extension(
+            parser, EXTENSION_GROUP, cli_name=script_name, argv=argv
+        )
+        argv = extension.interactive_creation_hook(parser)
+        args = parser.parse_args(argv)
 
     # call the main method of the extension
     try:
