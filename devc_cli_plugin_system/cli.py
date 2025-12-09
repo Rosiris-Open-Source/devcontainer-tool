@@ -22,15 +22,14 @@ import builtins
 import functools
 import signal
 import sys
+from typing import cast
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.interactive_creation import user_selected_extension
 from devc.utils.console import print_error
 from devc.utils.logging import setup_logging
-
-SELECTED_EXTENSION_KEY = "_command"
-EXTENSION_GROUP = "devc_cli.command"
+from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS, EXTENSION_GROUPS
 
 
 def main(
@@ -71,11 +70,11 @@ def main(
         extension.register_plugin_extensions(parser)
     else:
         # get command entry points as needed
-        add_subparsers_on_demand(
+        subparser = add_subparsers_on_demand(
             parser,
             script_name,
-            SELECTED_EXTENSION_KEY,
-            EXTENSION_GROUP,
+            PLUGIN_SYSTEM_CONSTANTS.COMMAND_IDENTIFIER,
+            EXTENSION_GROUPS.COMMAND_GROUP,
             # hide the special commands in the help
             hide_extensions=["extension_points", "extensions"],
             required=False,
@@ -111,15 +110,18 @@ def main(
 
     if extension is None:
         # get extension identified by the passed command (if available)
-        extension = getattr(args, SELECTED_EXTENSION_KEY, None)
+        extension = getattr(args, PLUGIN_SYSTEM_CONSTANTS.COMMAND_IDENTIFIER, None)
 
     # handle the case that no command was passed
     if extension is None:
-        extension = user_selected_extension(
-            parser, EXTENSION_GROUP, cli_name=script_name, argv=argv
+        user_extension, argv = user_selected_extension(
+            parser, subparser, EXTENSION_GROUPS.COMMAND_GROUP, cli_name=script_name, argv=argv
         )
-        argv = extension.interactive_creation_hook(parser)
+        if user_extension is None:
+            return 0
         args = parser.parse_args(argv)
+        # TODO(Manuel) we have to clean the user_selected_extension up...
+        extension = cast(CommandExtension, user_extension)
 
     # call the main method of the extension
     try:

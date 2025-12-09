@@ -46,7 +46,12 @@ class ExtensionPointsCommand(CommandExtension):
         )
 
     @override
-    def interactive_creation_hook(self, parser: argparse.ArgumentParser) -> list[str]:
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
         answers = questionary.checkbox(
             "Which options do you want to enable?",
             choices=[

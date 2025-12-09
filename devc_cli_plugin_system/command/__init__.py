@@ -56,10 +56,19 @@ class CommandExtension(ABC):
     ) -> None:
         pass
 
-    def interactive_creation_hook(self, parser: argparse.ArgumentParser) -> list[str]:
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
         """Interactive create content that should be parsed. Default print help()."""
-        parser.print_help()
         return []
+
+    def register_plugin(
+        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
+    ) -> argparse._SubParsersAction | None:
+        pass
 
     def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
         pass
@@ -191,7 +200,7 @@ def add_subparsers_on_demand(
             known_args = argparse.Namespace(**{subparser.dest: None})
 
     # check if a specific subparser is selected
-    name = getattr(known_args, subparser.dest)
+    name = getattr(known_args, subparser.dest, None)
     if name is None:
         # add description for all command extensions to the root parser
         command_extensions = get_command_extensions(group_name)
@@ -231,6 +240,15 @@ def add_subparsers_on_demand(
             if "argv" in signature.parameters:
                 kwargs["argv"] = argv
             extension.add_arguments(command_parser, f"{cli_name} {name}", **kwargs)
+            del command_parser._root_parser
+
+        if hasattr(extension, "register_plugin"):
+            command_parser._root_parser = parser
+            signature = inspect.signature(extension.register_plugin)
+            kwargs = {}
+            if "argv" in signature.parameters:
+                kwargs["argv"] = argv
+            extension.register_plugin(command_parser, f"{cli_name} {name}", **kwargs)
             del command_parser._root_parser
 
         if hasattr(extension, "register_plugin_extensions"):

@@ -69,6 +69,56 @@ class DockerfilePluginBase(Plugin):
         )
         self._add_custom_arguments(parser, cli_name)
 
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
+        import questionary
+
+        # Base image
+        image = questionary.text(
+            "Base image to use:",
+            default=self.DEFAULT_IMAGE,
+        ).ask()
+
+        # Target path
+        path = questionary.text(
+            "Target path to create Dockerfile:",
+            default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
+        ).ask()
+
+        # Extend-with
+        extend_with = questionary.text(
+            "Path to JSON file to extend the Dockerfile:",
+            default=str(self._get_extend_file()),
+        ).ask()
+
+        # Override?
+        override = questionary.confirm(
+            "Override existing Dockerfile if present?",
+            default=False,
+        ).ask()
+
+        # Build result argv
+        result: list[str] = []
+
+        if image:
+            result.extend(["--image", image])
+
+        if path:
+            result.extend(["--path", path])
+
+        if extend_with:
+            result.extend(["--extend-with", extend_with])
+
+        if override:
+            result.append("--override")
+
+        return result
+
     def _get_extend_file(self) -> Path:
         """Override to get path to patch file for Dockerfile file."""
         return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)

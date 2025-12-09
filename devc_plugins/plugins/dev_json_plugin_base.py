@@ -95,6 +95,84 @@ class DevJsonPluginBase(Plugin):
         pass
 
     @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
+        import questionary
+
+        # Name
+        name = questionary.text(
+            "Devcontainer name (visible in UI):",
+            default="",
+        ).ask()
+
+        # Choose between image or dockerfile
+        img_choice = questionary.select(
+            "Select the container base:",
+            choices=[
+                {"name": "Use an existing image", "value": "image"},
+                {"name": "Use a Dockerfile", "value": "dockerfile"},
+            ],
+        ).ask()
+
+        image = ""
+        dockerfile = ""
+
+        if img_choice == "image":
+            image = questionary.text(
+                "Image to use:",
+                default="",
+            ).ask()
+        else:
+            dockerfile = questionary.text(
+                "Path to Dockerfile:",
+                default="../.docker/Dockerfile",
+            ).ask()
+
+        # Path
+        path = questionary.text(
+            "Target path for creating the devcontainer:",
+            default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
+        ).ask()
+
+        # Extend-with
+        extend_with = questionary.text(
+            "Path to .json file extending devcontainer.json:",
+            default=str(self._get_extend_file()),
+        ).ask()
+
+        # Override Dockerfile?
+        override = questionary.confirm(
+            "Override existing Dockerfile if present?",
+            default=False,
+        ).ask()
+
+        # Start building argv
+        result: list[str] = []
+
+        if name:
+            result.extend(["--name", name])
+
+        if image:
+            result.extend(["--image", image])
+        elif dockerfile:
+            result.extend(["--dockerfile", dockerfile])
+
+        if path:
+            result.extend(["--path", path])
+
+        if extend_with:
+            result.extend(["--extend-with", extend_with])
+
+        if override:
+            result.append("--override")
+
+        return result
+
+    @override
     def main(self, context: PluginContext) -> int:
         if context.ext_manager is None:
             print_error(

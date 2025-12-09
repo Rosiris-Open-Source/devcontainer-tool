@@ -15,37 +15,52 @@
 import argparse
 from typing import override
 
-from devc_cli_plugin_system.command import add_subparsers_on_demand
-from devc_cli_plugin_system.command import CommandExtension
-from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.plugin import Plugin
+from devc_cli_plugin_system.command import CommandExtension, add_subparsers_on_demand
+from devc_cli_plugin_system.interactive_creation import user_selected_extension
+from devc_cli_plugin_system.plugin.plugin_context import PluginContext
+from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS
+
+PLUGIN_ID = PLUGIN_SYSTEM_CONSTANTS.PLUGIN_IDENTIFIER
+DOCKERFILE_PLUGINS = "devc_commands.dockerfile.plugins"
 
 
 class DockerfileCommand(CommandExtension):
     """Entry point to create a Dockerfile for a development environment."""
 
     @override
-    def add_arguments(
+    def register_plugin(
         self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
-    ) -> None:
+    ) -> argparse._SubParsersAction:
         self._subparser = parser
         # get plugins and let them add their arguments
-        add_subparsers_on_demand(
+        return add_subparsers_on_demand(
             parser,
             cli_name,
-            "_plugin",
-            "devc_commands.dockerfile.plugins",
+            PLUGIN_ID,
+            DOCKERFILE_PLUGINS,
             required=False,
         )
 
     @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
+        """Interactive create content that should be parsed. Default print help()."""
+        _, argv = user_selected_extension(parser, subparser, DOCKERFILE_PLUGINS, cli_name=cli_name)
+        return argv
+
+    @override
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
-        if not hasattr(args, "_plugin"):
+        if not hasattr(args, PLUGIN_ID):
             # in case no plugin was passed
             self._subparser.print_help()
             return 0
 
-        plugin: Plugin = getattr(args, "_plugin")
+        plugin: Plugin = getattr(args, PLUGIN_ID)
         context = PluginContext(args=args, parser=parser)
         # call the plugin's main method
         return plugin.main(context)

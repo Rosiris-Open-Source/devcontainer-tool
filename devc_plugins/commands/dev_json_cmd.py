@@ -25,24 +25,36 @@ from devc_plugins.plugin_extensions.dev_json_extensions import (
 )
 from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.plugin import Plugin
+from devc_cli_plugin_system.interactive_creation import user_selected_extension
+from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS
+
+PLUGIN_ID = PLUGIN_SYSTEM_CONSTANTS.PLUGIN_IDENTIFIER
+DEV_JSON_PLUGINS = "devc_commands.dev_json.plugins"
 
 
 class DevJsonCommand(CommandExtension):
     """Entry point to create dev_json for a development environment."""
 
     @override
-    def add_arguments(
+    def register_plugin(
         self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
-    ) -> None:
+    ) -> argparse._SubParsersAction:
         self._subparser = parser
         # get plugins and let them add their arguments
-        add_subparsers_on_demand(
-            parser,
-            cli_name,
-            "_plugin",
-            "devc_commands.dev_json.plugins",
-            required=False,
+        return add_subparsers_on_demand(
+            parser, cli_name, PLUGIN_ID, DEV_JSON_PLUGINS, required=True, argv=argv
         )
+
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
+        """Interactive create content that should be parsed. Default print help()."""
+        _, argv = user_selected_extension(parser, subparser, DEV_JSON_PLUGINS, cli_name=cli_name)
+        return argv
 
     @override
     def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
@@ -52,14 +64,14 @@ class DevJsonCommand(CommandExtension):
 
     @override
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
-        if not hasattr(args, "_plugin"):
+        if not hasattr(args, PLUGIN_ID):
             # in case no plugin was passed
             self._subparser.print_help()
             return 0
 
         ext_manager = DevJsonExtensionManager(self._plugin_extensions, args)
 
-        plugin: Plugin = getattr(args, "_plugin")
+        plugin: Plugin = getattr(args, PLUGIN_ID)
         context = PluginContext(args=args, parser=parser, ext_manager=ext_manager)
         # call the plugin's main method
         return plugin.main(context)

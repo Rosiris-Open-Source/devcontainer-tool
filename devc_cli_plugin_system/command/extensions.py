@@ -46,7 +46,12 @@ class ExtensionsCommand(CommandExtension):
         )
 
     @override
-    def interactive_creation_hook(self, parser: argparse.ArgumentParser) -> list[str]:
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
         answers = questionary.checkbox(
             "Which options do you want to enable?",
             choices=[
@@ -71,8 +76,6 @@ class ExtensionsCommand(CommandExtension):
 
     @override
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
-        print(parser)
-        print(args)
         all_entry_points = get_all_entry_points()
         for group_name in sorted(all_entry_points.keys()):
             print(group_name)

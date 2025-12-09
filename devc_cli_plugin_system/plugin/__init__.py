@@ -45,6 +45,12 @@ class Plugin(ABC):
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         pass
 
+    def interactive_creation_hook(
+        self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
+    ) -> list[str]:
+        """Interactive create content that should be parsed. Default print help()."""
+        return []
+
     @abstractmethod
     def main(self, context: PluginContext) -> int:
         """Entry point for the plugin."""
