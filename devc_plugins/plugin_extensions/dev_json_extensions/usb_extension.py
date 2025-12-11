@@ -17,6 +17,8 @@ import argparse
 from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonPluginExtension,
 )
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class UsbExtension(DevJsonPluginExtension):
@@ -64,7 +66,7 @@ class UsbExtension(DevJsonPluginExtension):
         return "Usb"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
-        usb_parser = parser.add_argument_group("USB options")
+        usb_parser = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.DEVICES_USB)
         usb_parser.add_argument(
             "--usb-all",
             action="store_true",

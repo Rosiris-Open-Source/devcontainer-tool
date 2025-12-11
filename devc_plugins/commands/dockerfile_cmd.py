@@ -15,6 +15,8 @@
 import argparse
 from typing import override
 
+from devc_cli_plugin_system.command import add_subparsers_on_demand
+from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.command import CommandExtension, add_subparsers_on_demand
 from devc_cli_plugin_system.interactive_creation import user_selected_extension
@@ -60,7 +62,7 @@ class DockerfileCommand(CommandExtension):
             self._subparser.print_help()
             return 0
 
-        plugin: Plugin = getattr(args, PLUGIN_ID)
-        context = PluginContext(args=args, parser=parser)
+        plugin: Plugin = getattr(args, "_plugin")
+        context = self.create_plugin_context(parser=parser, args=args, plugin=plugin)
         # call the plugin's main method
         return plugin.main(context)

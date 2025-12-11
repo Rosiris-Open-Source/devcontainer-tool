@@ -17,6 +17,8 @@ import argparse
 from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonPluginExtension,
 )
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class GpuDeviceExtension(DevJsonPluginExtension):
@@ -33,7 +35,8 @@ class GpuDeviceExtension(DevJsonPluginExtension):
         return "GpuDevice"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
-        parser.add_argument(
+        graphics_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.GRAPHICS)
+        graphics_group.add_argument(
             "--gpu-dri",
             action="store_true",
             help="Enable direct GPU device access for X11/Wayland",

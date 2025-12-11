@@ -11,19 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse
 
-from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
+from dataclasses import dataclass
+from typing import ClassVar
 
 
-class PluginContext:
-    def __init__(
-        self,
-        *,
-        args: argparse.Namespace,
-        parser: argparse.ArgumentParser,
-        ext_manager: ExtensionManager | None = None,
-    ) -> None:
-        self.args = args
-        self.parser = parser
-        self.ext_manager = ext_manager
+@dataclass(frozen=True)
+class PLUGIN_EXTENSION_ARGUMENT_GROUPS:
+
+    BASIC: ClassVar[str] = "Basic Setup"
+    DEVICES_USB: ClassVar[str] = "Device/USB Options"
+    GRAPHICS: ClassVar[str] = "Graphics Options"
+    ROS2: ClassVar[str] = "ROS2 Flags"

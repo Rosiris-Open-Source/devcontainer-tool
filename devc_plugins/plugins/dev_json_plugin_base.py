@@ -17,6 +17,8 @@ from typing import Any
 import argparse
 
 from devc_cli_plugin_system.plugin import Plugin
+from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
+
 from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonExtensionManager,
 )
@@ -36,22 +38,28 @@ from devc.core.devcontainer_json_creation_service import (
 from devc.utils.argparse_validators import IsEmptyOrNewDir, IsExistingFile
 from devc.utils.console import print_error, print_warning
 from devc_cli_plugin_system.plugin.plugin_context import PluginContext
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class DevJsonPluginBase(Plugin):
     """Create a basic devcontainer.json."""
 
     DEFAULT_TEMPLATE = TEMPLATES.DEVCONTAINER_JSON
+    PLUGIN_EXTENSION_GROUP = "devc_commands.dev_json.plugins.extensions"
+    PLUGIN_EXTENSION_MANAGER = DevJsonExtensionManager
 
     @override
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
-        parser.add_argument(
+        base_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.BASIC)
+        base_group.add_argument(
             "--name",
             help="A name for the dev container displayed in the UI.",
             default="",
             nargs="?",
+            required=True,
         )
-        img_build_group = parser.add_mutually_exclusive_group(required=False)
+        img_build_group = base_group.add_mutually_exclusive_group(required=False)
         img_build_group.add_argument(
             "--image",
             help="Image to use if not use a Dockerfile to build a image.",
@@ -64,21 +72,21 @@ class DevJsonPluginBase(Plugin):
             default="../.docker/Dockerfile",
             nargs="?",
         )
-        parser.add_argument(
+        base_group.add_argument(
             "--path",
             help="Where to create the devcontainer folder and files.",
             type=IsEmptyOrNewDir(must_be_empty=False),
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
             nargs="?",
         )
-        parser.add_argument(
+        base_group.add_argument(
             "--extend-with",
             help="path to a .json file to extend the .devcontainer.json.",
             type=IsExistingFile(),
             default=str(self._get_extend_file()),
             nargs="?",
         )
-        parser.add_argument(
+        base_group.add_argument(
             "--override",
             help="Override the existing Dockerfile if it exists.",
             action="store_true",
@@ -214,7 +222,7 @@ class DevJsonPluginBase(Plugin):
     def _add_live_json_patch(
         self,
         args: argparse.Namespace,
-        ext_manager: DevJsonExtensionManager,
+        ext_manager: ExtensionManager,
     ) -> None:
         patch = self._get_direct_json_patch(args)
         ext_manager.add_update(patch)

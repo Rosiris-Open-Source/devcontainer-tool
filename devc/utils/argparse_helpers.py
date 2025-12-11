@@ -11,19 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import argparse
 
-from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
 
+def get_or_create_group(
+    parser: argparse.ArgumentParser, group_name: str
+) -> argparse._ArgumentGroup:
+    # Check if a group with this name already exists
+    for group in parser._action_groups:
+        if group.title == group_name:
+            return group
 
-class PluginContext:
-    def __init__(
-        self,
-        *,
-        args: argparse.Namespace,
-        parser: argparse.ArgumentParser,
-        ext_manager: ExtensionManager | None = None,
-    ) -> None:
-        self.args = args
-        self.parser = parser
-        self.ext_manager = ext_manager
+    return parser.add_argument_group(group_name)

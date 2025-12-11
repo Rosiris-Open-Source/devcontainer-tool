@@ -19,6 +19,8 @@ from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonPluginExtension,
 )
 from devc.utils.docker_utils import get_docker_version
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class NvidiaExtension(DevJsonPluginExtension):
@@ -34,7 +36,8 @@ class NvidiaExtension(DevJsonPluginExtension):
         return "nvidia"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
-        parser.add_argument(
+        graphics_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.GRAPHICS)
+        graphics_group.add_argument(
             NvidiaExtension.as_arg_name(),
             choices=["auto", "runtime", "gpus"],
             nargs="?",

@@ -27,7 +27,8 @@ from devc_cli_plugin_system.entry_points import get_first_line_doc
 from devc_cli_plugin_system.plugin_system import instantiate_extensions
 from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
-from devc_cli_plugin_system.plugin_extensions import PluginExtensionContext
+from devc_cli_plugin_system.plugin.plugin_context import PluginContext
+from devc_cli_plugin_system.plugin import Plugin
 
 
 class CommandExtension(ABC):
@@ -50,12 +51,7 @@ class CommandExtension(ABC):
     def __init__(self) -> None:
         super().__init__()
         satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
-
-    def add_arguments(
-        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
-    ) -> None:
-        pass
-
+   
     def interactive_creation_hook(
         self,
         parser: argparse.ArgumentParser,
@@ -64,14 +60,27 @@ class CommandExtension(ABC):
     ) -> list[str]:
         """Interactive create content that should be parsed. Default print help()."""
         return []
+        
+    def add_arguments(
+        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
+    ) -> None:
+        pass
 
     def register_plugin(
         self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
     ) -> argparse._SubParsersAction | None:
         pass
 
-    def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
-        pass
+    def create_plugin_context(
+        self, parser: argparse.ArgumentParser, args: argparse.Namespace, plugin: Plugin
+    ) -> PluginContext:
+        manager_cls = plugin.PLUGIN_EXTENSION_MANAGER
+        ext_manager = None
+        if manager_cls:
+            plugin_extension_context = plugin.get_plugin_extension_context()
+            if plugin_extension_context:
+                ext_manager = manager_cls(plugin_extension_context, args)
+        return PluginContext(args=args, parser=parser, ext_manager=ext_manager)
 
     @abstractmethod
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int: ...
@@ -95,30 +104,6 @@ class MutableString:
 
     def __iter__(self) -> Iterator[str]:
         return self.value.__iter__()
-
-
-def add_plugin_extensions(
-    group_name: str,
-    parser: argparse.ArgumentParser,
-    defaults: dict,
-    exclude_names: set[str] | None = None,
-) -> PluginExtensionContext:
-    """
-    Dynamically load all extensions for a plugin group and register their CLI args.
-
-    Each plugin can register arguments, and this function tracks which arguments
-    belong to which plugin so they can be cleanly separated later.
-
-    returns PluginExtensionContext of the available plugins
-    """
-    extensions = instantiate_extensions(group_name, exclude_names=exclude_names)
-    plugin_data = PluginExtensionContext()
-    for ext in extensions.values():
-        # Let the plugin register its CLI args
-        ext.register_arguments_to_parser(parser, defaults)
-        plugin_data.add_available_plugin_extension(ext)
-
-    return plugin_data
 
 
 def add_subparsers_on_demand(

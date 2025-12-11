@@ -51,5 +51,8 @@ class ExtensionManager(ABC, Generic[T]):
     def get_combined_updates(self) -> dict[str, Any]:
         pass
 
+    def add_update(self, update: dict[str, Any]) -> None:
+        pass
+
     def _merge_updates(self, base: dict[str, Any], new: dict[str, Any]) -> dict[str, Any]:
         return self._merge_updates_strategy.merge_dicts(base, new)
