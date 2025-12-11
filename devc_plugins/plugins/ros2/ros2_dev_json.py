@@ -18,6 +18,8 @@ import argparse
 
 from devc.utils.argparse_validators import IsPositiveInt
 from devc_plugins.plugins.dev_json_plugin_base import DevJsonPluginBase
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class Ros2DevJsonPlugin(DevJsonPluginBase):
@@ -25,21 +27,22 @@ class Ros2DevJsonPlugin(DevJsonPluginBase):
 
     @override
     def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
-        parser.add_argument(
+        ros2_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.ROS2)
+        ros2_group.add_argument(
             "--ros-distro",
             help="ROS 2 distribution (humble, iron, jazzy, rolling...)",
             choices=["humble", "iron", "jazzy", "kilted", "rolling"],
             default="rolling",
             nargs="?",
         )
-        parser.add_argument(
+        ros2_group.add_argument(
             "--ros-domain-id",
             help="ROS_DOMAIN_ID used in the container.",
             type=IsPositiveInt(),
             default=0,
             nargs="?",
         )
-        parser.add_argument(
+        ros2_group.add_argument(
             "--ros-automatic-discovery-range",
             help="ROS_AUTOMATIC_DISCOVERY_RANGE used in the container.",
             choices=["SUBNET", "LOCALHOST", "OFF", "SYSTEM_DEFAULT"],

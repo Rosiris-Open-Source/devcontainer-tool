@@ -17,6 +17,8 @@ import argparse
 from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonPluginExtension,
 )
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class PrivilegedExtension(DevJsonPluginExtension):
@@ -32,7 +34,8 @@ class PrivilegedExtension(DevJsonPluginExtension):
         return "privileged"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
-        parser.add_argument(
+        basic_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.BASIC)
+        basic_group.add_argument(
             PrivilegedExtension.as_arg_name(),
             action="store_true",
             default=False,
