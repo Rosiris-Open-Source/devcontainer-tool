@@ -17,6 +17,8 @@ from typing import Any
 import argparse
 
 from devc_cli_plugin_system.plugin import Plugin
+from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
+
 from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonExtensionManager,
 )
@@ -42,6 +44,8 @@ class DevJsonPluginBase(Plugin):
     """Create a basic devcontainer.json."""
 
     DEFAULT_TEMPLATE = TEMPLATES.DEVCONTAINER_JSON
+    PLUGIN_EXTENSION_GROUP = "devc_commands.dev_json.plugins.extensions"
+    PLUGIN_EXTENSION_MANAGER = DevJsonExtensionManager
 
     @override
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
@@ -136,7 +140,7 @@ class DevJsonPluginBase(Plugin):
     def _add_live_json_patch(
         self,
         args: argparse.Namespace,
-        ext_manager: DevJsonExtensionManager,
+        ext_manager: ExtensionManager,
     ) -> None:
         patch = self._get_direct_json_patch(args)
         ext_manager.add_update(patch)

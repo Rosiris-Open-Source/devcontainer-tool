@@ -25,7 +25,7 @@ It is intended to extend the dev-json command with common extensions which shoul
 to the devcontainer.json file. Examples are mounting of devices, graphics access and the like.
 """
 from abc import abstractmethod
-from typing import Any
+from typing import Any, override
 import argparse
 
 
@@ -111,6 +111,7 @@ class DevJsonExtensionManager(ExtensionManager["DevJsonPluginExtension"]):
         super().__init__(context, cliargs, merge_updates_strategy)
         self._additional_updates: list[dict[str, Any]] = []
 
+    @override
     def get_combined_updates(self) -> dict[str, Any]:
         """Merge updates from all called extensions."""
         merged: dict = {}
@@ -121,6 +122,7 @@ class DevJsonExtensionManager(ExtensionManager["DevJsonPluginExtension"]):
             merged = self._merge_updates(merged, update)
         return merged
 
+    @override
     def add_update(self, update: dict[str, Any]) -> None:
         """Add patches which will be merged with the plugin extension updates."""
         self._additional_updates.append(update)

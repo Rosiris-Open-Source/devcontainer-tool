@@ -13,9 +13,7 @@
 # limitations under the License.
 import argparse
 
-from devc_plugins.plugin_extensions.dev_json_extensions import (
-    DevJsonExtensionManager,
-)
+from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
 
 
 class PluginContext:
@@ -24,7 +22,7 @@ class PluginContext:
         *,
         args: argparse.Namespace,
         parser: argparse.ArgumentParser,
-        ext_manager: DevJsonExtensionManager | None = None,
+        ext_manager: ExtensionManager | None = None,
     ) -> None:
         self.args = args
         self.parser = parser

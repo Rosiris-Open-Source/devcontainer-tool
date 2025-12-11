@@ -17,7 +17,6 @@ from typing import override
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc_cli_plugin_system.command import CommandExtension
-from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.plugin import Plugin
 
 
@@ -46,6 +45,6 @@ class DockerfileCommand(CommandExtension):
             return 0
 
         plugin: Plugin = getattr(args, "_plugin")
-        context = PluginContext(args=args, parser=parser)
+        context = self.create_plugin_context(parser=parser, args=args, plugin=plugin)
         # call the plugin's main method
         return plugin.main(context)

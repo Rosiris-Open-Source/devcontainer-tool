@@ -18,9 +18,7 @@ import jinja2
 import json
 import re
 
-from devc_plugins.plugin_extensions.dev_json_extensions import (
-    DevJsonExtensionManager,
-)
+from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
 from devc.constants.templates import TEMPLATES
 from devc.core.exceptions.devcontainer_json_exception import (
     DevJsonTemplateNotFoundError,
@@ -43,11 +41,11 @@ class DevcontainerJsonCreationService:
         *,
         template_machine: TemplateMachine,
         loader: TemplateLoaderABC,
-        ext_manager: DevJsonExtensionManager,
+        ext_manager: ExtensionManager,
     ):
         self._template_machine: TemplateMachine = template_machine
         self._loader: TemplateLoaderABC = loader
-        self._ext_manager: DevJsonExtensionManager = ext_manager
+        self._ext_manager: ExtensionManager = ext_manager
         self._json_update_strategy = AppendListMerge()
 
     def _load_template(self, template_file: str) -> jinja2.Template:

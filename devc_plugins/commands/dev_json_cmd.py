@@ -15,15 +15,8 @@ import argparse
 from typing import override
 
 
-from devc_cli_plugin_system.command import (
-    add_subparsers_on_demand,
-    add_plugin_extensions,
-)
+from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc_cli_plugin_system.command import CommandExtension
-from devc_plugins.plugin_extensions.dev_json_extensions import (
-    DevJsonExtensionManager,
-)
-from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.plugin import Plugin
 
 
@@ -45,21 +38,13 @@ class DevJsonCommand(CommandExtension):
         )
 
     @override
-    def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
-        self._plugin_extensions = add_plugin_extensions(
-            "devc_commands.dev_json.plugins.extensions", parser, defaults={}
-        )
-
-    @override
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         if not hasattr(args, "_plugin"):
             # in case no plugin was passed
             self._subparser.print_help()
             return 0
 
-        ext_manager = DevJsonExtensionManager(self._plugin_extensions, args)
-
         plugin: Plugin = getattr(args, "_plugin")
-        context = PluginContext(args=args, parser=parser, ext_manager=ext_manager)
+        context = self.create_plugin_context(parser=parser, args=args, plugin=plugin)
         # call the plugin's main method
         return plugin.main(context)
