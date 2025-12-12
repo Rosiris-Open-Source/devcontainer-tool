@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import questionary
 from typing import Any, override
 
 from devc_cli_plugin_system.command import CommandExtension
@@ -43,6 +44,35 @@ class ExtensionsCommand(CommandExtension):
             default=False,
             help="Show more information for each extension",
         )
+
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
+        answers = questionary.checkbox(
+            "Which options do you want to enable?",
+            choices=[
+                {"name": "Show all extensions (failed/incompatible included)", "value": "--all"},
+                {"name": "Verbose output", "value": "--verbose"},
+            ],
+        ).ask()
+
+        if answers is None:
+            # User aborted
+            return []
+
+        argv: list[str] = []
+
+        if "--all" in answers:
+            argv.append("--all")
+
+        if "--verbose" in answers:
+            argv.append("--verbose")
+
+        return argv
 
     @override
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:

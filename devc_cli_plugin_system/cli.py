@@ -22,11 +22,14 @@ import builtins
 import functools
 import signal
 import sys
+from typing import cast
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
-from devc.utils.logging import setup_logging
-from devc.utils.console import print_error
 from devc_cli_plugin_system.command import CommandExtension
+from devc_cli_plugin_system.interactive_creation import user_selected_extension
+from devc.utils.console import print_error
+from devc.utils.logging import setup_logging
+from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS, EXTENSION_GROUPS
 
 
 def main(
@@ -67,12 +70,11 @@ def main(
         extension.register_plugin_extensions(parser)
     else:
         # get command entry points as needed
-        selected_extension_key = "_command"
-        add_subparsers_on_demand(
+        subparser = add_subparsers_on_demand(
             parser,
             script_name,
-            selected_extension_key,
-            "devc_cli.command",
+            PLUGIN_SYSTEM_CONSTANTS.COMMAND_IDENTIFIER,
+            EXTENSION_GROUPS.COMMAND_GROUP,
             # hide the special commands in the help
             hide_extensions=["extension_points", "extensions"],
             required=False,
@@ -108,12 +110,18 @@ def main(
 
     if extension is None:
         # get extension identified by the passed command (if available)
-        extension = getattr(args, selected_extension_key, None)
+        extension = getattr(args, PLUGIN_SYSTEM_CONSTANTS.COMMAND_IDENTIFIER, None)
 
     # handle the case that no command was passed
     if extension is None:
-        parser.print_help()
-        return 0
+        user_extension, argv = user_selected_extension(
+            parser, subparser, EXTENSION_GROUPS.COMMAND_GROUP, cli_name=script_name, argv=argv
+        )
+        if user_extension is None:
+            return 0
+        args = parser.parse_args(argv)
+        # TODO(Manuel) we have to clean the user_selected_extension up...
+        extension = cast(CommandExtension, user_extension)
 
     # call the main method of the extension
     try:
