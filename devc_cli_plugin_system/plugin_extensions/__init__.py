@@ -19,6 +19,8 @@ import argparse
 class PluginExtension(ABC):
     """The base class for plugin extension points of the plugins."""
 
+    name: str = ""
+
     def precondition_environment(self, cliargs: argparse.Namespace) -> None:
         """Modify the local environment such as setup tempfiles."""
         pass
@@ -35,10 +37,11 @@ class PluginExtension(ABC):
         """Return argument dest names added by this plugin."""
         return getattr(self, "_registered_args", set())
 
-    @staticmethod
-    @abstractmethod
-    def get_name() -> str:
-        raise NotImplementedError
+    @classmethod
+    def get_name(cls) -> str:
+        if cls.name is None or not cls.name:
+            raise NotImplementedError("Plugins must define non empty 'name'.")
+        return cls.name.replace("-", "_")
 
     @classmethod
     def as_arg_name(cls) -> str:

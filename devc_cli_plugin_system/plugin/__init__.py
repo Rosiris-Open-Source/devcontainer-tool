@@ -54,7 +54,6 @@ class Plugin(ABC):
         """Interactive create content that should be parsed. Default print help()."""
         return []
         
-    @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         pass
       

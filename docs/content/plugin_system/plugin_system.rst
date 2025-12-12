@@ -7,14 +7,16 @@ The ``devc`` tool uses a modular plugin architecture. It is divided into ``comma
 
 .. code-block:: bash
 
-    devc <command> --plugin-extensions <plugin> --plugin-flag
+    devc <command> <plugin> --plugin-flag_1 --plugin_flag_m --plugin-extensions-flag_1 --plugin-extensions-flag_n
 
-for example:
+The order of the ``plugin-flags`` and the ``plugin-extensions-flags`` does not matter. For explanatory purpose the ``plugin-flags`` are enclosed with brackets like ``[--plugin-flag]`` which is not valid syntax.
+For example:
 
 .. code-block:: bash
 
-    devc dev-json --nvidia=auto --ssh=mount ros2-dektop-full --name="my_ros2_project" --ros-domain-id=5
+    devc dev-json ros2-dektop-full [--name="my_ros2_project" --ros-domain-id=5] --nvidia=auto --ssh=mount
 
+So in this case ``[--name="my_ros2_project" --ros-domain-id=5]`` would be the plugins own flags while ``--nvidia=auto --ssh=mount`` are plugin-extension-flags which are available for any plugin.
 
 **Command**
 would be ``dev-json``, which tells ``devc`` we want to create a devcontainer.json. Another example would be the ``dockerfile`` command.

@@ -23,6 +23,8 @@ from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 class SshExtension(DevJsonPluginExtension):
 
+    name = "ssh"
+
     def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
         ssh_flag = cliargs.get(SshExtension.get_name(), None)
 
@@ -43,10 +45,6 @@ class SshExtension(DevJsonPluginExtension):
                 ]
             }
         return {}
-
-    @staticmethod
-    def get_name() -> str:
-        return "ssh"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         basic_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.BASIC)

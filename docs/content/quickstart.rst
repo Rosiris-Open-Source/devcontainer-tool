@@ -58,7 +58,7 @@ For example, to create a Dockerfile with Ubuntu 24.04 and ROS2 Rolling:
 
 .. code-block:: bash
 
-    devc dev-json --nvidia --ssh=mount ros2-desktop-full --name "ros2_rolling_project"
+    devc dev-json ros2-desktop-full --name "ros2_rolling_project" --nvidia --ssh=mount
 
 .. note::
 

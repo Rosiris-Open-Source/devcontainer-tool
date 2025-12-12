@@ -23,15 +23,13 @@ from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 class PrivilegedExtension(DevJsonPluginExtension):
 
+    name = "privileged"
+
     def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
         privileged_flag = cliargs.get(PrivilegedExtension.get_name(), None)
         if privileged_flag:
             return {"runArgs": ["--privileged"]}
         return {}
-
-    @staticmethod
-    def get_name() -> str:
-        return "privileged"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         basic_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.BASIC)
