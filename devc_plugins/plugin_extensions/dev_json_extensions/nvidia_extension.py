@@ -25,15 +25,13 @@ from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 class NvidiaExtension(DevJsonPluginExtension):
 
+    name: str = "nvidia"
+
     def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
         nvidia_flag = self._flag_from_arg(cliargs)
         if nvidia_flag:
             return {"runArgs": [nvidia_flag]}
         return {}
-
-    @staticmethod
-    def get_name() -> str:
-        return "nvidia"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         graphics_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.GRAPHICS)

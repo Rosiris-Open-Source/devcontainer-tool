@@ -48,7 +48,6 @@ class Plugin(ABC):
         self._plugin_extensions_context: PluginExtensionContext | None = None
         satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
 
-    @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         pass
 
