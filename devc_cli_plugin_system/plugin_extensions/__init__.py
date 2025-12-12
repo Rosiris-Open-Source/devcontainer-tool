@@ -25,27 +25,29 @@ class PluginExtension(ABC):
         """Modify the local environment such as setup tempfiles."""
         pass
 
-    def validate_environment(self, cliargs: argparse.Namespace) -> bool:
+    def validate_environment(self, cliargs: argparse.Namespace) -> None:
         """
         Check that the environment is something that can be used.
         This will check that we're on the right base OS and that the
         necessary resources are available, like hardware.
         """
-        return True
+        pass
 
     def get_registered_args(self) -> set:
         """Return argument dest names added by this plugin."""
         return getattr(self, "_registered_args", set())
 
     @classmethod
-    def get_name(cls) -> str:
-        if cls.name is None or not cls.name:
+    def get_name(cls, name: str = "") -> str:
+        if name is None or not name.strip():
+            name = cls.name
+        if name is None or not name:
             raise NotImplementedError("Plugins must define non empty 'name'.")
-        return cls.name.replace("-", "_")
+        return name.replace("-", "_")
 
     @classmethod
-    def as_arg_name(cls) -> str:
-        return "--%s" % cls.get_name().replace("_", "-")
+    def as_arg_name(cls, name: str = "") -> str:
+        return "--%s" % cls.get_name(name).replace("_", "-")
 
     def register_arguments_to_parser(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         """Track which arguments were registered. This is called by the cli infrastructure."""
