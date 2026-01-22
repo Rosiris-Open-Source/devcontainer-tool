@@ -12,9 +12,9 @@ for a full explanation of how plugins and extensions are discovered and used.
 This guide focuses on practical steps for contributors who want to implement
 their own:
 
-    - command like the ``dev-json`` command (e.g. ``devc my-command`` ),
-    - :ref:`plugin <creating_a_plugin>` for details. to an existing command like the ``ros2`` plugin for the ``dev-json`` command (e.g. ``devc dev-json my-plugin``) :
-    - :ref:`plugin-extension <creating_a_plugin_extension>` like the ``--nvidia`` flag for the ``dev-json`` command that can be reused by multiple plugins (e.g. ``devc dev-json --my-extension ros2``).
+    - command like the ``dev-json`` command (e.g. ``devc my-cool-command`` ),
+    - :ref:`plugin <creating_a_plugin>` for an existing command. For example the ``ros2-desktop-full`` plugin for the ``dev-json`` command (e.g. ``devc dev-json my-plugin``) :
+    - :ref:`plugin-extension <creating_a_plugin_extension>` like the ``--nvidia`` flag for the plugins of the ``dev-json`` command that can be reused by multiple plugins (e.g. ``devc dev-json ros2-desktop-full --my-extension``).
 
 
 Contributions should follow the existing directory layout:
@@ -38,9 +38,9 @@ optionally activates extensions. The easiest way to start is by subclassing
 * ``_extend_base_arguments`` – define your plugin-specific CLI flags
 * ``_get_direct_json_patch`` – return JSON patches applied to the final output
 
-Example: A minimal plugin that inserts a custom environment variable::
+Fist create a file in ``devc_plugins/plugins/my_plugin/my_plugin.py``.Then create a minimal plugin that inserts a custom environment variable::
 
-    # my_package/my_plugin.py
+    # my_plugin/my_plugin.py
     from typing import Any
     import argparse
     from devc_plugins.plugins.dev_json_plugin_base import DevJsonPluginBase
@@ -65,7 +65,8 @@ Example: A minimal plugin that inserts a custom environment variable::
 To register the plugin, add it to ``pyproject.toml``::
 
     [project.entry-points."devc_commands.dev_json.plugins"]
-    my-example = "my_package.my_plugin:MyDevJsonPlugin"
+    ... other plugins
+    my-example = "devc_plugins.plugins.my_plugin.my_plugin:MyDevJsonPlugin"
 
 After installation, it appears automatically:
 
@@ -97,23 +98,30 @@ Extensions subclass ``DevJsonPluginExtension``. They must implement:
 * ``_get_devcontainer_updates`` – return the JSON patch contributed
 * ``_register_arguments`` – define flags such as ``--my-extension``
 
-Example: A minimal extension enabling a custom mount::
+First create the a file ``devc_plugins/plugin_extensions/dev_json_extensions/my_extension.p``. A minimal extension enabling a custom mount::
 
-    # my_package/my_extension.py
+    # dev_json_extensions/my_extension.py
     from typing import Any
     import argparse
     from devc_plugins.plugin_extensions.dev_json_extensions import DevJsonPluginExtension
 
     class MyMountExtension(DevJsonPluginExtension):
+
+        name = "my-mount"
+
         def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
             parser.add_argument(
-                "--my-mount",
+                MyMountExtension.as_arg_name(),
                 help="Mount ~/data into the container.",
                 action="store_true",
             )
 
         def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
-            if not cliargs.my_mount:
+            print(MyMountExtension.as_arg_name())
+            flag = cliargs.get(MyMountExtension.get_name(), None)
+            print(cliargs)
+            print(flag)
+            if not flag:
                 return {}
             return {
                 "mounts": [
@@ -124,7 +132,8 @@ Example: A minimal extension enabling a custom mount::
 Register the extension in ``pyproject.toml``::
 
     [project.entry-points."devc_commands.dev_json.plugins.extensions"]
-    my-mount = "my_package.my_extension:MyMountExtension"
+    ... other plugin extensions
+    my-extension = "devc_plugins.plugin_extensions.dev_json_extensions.my_extension:MyMountExtension"
 
 Now any dev-json plugin automatically supports the new flag:
 

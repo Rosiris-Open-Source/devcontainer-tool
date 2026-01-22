@@ -13,3 +13,7 @@
 # limitations under the License.
 class DependencyMissing(RuntimeError):
     pass
+
+
+class EnvironmentValidationError(RuntimeError):
+    pass

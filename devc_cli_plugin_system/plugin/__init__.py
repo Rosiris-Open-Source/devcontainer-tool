@@ -53,8 +53,7 @@ class Plugin(ABC):
         self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
     ) -> list[str]:
         pass
-
-    @abstractmethod
+      
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         pass
 

@@ -22,22 +22,19 @@ from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 
 class GpuDeviceExtension(DevJsonPluginExtension):
+    name = "gpu-dri"
 
     def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
 
-        if cliargs.get("gpu_dri", False):
+        if cliargs.get(GpuDeviceExtension.get_name(), False):
             return {"runArgs": ["--device=/dev/dri", "--group-add", "video"]}
 
         return {}
 
-    @staticmethod
-    def get_name() -> str:
-        return "GpuDevice"
-
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         graphics_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.GRAPHICS)
         graphics_group.add_argument(
-            "--gpu-dri",
+            GpuDeviceExtension.as_arg_name(),
             action="store_true",
             help="Enable direct GPU device access for X11/Wayland",
         )

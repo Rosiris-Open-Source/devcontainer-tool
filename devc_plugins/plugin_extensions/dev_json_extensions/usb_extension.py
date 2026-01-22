@@ -23,6 +23,8 @@ from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 
 class UsbExtension(DevJsonPluginExtension):
 
+    name = "usb"
+
     def _get_devcontainer_updates(self, cliargs: argparse.Namespace) -> dict[str, Any]:
         usb_args = self._parse_cli(cliargs=cliargs)
 
@@ -60,10 +62,6 @@ class UsbExtension(DevJsonPluginExtension):
             **({"runArgs": run_args} if run_args else {}),
             **({"mounts": mounts} if mounts else {}),
         }
-
-    @staticmethod
-    def get_name() -> str:
-        return "Usb"
 
     def _register_arguments(self, parser: argparse.ArgumentParser, defaults: dict) -> None:
         usb_parser = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.DEVICES_USB)

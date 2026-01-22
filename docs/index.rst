@@ -35,7 +35,7 @@ Using the ROS 2 plugin, ``devc`` creates the entire environment for you:
 
 ::
 
-    devc dev-json --nvidia --ssh=mount ros2-desktop-full --ros-distro rolling --name "my_ros2_ws"
+    devc dev-json ros2-desktop-full --ros-distro rolling --name "my_ros2_ws" --nvidia --ssh=mount
 
 That’s all you need. After this you can open the folder in VSCode with: ``code .`` and press F1 → ``Dev Containers: Reopen in Container``.
 After this you are all set up with a isolated full ROS 2 development environment.

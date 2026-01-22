@@ -29,7 +29,7 @@ devc dockerfile ros2-desktop-full
 ```
 Create the devcontainer for your workspace
 ```bash
-devc dev-json --nvidia --ssh=mount ros2-desktop-full --name "ros2_rolling_project"
+devc dev-json ros2-desktop-full --name "ros2_rolling_project" --nvidia --ssh=mount
 ```
 After this you can open [Visual Studio Code](https://code.visualstudio.com/) `code .` press `F1 → Dev Containers: Reopen in Container` and start coding!
 > **_NOTE:_** This can take a little bit the very first time because the Docker Image needs to be pulled. You can check the progress
