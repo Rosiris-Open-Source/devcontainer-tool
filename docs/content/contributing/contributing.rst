@@ -2,6 +2,7 @@
 
 Contributing
 ============
+On guides how to contributed to the documentation or how to create command, plugins and plugins extensions, checkout those pages:
 
 .. toctree::
    :maxdepth: 2
