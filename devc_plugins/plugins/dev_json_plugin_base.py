@@ -15,10 +15,11 @@ from pathlib import Path
 from typing import override
 from typing import Any
 import argparse
+import questionary
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
-
+from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_plugins.plugin_extensions.dev_json_extensions import (
     DevJsonExtensionManager,
 )
@@ -35,11 +36,11 @@ from devc.core.template_machine import TemplateMachine
 from devc.core.devcontainer_json_creation_service import (
     DevcontainerJsonCreationService,
 )
-from devc.utils.argparse_validators import IsEmptyOrNewDir, IsExistingFile
-from devc.utils.console import print_error, print_warning
-from devc_cli_plugin_system.plugin.plugin_context import PluginContext
-from devc.utils.argparse_helpers import get_or_create_group
 from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.utils.console import print_error, print_warning
+from devc.utils.validators import argparse_validators
+from devc.utils.validators import questionary_validators
 
 
 class DevJsonPluginBase(Plugin):
@@ -56,6 +57,7 @@ class DevJsonPluginBase(Plugin):
             "--name",
             help="A name for the dev container displayed in the UI.",
             default="",
+            type=argparse_validators.NotEmpty(),
             nargs="?",
             required=True,
         )
@@ -75,14 +77,14 @@ class DevJsonPluginBase(Plugin):
         base_group.add_argument(
             "--path",
             help="Where to create the devcontainer folder and files.",
-            type=IsEmptyOrNewDir(must_be_empty=False),
+            type=argparse_validators.EmptyOrNewDir(must_be_empty=False),
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
             nargs="?",
         )
         base_group.add_argument(
             "--extend-with",
             help="path to a .json file to extend the .devcontainer.json.",
-            type=IsExistingFile(),
+            type=argparse_validators.ExistingFile(),
             default=str(self._get_extend_file()),
             nargs="?",
         )
@@ -92,15 +94,19 @@ class DevJsonPluginBase(Plugin):
             action="store_true",
             default=False,
         )
-        self._add_custom_arguments(parser, cli_name)
+        self._extend_base_arguments(parser, cli_name)
 
     def _get_extend_file(self) -> Path:
         """Override to apply patch though an extension file (jinja template) to devcontainer.json file."""  # noqa: E501
         return TEMPLATES.get_template_path(TEMPLATES.DEVCONTAINER_EXTENSIONS_JSON)
 
-    def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
+    def _extend_base_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         """Override to add extra plugin-specific args."""
         pass
+
+    def _extend_base_interactive_creation_hook(self) -> list[str]:
+        """Override to add extra interactive questions."""
+        return []
 
     @override
     def interactive_creation_hook(
@@ -109,13 +115,14 @@ class DevJsonPluginBase(Plugin):
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
     ) -> list[str]:
-        import questionary
 
         # Name
         name = questionary.text(
-            "Devcontainer name (visible in UI):",
+            "Devcontainer name:",
             default="",
-        ).ask()
+            validate=questionary_validators.NotEmpty(),
+            instruction="(Visible in UI, cannot be empty)",
+        ).unsafe_ask()
 
         # Choose between image or dockerfile
         img_choice = questionary.select(
@@ -124,7 +131,7 @@ class DevJsonPluginBase(Plugin):
                 {"name": "Use an existing image", "value": "image"},
                 {"name": "Use a Dockerfile", "value": "dockerfile"},
             ],
-        ).ask()
+        ).unsafe_ask()
 
         image = ""
         dockerfile = ""
@@ -133,30 +140,32 @@ class DevJsonPluginBase(Plugin):
             image = questionary.text(
                 "Image to use:",
                 default="",
-            ).ask()
+                validate=questionary_validators.NotEmpty(),
+                instruction="(Cannot be empty)",
+            ).unsafe_ask()
         else:
             dockerfile = questionary.text(
                 "Path to Dockerfile:",
                 default="../.docker/Dockerfile",
-            ).ask()
+            ).unsafe_ask()
 
         # Path
         path = questionary.text(
             "Target path for creating the devcontainer:",
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
-        ).ask()
+        ).unsafe_ask()
 
         # Extend-with
         extend_with = questionary.text(
             "Path to .json file extending devcontainer.json:",
             default=str(self._get_extend_file()),
-        ).ask()
+        ).unsafe_ask()
 
         # Override Dockerfile?
         override = questionary.confirm(
             "Override existing Dockerfile if present?",
             default=False,
-        ).ask()
+        ).unsafe_ask()
 
         # Start building argv
         result: list[str] = []
@@ -178,6 +187,8 @@ class DevJsonPluginBase(Plugin):
         if override:
             result.append("--override")
 
+        # collect interactive selected args from plugins that extend this base plugin
+        result.extend(self._extend_base_interactive_creation_hook())
         return result
 
     @override

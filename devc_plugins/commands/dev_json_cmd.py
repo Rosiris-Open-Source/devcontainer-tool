@@ -26,19 +26,8 @@ DEV_JSON_PLUGINS = "devc_commands.dev_json.plugins"
 
 
 class DevJsonCommand(CommandExtension):
-    """Entry point to create dev_json for a development environment."""
+    """Create a .devcontainer file e.g. for an isolated development environment."""
 
-    @override
-    def interactive_creation_hook(
-        self,
-        parser: argparse.ArgumentParser,
-        subparser: argparse._SubParsersAction | None,
-        cli_name: str,
-    ) -> list[str]:
-        """Interactive create content that should be parsed. Default print help()."""
-        _, argv = user_selected_extension(parser, subparser, DEV_JSON_PLUGINS, cli_name=cli_name)
-        return argv
-    
     @override
     def register_plugin(
         self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
@@ -50,10 +39,15 @@ class DevJsonCommand(CommandExtension):
         )
 
     @override
-    def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
-        self._plugin_extensions = add_plugin_extensions(
-            "devc_commands.dev_json.plugins.extensions", parser, defaults={}
-        )
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+    ) -> list[str]:
+        """Interactive create content that should be parsed. Default print help()."""
+        _, argv = user_selected_extension(parser, subparser, DEV_JSON_PLUGINS, cli_name=cli_name)
+        return argv
 
     @override
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:

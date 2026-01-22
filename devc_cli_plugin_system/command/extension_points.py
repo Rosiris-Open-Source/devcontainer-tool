@@ -62,7 +62,7 @@ class ExtensionPointsCommand(CommandExtension):
                 },
                 {"name": "Show more information for each extension point", "value": "--verbose"},
             ],
-        ).ask()
+        ).unsafe_ask()
 
         if answers is None:
             # User aborted

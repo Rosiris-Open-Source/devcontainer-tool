@@ -15,40 +15,73 @@
 from typing import override
 from typing import Any
 import argparse
+import questionary
 
-from devc.utils.argparse_validators import IsPositiveInt
 from devc_plugins.plugins.dev_json_plugin_base import DevJsonPluginBase
-from devc.utils.argparse_helpers import get_or_create_group
 from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
+from devc.utils.argparse_helpers import get_or_create_group
+from devc.utils.validators import argparse_validators
+from devc.utils.validators import questionary_validators
 
 
 class Ros2DevJsonPlugin(DevJsonPluginBase):
     """Create a basic ROS2 devcontainer json."""
 
+    SUPPORTED_ROS_DISTROS = ("humble", "iron", "jazzy", "kilted", "rolling")
+    SUPPORTED_DISCOVERY_RANGES = ("SUBNET", "LOCALHOST", "OFF", "SYSTEM_DEFAULT")
+
     @override
-    def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
+    def _extend_base_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         ros2_group = get_or_create_group(parser, PLUGIN_EXTENSION_ARGUMENT_GROUPS.ROS2)
         ros2_group.add_argument(
             "--ros-distro",
             help="ROS 2 distribution (humble, iron, jazzy, rolling...)",
-            choices=["humble", "iron", "jazzy", "kilted", "rolling"],
+            choices=self.SUPPORTED_ROS_DISTROS,
             default="rolling",
             nargs="?",
         )
         ros2_group.add_argument(
             "--ros-domain-id",
             help="ROS_DOMAIN_ID used in the container.",
-            type=IsPositiveInt(),
+            type=argparse_validators.PositiveInt(),
             default=0,
             nargs="?",
         )
         ros2_group.add_argument(
             "--ros-automatic-discovery-range",
             help="ROS_AUTOMATIC_DISCOVERY_RANGE used in the container.",
-            choices=["SUBNET", "LOCALHOST", "OFF", "SYSTEM_DEFAULT"],
+            choices=self.SUPPORTED_DISCOVERY_RANGES,
             default="SUBNET",
             nargs="?",
         )
+
+    @override
+    def _extend_base_interactive_creation_hook(self) -> list[str]:
+        ros_distro = questionary.select(
+            "ROS 2 Distribution", choices=self.SUPPORTED_ROS_DISTROS
+        ).unsafe_ask()
+
+        ros_domain_id = questionary.text(
+            "ROS Domain ID",
+            default="0",
+            validate=questionary_validators.PositiveInt(),
+        ).unsafe_ask()
+
+        ros_automatic_discovery_range = questionary.select(
+            "ROS Automatic Discovery Range",
+            choices=self.SUPPORTED_DISCOVERY_RANGES,
+            default="SUBNET",
+        ).unsafe_ask()
+
+        result: list[str] = []
+
+        if ros_distro:
+            result.extend(["--ros-distro", ros_distro])
+        if ros_domain_id:
+            result.extend(["--ros-domain-id", ros_domain_id])
+        if ros_automatic_discovery_range:
+            result.extend(["--ros-automatic-discovery-range", ros_automatic_discovery_range])
+        return result
 
     def _get_direct_json_patch(self, args: argparse.Namespace) -> dict[str, Any]:
         updates: dict[str, Any] = {

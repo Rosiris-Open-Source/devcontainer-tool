@@ -61,7 +61,7 @@ def user_selected_extension(
 
     extension_name = questionary.select(
         "Available:", choices=extension_as_choices(entry_points)
-    ).ask()
+    ).unsafe_ask()
 
     if extension_name is None:
         return (None, [])

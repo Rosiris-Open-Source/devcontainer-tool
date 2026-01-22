@@ -14,6 +14,7 @@
 from pathlib import Path
 from typing import override
 import argparse
+import questionary
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.defaults import DEFAULT_IMAGES
@@ -30,7 +31,7 @@ from devc.core.template_machine import TemplateMachine
 from devc.core.dockerfile_creation_service import DockerfileCreationService
 from devc.utils.console import print_error, print_warning
 from devc_cli_plugin_system.plugin.plugin_context import PluginContext
-from devc.utils.argparse_validators import IsEmptyOrNewDir, IsExistingFile
+from devc.utils.validators.argparse_validators import EmptyOrNewDir, ExistingFile
 
 
 class DockerfilePluginBase(Plugin):
@@ -50,14 +51,14 @@ class DockerfilePluginBase(Plugin):
         parser.add_argument(
             "--path",
             help="Where to create the devcontainer folder and files.",
-            type=IsEmptyOrNewDir(must_be_empty=False),
+            type=EmptyOrNewDir(must_be_empty=False),
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
             nargs="?",
         )
         parser.add_argument(
             "--extend-with",
             help="Path to JSON file to extend the Dockerfile.",
-            type=IsExistingFile(),
+            type=ExistingFile(),
             default=str(self._get_extend_file()),
             nargs="?",
         )
@@ -67,7 +68,7 @@ class DockerfilePluginBase(Plugin):
             action="store_true",
             default=False,
         )
-        self._add_custom_arguments(parser, cli_name)
+        self._extend_base_arguments(parser, cli_name)
 
     @override
     def interactive_creation_hook(
@@ -76,31 +77,30 @@ class DockerfilePluginBase(Plugin):
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
     ) -> list[str]:
-        import questionary
 
         # Base image
         image = questionary.text(
             "Base image to use:",
             default=self.DEFAULT_IMAGE,
-        ).ask()
+        ).unsafe_ask()
 
         # Target path
         path = questionary.text(
             "Target path to create Dockerfile:",
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
-        ).ask()
+        ).unsafe_ask()
 
         # Extend-with
         extend_with = questionary.text(
             "Path to JSON file to extend the Dockerfile:",
             default=str(self._get_extend_file()),
-        ).ask()
+        ).unsafe_ask()
 
         # Override?
         override = questionary.confirm(
             "Override existing Dockerfile if present?",
             default=False,
-        ).ask()
+        ).unsafe_ask()
 
         # Build result argv
         result: list[str] = []
@@ -117,15 +117,21 @@ class DockerfilePluginBase(Plugin):
         if override:
             result.append("--override")
 
+        # collect interactive selected args from plugins that extend this base plugin
+        result.extend(self._extend_base_interactive_creation_hook())
         return result
 
     def _get_extend_file(self) -> Path:
         """Override to get path to patch file for Dockerfile file."""
         return TEMPLATES.get_template_path(TEMPLATES.DOCKERFILE_EXTENSIONS_JSON)
 
-    def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
+    def _extend_base_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         """Override to add extra plugin-specific args."""
         pass
+
+    def _extend_base_interactive_creation_hook(self) -> list[str]:
+        """Override to add extra interactive questions."""
+        return []
 
     @override
     def main(self, context: PluginContext) -> int:

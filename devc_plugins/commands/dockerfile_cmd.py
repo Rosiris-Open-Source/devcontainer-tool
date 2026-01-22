@@ -15,12 +15,9 @@
 import argparse
 from typing import override
 
-from devc_cli_plugin_system.command import add_subparsers_on_demand
-from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.command import CommandExtension, add_subparsers_on_demand
 from devc_cli_plugin_system.interactive_creation import user_selected_extension
-from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS
 
 PLUGIN_ID = PLUGIN_SYSTEM_CONSTANTS.PLUGIN_IDENTIFIER
@@ -28,7 +25,7 @@ DOCKERFILE_PLUGINS = "devc_commands.dockerfile.plugins"
 
 
 class DockerfileCommand(CommandExtension):
-    """Entry point to create a Dockerfile for a development environment."""
+    """Create a Dockerfile e.g. for an isolated development environment."""
 
     @override
     def register_plugin(

@@ -47,17 +47,17 @@ class Plugin(ABC):
         super().__init__()
         self._plugin_extensions_context: PluginExtensionContext | None = None
         satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
-        
+
+    @abstractmethod
     def interactive_creation_hook(
         self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
     ) -> list[str]:
-        """Interactive create content that should be parsed. Default print help()."""
-        return []
-        
+        pass
+
     @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         pass
-      
+
     def register_plugin_extensions(self, parser: argparse.ArgumentParser) -> None:
         if self.PLUGIN_EXTENSION_GROUP:
             self._plugin_extensions_context = add_plugin_extensions(

@@ -51,16 +51,19 @@ class CommandExtension(ABC):
     def __init__(self) -> None:
         super().__init__()
         satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
-   
+
+    @abstractmethod
     def interactive_creation_hook(
         self,
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
     ) -> list[str]:
-        """Interactive create content that should be parsed. Default print help()."""
-        return []
-        
+        pass
+
+    @abstractmethod
+    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int: ...
+
     def add_arguments(
         self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
     ) -> None:
@@ -81,9 +84,6 @@ class CommandExtension(ABC):
             if plugin_extension_context:
                 ext_manager = manager_cls(plugin_extension_context, args)
         return PluginContext(args=args, parser=parser, ext_manager=ext_manager)
-
-    @abstractmethod
-    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int: ...
 
 
 def get_command_extensions(group_name: str, *, exclude_names: set[str] | None = None) -> dict:

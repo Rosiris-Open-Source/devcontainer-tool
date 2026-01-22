@@ -58,7 +58,7 @@ class ExtensionsCommand(CommandExtension):
                 {"name": "Show all extensions (failed/incompatible included)", "value": "--all"},
                 {"name": "Verbose output", "value": "--verbose"},
             ],
-        ).ask()
+        ).unsafe_ask()
 
         if answers is None:
             # User aborted

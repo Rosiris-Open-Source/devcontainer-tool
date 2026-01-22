@@ -27,7 +27,7 @@ from typing import cast
 from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.interactive_creation import user_selected_extension
-from devc.utils.console import print_error
+from devc.utils.console import print_error, print_signal
 from devc.utils.logging import setup_logging
 from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS, EXTENSION_GROUPS
 
@@ -67,7 +67,6 @@ def main(
     # add arguments for command extension(s)
     if extension:
         extension.add_arguments(parser, script_name)
-        extension.register_plugin_extensions(parser)
     else:
         # get command entry points as needed
         subparser = add_subparsers_on_demand(
@@ -112,21 +111,23 @@ def main(
         # get extension identified by the passed command (if available)
         extension = getattr(args, PLUGIN_SYSTEM_CONSTANTS.COMMAND_IDENTIFIER, None)
 
-    # handle the case that no command was passed
-    if extension is None:
-        user_extension, argv = user_selected_extension(
-            parser, subparser, EXTENSION_GROUPS.COMMAND_GROUP, cli_name=script_name, argv=argv
-        )
-        if user_extension is None:
-            return 0
-        args = parser.parse_args(argv)
-        # TODO(Manuel) we have to clean the user_selected_extension up...
-        extension = cast(CommandExtension, user_extension)
-
-    # call the main method of the extension
     try:
+        # handle the case that no command was passed, interactively let the user select commands,
+        # plugins, extensions and options
+        if extension is None:
+            user_extension, argv = user_selected_extension(
+                parser, subparser, EXTENSION_GROUPS.COMMAND_GROUP, cli_name=script_name, argv=argv
+            )
+            if user_extension is None:
+                return 0
+            args = parser.parse_args(argv)
+            # TODO(Manuel) we have to clean the user_selected_extension up...
+            extension = cast(CommandExtension, user_extension)
+
+        # call the main method of the extension
         rc = extension.main(parser=parser, args=args)
     except KeyboardInterrupt:
+        print_signal(title="Signal Received", message="Execution interrupted by the user.")
         rc = signal.SIGINT
     except RuntimeError as e:
         print_error(title="Runtime Error", message=str(e))

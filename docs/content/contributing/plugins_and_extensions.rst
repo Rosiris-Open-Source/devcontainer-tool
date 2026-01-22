@@ -35,7 +35,7 @@ A ``dev-json`` plugin produces a ``devcontainer.json`` file using templates and
 optionally activates extensions. The easiest way to start is by subclassing
 ``DevJsonPluginBase``. Only two methods matter in the beginning:
 
-* ``_add_custom_arguments`` – define your plugin-specific CLI flags
+* ``_extend_base_arguments`` – define your plugin-specific CLI flags
 * ``_get_direct_json_patch`` – return JSON patches applied to the final output
 
 Example: A minimal plugin that inserts a custom environment variable::
@@ -48,7 +48,7 @@ Example: A minimal plugin that inserts a custom environment variable::
     class MyDevJsonPlugin(DevJsonPluginBase):
         """Example dev-json plugin adding ENV_FOO."""
 
-        def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
+        def _extend_base_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
             parser.add_argument(
                 "--foo",
                 help="Value injected into container as ENV_FOO.",
