@@ -109,7 +109,7 @@ class DevJsonPluginBase(Plugin):
         return []
 
     @override
-    def interactive_creation_hook(
+    def extend_interactive_creation_hook(
         self,
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
@@ -128,8 +128,8 @@ class DevJsonPluginBase(Plugin):
         img_choice = questionary.select(
             "Select the container base:",
             choices=[
-                {"name": "Use an existing image", "value": "image"},
                 {"name": "Use a Dockerfile", "value": "dockerfile"},
+                {"name": "Use an existing image", "value": "image"},
             ],
         ).unsafe_ask()
 

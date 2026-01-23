@@ -17,6 +17,9 @@ from abc import ABC, abstractmethod
 import argparse
 from typing import Any
 
+# TODO(Manuel) get rid of questionary dependency in this file
+import questionary
+
 from devc_cli_plugin_system.plugin_system import instantiate_extensions
 from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
@@ -49,11 +52,43 @@ class Plugin(ABC):
         satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
 
     @abstractmethod
+    def main(self, context: PluginContext) -> int:
+        """Entry point for the plugin."""
+        pass
+
     def interactive_creation_hook(
         self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
     ) -> list[str]:
-        pass
-      
+
+        user_selected_args: list[str] = []
+        user_selected_args.extend(
+            self.extend_interactive_creation_hook(parser, subparser, cli_name)
+        )
+
+        # if no extensions exist, skip.
+        if self._plugin_extensions_context is None:
+            return user_selected_args
+        # let user preselect plugin extension we should call to collect args for them
+        # this way its avoided that a user has to iterating all extension when
+        # the user just wants a subset
+        selected_plugin_extension_names = questionary.checkbox(
+            "Select extensions to call", choices=self._plugin_extensions_context.list_names()
+        ).ask()
+
+        for plugin_extension_name in selected_plugin_extension_names:
+            ext = self._plugin_extensions_context.get_extension(plugin_extension_name)
+            if ext is None:
+                continue
+            user_selected_args.extend(ext.interactive_creation_hook(parser, subparser, cli_name))
+
+        return user_selected_args
+
+    def extend_interactive_creation_hook(
+        self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
+    ) -> list[str]:
+        """Override to extend the interactive creation hook."""
+        return []
+
     def add_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         pass
 
@@ -65,11 +100,6 @@ class Plugin(ABC):
 
     def get_plugin_extension_context(self) -> PluginExtensionContext | None:
         return self._plugin_extensions_context
-
-    @abstractmethod
-    def main(self, context: PluginContext) -> int:
-        """Entry point for the plugin."""
-        pass
 
 
 def add_plugin_extensions(

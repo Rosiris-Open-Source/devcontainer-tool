@@ -26,7 +26,7 @@ from typing import cast
 
 from devc_cli_plugin_system.command import add_subparsers_on_demand
 from devc_cli_plugin_system.command import CommandExtension
-from devc_cli_plugin_system.interactive_creation import user_selected_extension
+from devc_cli_plugin_system.interactive_creation.interactive_creation import user_selected_extension
 from devc.utils.console import print_error, print_signal
 from devc.utils.logging import setup_logging
 from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS, EXTENSION_GROUPS

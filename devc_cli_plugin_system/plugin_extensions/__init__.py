@@ -33,6 +33,12 @@ class PluginExtension(ABC):
         """
         pass
 
+    def interactive_creation_hook(
+        self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
+    ) -> list[str]:
+        """Override to create the interactive creation hook for a plugin extension."""
+        return []
+
     def get_registered_args(self) -> set:
         """Return argument dest names added by this plugin."""
         return getattr(self, "_registered_args", set())

@@ -17,7 +17,7 @@ from typing import override
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.command import CommandExtension, add_subparsers_on_demand
-from devc_cli_plugin_system.interactive_creation import user_selected_extension
+from devc_cli_plugin_system.interactive_creation.interactive_creation import user_selected_extension
 from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS
 
 PLUGIN_ID = PLUGIN_SYSTEM_CONSTANTS.PLUGIN_IDENTIFIER

@@ -14,6 +14,8 @@
 
 import argparse
 import inspect
+
+# TODO(Manuel) get rid of questionary dependency in this file
 import questionary
 
 try:
@@ -28,6 +30,7 @@ from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.command import CommandExtension
 
 
+# TODO(Manuel) get rid of questionary dependency in this file
 def extension_as_choices(
     entry_points: dict[str, importlib_metadata.EntryPoint],
 ) -> list[questionary.Choice]:
@@ -47,6 +50,7 @@ def extension_as_choices(
 
 # TODO(Manuel) we have to clean the user_selected_extension up...
 # Split it so it is either for Command Extensions or Plugins.
+# TODO(Manuel) get rid of questionary dependency in this file
 def user_selected_extension(
     parser: argparse.ArgumentParser,
     subparser: argparse._SubParsersAction | None,

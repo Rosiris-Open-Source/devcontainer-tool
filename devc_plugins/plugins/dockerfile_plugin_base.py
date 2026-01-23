@@ -71,7 +71,7 @@ class DockerfilePluginBase(Plugin):
         self._extend_base_arguments(parser, cli_name)
 
     @override
-    def interactive_creation_hook(
+    def extend_interactive_creation_hook(
         self,
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
