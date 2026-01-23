@@ -13,9 +13,37 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any
 
 
 class InteractionProvider(ABC):
     @abstractmethod
-    def select_multiple(self, prompt: str, choices: list[str]) -> list[str]:
-        pass
+    def select_multiple(
+        self,
+        prompt: str,
+        choices: list[str],
+        default: list[str] | None = None,
+        **kwargs: dict[str, Any]
+    ) -> list[str]:
+        """Ask the user to select multiple items. Raises KeyboardInterrupt if cancelled."""
+
+    @abstractmethod
+    def select_single(
+        self, prompt: str, choices: list[str], default: str | None = None, **kwargs: dict[str, Any]
+    ) -> str:
+        """Ask the user to select a single item. Raises KeyboardInterrupt if cancelled."""
+
+    @abstractmethod
+    def input_text(self, prompt: str, default: str | None = None, **kwargs: dict[str, Any]) -> str:
+        """Ask the user to input text. Raises KeyboardInterrupt if cancelled."""
+
+    @abstractmethod
+    def input_path(
+        self, prompt: str, default: str | Path | None = None, **kwargs: dict[str, Any]
+    ) -> Path:
+        """Ask the user to input a filesystem path. Raises KeyboardInterrupt if cancelled."""
+
+    @abstractmethod
+    def confirm(self, prompt: str, default: bool = False, **kwargs: dict[str, Any]) -> bool:
+        """Ask the user to confirm yes/no. Raises KeyboardInterrupt if cancelled."""
