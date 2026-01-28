@@ -49,7 +49,6 @@ class QuestionaryInteractionProvider(InteractionProvider):
         default: str | None = None,
         **kwargs: Any
     ) -> str:
-        print(choices)
         try:
             input = questionary.select(
                 prompt, choices=choices, default=default, **kwargs
