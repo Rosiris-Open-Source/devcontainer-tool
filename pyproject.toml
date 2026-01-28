@@ -52,7 +52,7 @@ exclude = ["test"]
 "devc_plugins.plugins" = ["**/*.json"]
 
 [project.scripts]
-devc = "devc_cli_plugin_system.cli:main"
+devc = "devc.cli:main"
 
 [project.entry-points."devc_commands.dev_json.plugins.extensions"]
 gpu = "devc_plugins.plugin_extensions.dev_json_extensions.gpu_device_extension:GpuDeviceExtension"
