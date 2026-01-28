@@ -22,15 +22,19 @@ class InteractionProvider(ABC):
     def select_multiple(
         self,
         prompt: str,
-        choices: list[str],
-        default: list[str] | None = None,
+        choices: list[dict[str, Any]],
+        default: str | None = None,
         **kwargs: dict[str, Any]
     ) -> list[str]:
         """Ask the user to select multiple items. Raises KeyboardInterrupt if cancelled."""
 
     @abstractmethod
     def select_single(
-        self, prompt: str, choices: list[str], default: str | None = None, **kwargs: dict[str, Any]
+        self,
+        prompt: str,
+        choices: list[dict[str, Any]],
+        default: str | None = None,
+        **kwargs: dict[str, Any]
     ) -> str:
         """Ask the user to select a single item. Raises KeyboardInterrupt if cancelled."""
 

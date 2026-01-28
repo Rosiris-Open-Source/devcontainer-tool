@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import argparse
 import inspect
-
-# TODO(Manuel) get rid of questionary dependency in this file
-import questionary
 
 try:
     import importlib.metadata as importlib_metadata
@@ -28,34 +26,34 @@ from devc_cli_plugin_system.plugin_system import instantiate_extension
 from devc_cli_plugin_system.command import get_first_line_doc
 from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.command import CommandExtension
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
-# TODO(Manuel) get rid of questionary dependency in this file
-def extension_as_choices(
+def get_extensions_and_descriptions(
     entry_points: dict[str, importlib_metadata.EntryPoint],
-) -> list[questionary.Choice]:
+) -> list[dict[str, Any]]:
     result = []
     for name, ep in entry_points.items():
         plugin_cls = ep.load()
         doc = plugin_cls.__doc__ or ""
         description = doc.strip().splitlines()[0] if doc else ""
         result.append(
-            questionary.Choice(
-                title=f"{name:<12} {description}",
-                value=name,
-            )
+            {
+                "name": f"{name} — {description}",
+                "value": name,
+            }
         )
     return result
 
 
 # TODO(Manuel) we have to clean the user_selected_extension up...
 # Split it so it is either for Command Extensions or Plugins.
-# TODO(Manuel) get rid of questionary dependency in this file
 def user_selected_extension(
     parser: argparse.ArgumentParser,
     subparser: argparse._SubParsersAction | None,
     extension_group: str,
     cli_name: str,
+    interaction_provider: InteractionProvider,
     argv: list[str] | None = None,
 ) -> tuple[CommandExtension | Plugin | None, list[str]]:
     """Interactive create content that should be parsed. Default print help()."""
@@ -63,11 +61,11 @@ def user_selected_extension(
     if not entry_points:
         return (None, [])
 
-    extension_name = questionary.select(
-        "Available:", choices=extension_as_choices(entry_points)
-    ).unsafe_ask()
+    extension_name = interaction_provider.select_single(
+        prompt="Available:", choices=get_extensions_and_descriptions(entry_points)
+    )
 
-    if extension_name is None:
+    if not extension_name:
         return (None, [])
     user_argv = [extension_name]
 

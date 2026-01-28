@@ -30,6 +30,9 @@ from devc_cli_plugin_system.interactive_creation.interactive_creation import use
 from devc.utils.console import print_error, print_signal
 from devc.utils.logging import setup_logging
 from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS, EXTENSION_GROUPS
+from devc.utils.interaction_providers.questionary_interaction_provider import (
+    QuestionaryInteractionProvider,
+)
 
 
 def main(
@@ -116,7 +119,12 @@ def main(
         # plugins, extensions and options
         if extension is None:
             user_extension, argv = user_selected_extension(
-                parser, subparser, EXTENSION_GROUPS.COMMAND_GROUP, cli_name=script_name, argv=argv
+                parser,
+                subparser,
+                EXTENSION_GROUPS.COMMAND_GROUP,
+                cli_name=script_name,
+                interaction_provider=QuestionaryInteractionProvider(),
+                argv=argv,
             )
             if user_extension is None:
                 return 0

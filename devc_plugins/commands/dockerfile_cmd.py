@@ -19,6 +19,9 @@ from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.command import CommandExtension, add_subparsers_on_demand
 from devc_cli_plugin_system.interactive_creation.interactive_creation import user_selected_extension
 from devc_cli_plugin_system.constants import PLUGIN_SYSTEM_CONSTANTS
+from devc.utils.interaction_providers.questionary_interaction_provider import (
+    QuestionaryInteractionProvider,
+)
 
 PLUGIN_ID = PLUGIN_SYSTEM_CONSTANTS.PLUGIN_IDENTIFIER
 DOCKERFILE_PLUGINS = "devc_commands.dockerfile.plugins"
@@ -49,7 +52,13 @@ class DockerfileCommand(CommandExtension):
         cli_name: str,
     ) -> list[str]:
         """Interactive create content that should be parsed. Default print help()."""
-        _, argv = user_selected_extension(parser, subparser, DOCKERFILE_PLUGINS, cli_name=cli_name)
+        _, argv = user_selected_extension(
+            parser,
+            subparser,
+            DOCKERFILE_PLUGINS,
+            cli_name=cli_name,
+            interaction_provider=QuestionaryInteractionProvider(),
+        )
         return argv
 
     @override

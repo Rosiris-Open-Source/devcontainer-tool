@@ -25,14 +25,14 @@ class QuestionaryInteractionProvider(InteractionProvider):
     def select_multiple(
         self,
         prompt: str,
-        choices: list[str],
-        default: list[str] | None = None,
+        choices: list[dict[str, Any]],
+        default: str | None = None,
         **kwargs: dict[str, Any]
     ) -> list[str]:
         try:
             return (
                 questionary.checkbox(
-                    prompt, choices=choices, default=default or [], **kwargs
+                    prompt, choices=choices, default=default, **kwargs
                 ).unsafe_ask()
                 or []
             )
@@ -40,7 +40,11 @@ class QuestionaryInteractionProvider(InteractionProvider):
             raise
 
     def select_single(
-        self, prompt: str, choices: list[str], default: str | None = None, **kwargs: dict[str, Any]
+        self,
+        prompt: str,
+        choices: list[dict[str, Any]],
+        default: str | None = None,
+        **kwargs: dict[str, Any]
     ) -> str:
         try:
             input = questionary.select(
