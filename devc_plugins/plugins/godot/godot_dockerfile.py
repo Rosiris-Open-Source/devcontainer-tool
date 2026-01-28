@@ -15,11 +15,11 @@
 from pathlib import Path
 from typing import override
 import argparse
-import questionary
 
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.utils.substitute_placeholders import substitute_placeholders
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class GodotDockerfilePlugin(DockerfilePluginBase):
@@ -50,25 +50,27 @@ class GodotDockerfilePlugin(DockerfilePluginBase):
         return Path(__file__).parent / "godot_image_patch.json"
 
     @override
-    def _extend_base_interactive_creation_hook(self) -> list[str]:
-        godot_version = questionary.select(
+    def _extend_base_interactive_creation_hook(
+        self, interaction_provider: InteractionProvider
+    ) -> list[str]:
+        godot_version = interaction_provider.select_single(
             "Version of the Godot engine",
             default="4.5.1-stable",
-            choices=self.SUPPORTED_GODOT_VERSIONS,
-        ).unsafe_ask()
+            choices=[{"name": x, "value": x} for x in self.SUPPORTED_GODOT_VERSIONS],
+        )
 
-        godot_runtime = questionary.select(
-            "Version of the Godot engine", default="standard", choices=self.SUPPORTED_GODOT_RUNTIMES
-        ).unsafe_ask()
+        godot_runtime = interaction_provider.select_single(
+            "Godot runtime type",
+            default="standard",
+            choices=[{"name": x, "value": x} for x in self.SUPPORTED_GODOT_RUNTIMES],
+        )
 
-        result: list[str] = []
-
-        if godot_version:
-            result.extend(["--godot-version", godot_version])
-        if godot_runtime:
-            result.extend(["--godot-runtime", godot_runtime])
-
-        return result
+        return [
+            "--godot-version",
+            godot_version,
+            "--godot-runtime",
+            godot_runtime,
+        ]
 
     @override
     def _apply_overrides_to_handler_content(

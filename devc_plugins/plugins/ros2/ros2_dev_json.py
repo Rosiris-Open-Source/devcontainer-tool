@@ -15,13 +15,13 @@
 from typing import override
 from typing import Any
 import argparse
-import questionary
 
 from devc_plugins.plugins.dev_json_plugin_base import DevJsonPluginBase
 from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 from devc.utils.argparse_helpers import get_or_create_group
 from devc.utils.validators import argparse_validators
-from devc.utils.validators import questionary_validators
+from devc.utils.validators import input_provider_validators
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class Ros2DevJsonPlugin(DevJsonPluginBase):
@@ -56,22 +56,24 @@ class Ros2DevJsonPlugin(DevJsonPluginBase):
         )
 
     @override
-    def _extend_base_interactive_creation_hook(self) -> list[str]:
-        ros_distro = questionary.select(
+    def _extend_base_interactive_creation_hook(
+        self, interaction_provider: InteractionProvider
+    ) -> list[str]:
+        ros_distro = interaction_provider.select_single(
             "ROS 2 Distribution", choices=self.SUPPORTED_ROS_DISTROS
-        ).unsafe_ask()
+        )
 
-        ros_domain_id = questionary.text(
+        ros_domain_id = interaction_provider.input_text(
             "ROS Domain ID",
             default="0",
-            validate=questionary_validators.PositiveInt(),
-        ).unsafe_ask()
+            validate=input_provider_validators.PositiveInt(),
+        )
 
-        ros_automatic_discovery_range = questionary.select(
+        ros_automatic_discovery_range = interaction_provider.select_single(
             "ROS Automatic Discovery Range",
             choices=self.SUPPORTED_DISCOVERY_RANGES,
             default="SUBNET",
-        ).unsafe_ask()
+        )
 
         result: list[str] = []
 

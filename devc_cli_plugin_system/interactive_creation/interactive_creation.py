@@ -112,6 +112,6 @@ def user_selected_extension(
         del command_parser._root_parser
 
     user_argv = user_argv + extension.interactive_creation_hook(
-        parser, subsubparser, f"{cli_name} {extension_name}"
+        parser, subsubparser, f"{cli_name} {extension_name}", interaction_provider
     )
     return (extension, user_argv)

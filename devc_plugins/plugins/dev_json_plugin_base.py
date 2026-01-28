@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import override
 from typing import Any
 import argparse
-import questionary
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc_cli_plugin_system.plugin_extensions.extension_manager import ExtensionManager
@@ -40,7 +39,8 @@ from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 from devc.utils.argparse_helpers import get_or_create_group
 from devc.utils.console import print_error, print_warning
 from devc.utils.validators import argparse_validators
-from devc.utils.validators import questionary_validators
+from devc.utils.validators import input_provider_validators
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class DevJsonPluginBase(Plugin):
@@ -104,7 +104,9 @@ class DevJsonPluginBase(Plugin):
         """Override to add extra plugin-specific args."""
         pass
 
-    def _extend_base_interactive_creation_hook(self) -> list[str]:
+    def _extend_base_interactive_creation_hook(
+        self, interaction_provider: InteractionProvider
+    ) -> list[str]:
         """Override to add extra interactive questions."""
         return []
 
@@ -114,58 +116,59 @@ class DevJsonPluginBase(Plugin):
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
 
         # Name
-        name = questionary.text(
+        name = interaction_provider.input_text(
             "Devcontainer name:",
             default="",
-            validate=questionary_validators.NotEmpty(),
+            validate=input_provider_validators.NotEmpty(),
             instruction="(Visible in UI, cannot be empty)",
-        ).unsafe_ask()
+        )
 
         # Choose between image or dockerfile
-        img_choice = questionary.select(
+        img_choice = interaction_provider.select_single(
             "Select the container base:",
             choices=[
                 {"name": "Use a Dockerfile", "value": "dockerfile"},
                 {"name": "Use an existing image", "value": "image"},
             ],
-        ).unsafe_ask()
+        )
 
         image = ""
         dockerfile = ""
 
         if img_choice == "image":
-            image = questionary.text(
+            image = interaction_provider.input_text(
                 "Image to use:",
                 default="",
-                validate=questionary_validators.NotEmpty(),
+                validate=input_provider_validators.NotEmpty(),
                 instruction="(Cannot be empty)",
-            ).unsafe_ask()
+            )
         else:
-            dockerfile = questionary.text(
+            dockerfile = interaction_provider.input_text(
                 "Path to Dockerfile:",
                 default="../.docker/Dockerfile",
-            ).unsafe_ask()
+            )
 
         # Path
-        path = questionary.text(
+        path = interaction_provider.input_text(
             "Target path for creating the devcontainer:",
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
-        ).unsafe_ask()
+        )
 
         # Extend-with
-        extend_with = questionary.text(
+        extend_with = interaction_provider.input_text(
             "Path to .json file extending devcontainer.json:",
             default=str(self._get_extend_file()),
-        ).unsafe_ask()
+        )
 
         # Override Dockerfile?
-        override = questionary.confirm(
+        override = interaction_provider.confirm(
             "Override existing Dockerfile if present?",
             default=False,
-        ).unsafe_ask()
+        )
 
         # Start building argv
         result: list[str] = []
@@ -188,7 +191,7 @@ class DevJsonPluginBase(Plugin):
             result.append("--override")
 
         # collect interactive selected args from plugins that extend this base plugin
-        result.extend(self._extend_base_interactive_creation_hook())
+        result.extend(self._extend_base_interactive_creation_hook(interaction_provider))
         return result
 
     @override

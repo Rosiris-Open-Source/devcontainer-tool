@@ -45,6 +45,11 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = [
+  "devc*",
+  "devc_plugins*",
+  "devc_cli_plugin_system*",
+]
 exclude = ["test"]
 
 [tool.setuptools.package-data]

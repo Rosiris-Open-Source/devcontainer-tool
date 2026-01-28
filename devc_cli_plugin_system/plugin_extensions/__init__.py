@@ -15,6 +15,8 @@ from abc import ABC, abstractmethod
 from pprint import pformat
 import argparse
 
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
+
 
 class PluginExtension(ABC):
     """The base class for plugin extension points of the plugins."""
@@ -34,7 +36,11 @@ class PluginExtension(ABC):
         pass
 
     def interactive_creation_hook(
-        self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
         """Override to create the interactive creation hook for a plugin extension."""
         return []

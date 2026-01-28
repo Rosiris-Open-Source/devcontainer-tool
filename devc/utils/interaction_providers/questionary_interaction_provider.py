@@ -15,6 +15,7 @@
 from pathlib import Path
 import questionary
 from typing import Any
+from collections.abc import Sequence
 
 
 from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
@@ -22,12 +23,13 @@ from devc_cli_plugin_system.interactive_creation.interaction_provider import Int
 
 class QuestionaryInteractionProvider(InteractionProvider):
 
+    @InteractionProvider.supported_kwargs("validate", "instruction")
     def select_multiple(
         self,
         prompt: str,
-        choices: list[dict[str, Any]],
+        choices: Sequence[str | dict[str, Any]],
         default: str | None = None,
-        **kwargs: dict[str, Any]
+        **kwargs: Any
     ) -> list[str]:
         try:
             return (
@@ -39,13 +41,15 @@ class QuestionaryInteractionProvider(InteractionProvider):
         except KeyboardInterrupt:
             raise
 
+    @InteractionProvider.supported_kwargs("instruction")
     def select_single(
         self,
         prompt: str,
-        choices: list[dict[str, Any]],
+        choices: Sequence[str | dict[str, Any]],
         default: str | None = None,
-        **kwargs: dict[str, Any]
+        **kwargs: Any
     ) -> str:
+        print(choices)
         try:
             input = questionary.select(
                 prompt, choices=choices, default=default, **kwargs
@@ -58,7 +62,8 @@ class QuestionaryInteractionProvider(InteractionProvider):
         except KeyboardInterrupt:
             raise
 
-    def input_text(self, prompt: str, default: str | None = None, **kwargs: dict[str, Any]) -> str:
+    @InteractionProvider.supported_kwargs("validate", "instruction")
+    def input_text(self, prompt: str, default: str | None = None, **kwargs: Any) -> str:
         try:
             input = questionary.text(prompt, default=default or "", **kwargs).unsafe_ask()
             if input is None and default is not None:
@@ -69,9 +74,8 @@ class QuestionaryInteractionProvider(InteractionProvider):
         except KeyboardInterrupt:
             raise
 
-    def input_path(
-        self, prompt: str, default: str | Path | None = None, **kwargs: dict[str, Any]
-    ) -> Path:
+    @InteractionProvider.supported_kwargs("validate")
+    def input_path(self, prompt: str, default: str | Path | None = None, **kwargs: Any) -> Path:
         try:
             val = questionary.path(
                 prompt, default=str(default) if default else "", **kwargs
@@ -80,7 +84,8 @@ class QuestionaryInteractionProvider(InteractionProvider):
         except KeyboardInterrupt:
             raise
 
-    def confirm(self, prompt: str, default: bool = False, **kwargs: dict[str, Any]) -> bool:
+    @InteractionProvider.supported_kwargs("instruction")
+    def confirm(self, prompt: str, default: bool = False, **kwargs: Any) -> bool:
         try:
             input = questionary.confirm(prompt, default=default, **kwargs).unsafe_ask()
             if input is None and default is not None:

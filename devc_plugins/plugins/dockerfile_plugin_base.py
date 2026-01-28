@@ -14,7 +14,6 @@
 from pathlib import Path
 from typing import override
 import argparse
-import questionary
 
 from devc_cli_plugin_system.plugin import Plugin
 from devc.constants.defaults import DEFAULT_IMAGES
@@ -32,6 +31,7 @@ from devc.core.dockerfile_creation_service import DockerfileCreationService
 from devc.utils.console import print_error, print_warning
 from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc.utils.validators.argparse_validators import EmptyOrNewDir, ExistingFile
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class DockerfilePluginBase(Plugin):
@@ -76,31 +76,32 @@ class DockerfilePluginBase(Plugin):
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
 
         # Base image
-        image = questionary.text(
+        image = interaction_provider.input_text(
             "Base image to use:",
             default=self.DEFAULT_IMAGE,
-        ).unsafe_ask()
+        )
 
         # Target path
-        path = questionary.text(
+        path = interaction_provider.input_text(
             "Target path to create Dockerfile:",
             default=str(TEMPLATES.get_target_default_dir(self.DEFAULT_TEMPLATE)),
-        ).unsafe_ask()
+        )
 
         # Extend-with
-        extend_with = questionary.text(
+        extend_with = interaction_provider.input_text(
             "Path to JSON file to extend the Dockerfile:",
             default=str(self._get_extend_file()),
-        ).unsafe_ask()
+        )
 
         # Override?
-        override = questionary.confirm(
+        override = interaction_provider.confirm(
             "Override existing Dockerfile if present?",
             default=False,
-        ).unsafe_ask()
+        )
 
         # Build result argv
         result: list[str] = []
@@ -118,7 +119,7 @@ class DockerfilePluginBase(Plugin):
             result.append("--override")
 
         # collect interactive selected args from plugins that extend this base plugin
-        result.extend(self._extend_base_interactive_creation_hook())
+        result.extend(self._extend_base_interactive_creation_hook(interaction_provider))
         return result
 
     def _get_extend_file(self) -> Path:
@@ -129,7 +130,9 @@ class DockerfilePluginBase(Plugin):
         """Override to add extra plugin-specific args."""
         pass
 
-    def _extend_base_interactive_creation_hook(self) -> list[str]:
+    def _extend_base_interactive_creation_hook(
+        self, interaction_provider: InteractionProvider
+    ) -> list[str]:
         """Override to add extra interactive questions."""
         return []
 

@@ -29,6 +29,7 @@ from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
 from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.plugin import Plugin
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class CommandExtension(ABC):
@@ -58,6 +59,7 @@ class CommandExtension(ABC):
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
         pass
 

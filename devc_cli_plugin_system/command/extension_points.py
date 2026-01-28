@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import questionary
 from typing import Any, override
 
 from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.entry_points import EXTENSION_POINT_GROUP_NAME
 from devc_cli_plugin_system.entry_points import get_entry_points
 from devc_cli_plugin_system.entry_points import get_first_line_doc
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class ExtensionPointsCommand(CommandExtension):
@@ -51,8 +51,9 @@ class ExtensionPointsCommand(CommandExtension):
         parser: argparse.ArgumentParser,
         subparser: argparse._SubParsersAction | None,
         cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
-        answers = questionary.checkbox(
+        return interaction_provider.select_multiple(
             "Which options do you want to enable?",
             choices=[
                 {
@@ -62,21 +63,7 @@ class ExtensionPointsCommand(CommandExtension):
                 },
                 {"name": "Show more information for each extension point", "value": "--verbose"},
             ],
-        ).unsafe_ask()
-
-        if answers is None:
-            # User aborted
-            return []
-
-        argv: list[str] = []
-
-        if "--all" in answers:
-            argv.append("--all")
-
-        if "--verbose" in answers:
-            argv.append("--verbose")
-
-        return argv
+        )
 
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         extension_points = get_entry_points(EXTENSION_POINT_GROUP_NAME)

@@ -28,6 +28,7 @@ from devc_cli_plugin_system.plugin_extensions import PluginExtensionContext
 from devc_cli_plugin_system.plugin_extensions.extension_manager import (
     ExtensionManager,
 )
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class Plugin(ABC):
@@ -57,12 +58,16 @@ class Plugin(ABC):
         pass
 
     def interactive_creation_hook(
-        self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
 
         user_selected_args: list[str] = []
         user_selected_args.extend(
-            self.extend_interactive_creation_hook(parser, subparser, cli_name)
+            self.extend_interactive_creation_hook(parser, subparser, cli_name, interaction_provider)
         )
 
         # if no extensions exist, skip.
@@ -79,12 +84,18 @@ class Plugin(ABC):
             ext = self._plugin_extensions_context.get_extension(plugin_extension_name)
             if ext is None:
                 continue
-            user_selected_args.extend(ext.interactive_creation_hook(parser, subparser, cli_name))
+            user_selected_args.extend(
+                ext.interactive_creation_hook(parser, subparser, cli_name, interaction_provider)
+            )
 
         return user_selected_args
 
     def extend_interactive_creation_hook(
-        self, parser: argparse.ArgumentParser, subparser: argparse._SubParsersAction, cli_name: str
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
     ) -> list[str]:
         """Override to extend the interactive creation hook."""
         return []
