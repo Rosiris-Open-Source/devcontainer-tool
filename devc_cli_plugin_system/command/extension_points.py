@@ -20,6 +20,7 @@ from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.entry_points import EXTENSION_POINT_GROUP_NAME
 from devc_cli_plugin_system.entry_points import get_entry_points
 from devc_cli_plugin_system.entry_points import get_first_line_doc
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class ExtensionPointsCommand(CommandExtension):
@@ -42,6 +43,26 @@ class ExtensionPointsCommand(CommandExtension):
             action="store_true",
             default=False,
             help="Show more information for each extension point",
+        )
+
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
+    ) -> list[str]:
+        return interaction_provider.select_multiple(
+            "Which options do you want to enable?",
+            choices=[
+                {
+                    "name": "Also show extension points which failed to be imported. "
+                    "(prefixed with `- `)",
+                    "value": "--all",
+                },
+                {"name": "Show more information for each extension point", "value": "--verbose"},
+            ],
         )
 
     def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:

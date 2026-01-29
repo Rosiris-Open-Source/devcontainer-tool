@@ -19,6 +19,7 @@ from typing import Any, override
 from devc_cli_plugin_system.command import CommandExtension
 from devc_cli_plugin_system.entry_points import get_all_entry_points
 from devc_cli_plugin_system.entry_points import get_first_line_doc
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class ExtensionsCommand(CommandExtension):
@@ -42,6 +43,22 @@ class ExtensionsCommand(CommandExtension):
             action="store_true",
             default=False,
             help="Show more information for each extension",
+        )
+
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
+    ) -> list[str]:
+        return interaction_provider.select_multiple(
+            "Which options do you want to enable?",
+            choices=[
+                {"name": "Show all extensions (failed/incompatible included)", "value": "--all"},
+                {"name": "Verbose output", "value": "--verbose"},
+            ],
         )
 
     @override

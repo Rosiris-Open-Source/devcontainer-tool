@@ -20,19 +20,21 @@ import argparse
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.utils.substitute_placeholders import substitute_placeholders
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class Ros2DesktopFullDockerfilePlugin(DockerfilePluginBase):
     """Create a ROS2 desktop-full development container setup."""
 
     DEFAULT_IMAGE = ""  # use default img from patch
+    SUPPORTED_ROS_DISTROS = ("humble", "iron", "jazzy", "kilted", "rolling")
 
     @override
-    def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
+    def _extend_base_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         parser.add_argument(
             "--ros-distro",
             help="ROS 2 distribution (humble, iron, jazzy, rolling...)",
-            choices=["humble", "iron", "jazzy", "kilted", "rolling"],
+            choices=self.SUPPORTED_ROS_DISTROS,
             default="rolling",
             nargs="?",
         )
@@ -40,6 +42,20 @@ class Ros2DesktopFullDockerfilePlugin(DockerfilePluginBase):
     @override
     def _get_extend_file(self) -> Path:
         return Path(__file__).parent / "ros2_desktop_full_image_patch.json"
+
+    @override
+    def _extend_base_interactive_creation_hook(
+        self, interaction_provider: InteractionProvider
+    ) -> list[str]:
+        ros_distro = interaction_provider.select_single(
+            "ROS 2 Distribution", choices=self.SUPPORTED_ROS_DISTROS
+        )
+
+        result: list[str] = []
+
+        if ros_distro:
+            result.extend(["--ros-distro", ros_distro])
+        return result
 
     @override
     def _apply_overrides_to_handler_content(

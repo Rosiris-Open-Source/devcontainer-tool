@@ -11,23 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import logging
-from rich.logging import RichHandler
 
-LOGGER_NAME = "devc"
-
-
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
-    if not logging.getLogger().handlers:  # only configure once
-        logging.basicConfig(
-            level=level,
-            format="%(message)s",
-            datefmt="[%X]",
-            handlers=[RichHandler(rich_tracebacks=True, markup=True)],
-        )
-    root = logging.getLogger(LOGGER_NAME)
-    return root
+from dataclasses import dataclass
+from typing import ClassVar
 
 
-def get_logger(name: str) -> logging.Logger:
-    return logging.getLogger(f"{LOGGER_NAME}.{name}" if name else LOGGER_NAME)
+@dataclass(frozen=True)
+class PLUGIN_SYSTEM_CONSTANTS:
+
+    PLUGIN_IDENTIFIER: ClassVar[str] = "_plugin"
+    COMMAND_IDENTIFIER: ClassVar[str] = "_command"
+
+
+@dataclass(frozen=True)
+class EXTENSION_GROUPS:
+
+    ROOT_GROUP: ClassVar[str] = "devc_cli"
+    COMMAND_GROUP: ClassVar[str] = ROOT_GROUP + ".command"

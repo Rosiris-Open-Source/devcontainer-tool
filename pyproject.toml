@@ -27,8 +27,9 @@ dependencies = [
     "docker",
     "jinja2",
     "packaging",
-    "typing_extensions",
-    "rich"
+    "questionary",
+    "rich",
+    "typing_extensions"
 ]
 
 [project.optional-dependencies]
@@ -44,6 +45,11 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = [
+  "devc*",
+  "devc_plugins*",
+  "devc_cli_plugin_system*",
+]
 exclude = ["test"]
 
 [tool.setuptools.package-data]
@@ -51,7 +57,7 @@ exclude = ["test"]
 "devc_plugins.plugins" = ["**/*.json"]
 
 [project.scripts]
-devc = "devc_cli_plugin_system.cli:main"
+devc = "devc.cli:main"
 
 [project.entry-points."devc_commands.dev_json.plugins.extensions"]
 gpu = "devc_plugins.plugin_extensions.dev_json_extensions.gpu_device_extension:GpuDeviceExtension"

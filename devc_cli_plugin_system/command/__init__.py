@@ -29,6 +29,7 @@ from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
 from devc_cli_plugin_system.plugin.plugin_context import PluginContext
 from devc_cli_plugin_system.plugin import Plugin
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class CommandExtension(ABC):
@@ -52,9 +53,27 @@ class CommandExtension(ABC):
         super().__init__()
         satisfies_version(PLUGIN_SYSTEM_VERSION, "^0.1")
 
+    @abstractmethod
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction | None,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
+    ) -> list[str]:
+        pass
+
+    @abstractmethod
+    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int: ...
+
     def add_arguments(
         self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
     ) -> None:
+        pass
+
+    def register_plugin(
+        self, parser: argparse.ArgumentParser, cli_name: str, *, argv: list[str] | None = None
+    ) -> argparse._SubParsersAction | None:
         pass
 
     def create_plugin_context(
@@ -67,9 +86,6 @@ class CommandExtension(ABC):
             if plugin_extension_context:
                 ext_manager = manager_cls(plugin_extension_context, args)
         return PluginContext(args=args, parser=parser, ext_manager=ext_manager)
-
-    @abstractmethod
-    def main(self, *, parser: argparse.ArgumentParser, args: argparse.Namespace) -> int: ...
 
 
 def get_command_extensions(group_name: str, *, exclude_names: set[str] | None = None) -> dict:
@@ -171,7 +187,7 @@ def add_subparsers_on_demand(
             known_args = argparse.Namespace(**{subparser.dest: None})
 
     # check if a specific subparser is selected
-    name = getattr(known_args, subparser.dest)
+    name = getattr(known_args, subparser.dest, None)
     if name is None:
         # add description for all command extensions to the root parser
         command_extensions = get_command_extensions(group_name)
@@ -211,6 +227,15 @@ def add_subparsers_on_demand(
             if "argv" in signature.parameters:
                 kwargs["argv"] = argv
             extension.add_arguments(command_parser, f"{cli_name} {name}", **kwargs)
+            del command_parser._root_parser
+
+        if hasattr(extension, "register_plugin"):
+            command_parser._root_parser = parser
+            signature = inspect.signature(extension.register_plugin)
+            kwargs = {}
+            if "argv" in signature.parameters:
+                kwargs["argv"] = argv
+            extension.register_plugin(command_parser, f"{cli_name} {name}", **kwargs)
             del command_parser._root_parser
 
         if hasattr(extension, "register_plugin_extensions"):

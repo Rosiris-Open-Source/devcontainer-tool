@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # devc/plugins/dockerfile_ros2_plugin.py
-from argparse import ArgumentError
 from pathlib import Path
 from typing import override
 import argparse
@@ -20,24 +19,28 @@ import argparse
 from devc_plugins.plugins.dockerfile_plugin_base import DockerfilePluginBase
 from devc.core.models.dockerfile_extension_json_scheme import DockerfileHandler
 from devc.utils.substitute_placeholders import substitute_placeholders
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class GodotDockerfilePlugin(DockerfilePluginBase):
     """Create a Dockerfile with the game engine Godot installed."""
 
+    SUPPORTED_GODOT_VERSIONS = ("4.5.1-stable",)  # we need a comma here to make it a tuple
+    SUPPORTED_GODOT_RUNTIMES = ("standard", "mono")
+
     @override
-    def _add_custom_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
+    def _extend_base_arguments(self, parser: argparse.ArgumentParser, cli_name: str) -> None:
         parser.add_argument(
             "--godot-version",
             help="Version of the Godot engine",
-            choices=["4.51-stable"],
+            choices=self.SUPPORTED_GODOT_VERSIONS,
             default="4.5.1-stable",
             nargs="?",
         )
         parser.add_argument(
             "--godot-runtime",
             help="Version of the Godot engine",
-            choices=["standard", "mono"],
+            choices=self.SUPPORTED_GODOT_RUNTIMES,
             default="standard",
             nargs="?",
         )
@@ -47,12 +50,37 @@ class GodotDockerfilePlugin(DockerfilePluginBase):
         return Path(__file__).parent / "godot_image_patch.json"
 
     @override
+    def _extend_base_interactive_creation_hook(
+        self, interaction_provider: InteractionProvider
+    ) -> list[str]:
+        godot_version = interaction_provider.select_single(
+            "Version of the Godot engine",
+            default="4.5.1-stable",
+            choices=[{"name": x, "value": x} for x in self.SUPPORTED_GODOT_VERSIONS],
+        )
+
+        godot_runtime = interaction_provider.select_single(
+            "Godot runtime type",
+            default="standard",
+            choices=[{"name": x, "value": x} for x in self.SUPPORTED_GODOT_RUNTIMES],
+        )
+
+        return [
+            "--godot-version",
+            godot_version,
+            "--godot-runtime",
+            godot_runtime,
+        ]
+
+    @override
     def _apply_overrides_to_handler_content(
         self, dockerfile_handler: DockerfileHandler, args: argparse.Namespace
     ) -> None:
         super()._apply_overrides_to_handler_content(dockerfile_handler, args)
         if not args.godot_version:
-            raise ArgumentError(argument=None, message="--godot-version: Version must beset.")
+            raise argparse.ArgumentError(
+                argument=None, message="--godot-version: Version must beset."
+            )
 
         godot_runtime = ""
         if args.godot_runtime == "mono":

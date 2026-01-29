@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from packaging.version import Version
-from typing import Any
+from typing import Any, override
 import argparse
 
 from devc_plugins.plugin_extensions.dev_json_extensions import (
@@ -22,6 +22,7 @@ from devc.utils.docker_utils import get_docker_version
 from devc.utils.argparse_helpers import get_or_create_group
 from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
 from devc.core.exceptions.devc_exceptions import EnvironmentValidationError
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
 
 
 class NvidiaExtension(DevJsonPluginExtension):
@@ -96,3 +97,28 @@ class NvidiaExtension(DevJsonPluginExtension):
         if not capability:
             capability = self.nvidia_capability_default
         return ["-e", f"NVIDIA_DRIVER_CAPABILITIES={capability}"]
+
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
+    ) -> list[str]:
+        nvidia_runtime = interaction_provider.select_single(
+            NvidiaExtension.as_arg_name(), choices=["auto", "runtime", "gpus"], default="auto"
+        )
+
+        nvidia_capability = interaction_provider.select_single(
+            NvidiaExtension.as_arg_name(self.nvidia_capability),
+            choices=["all", "compute", "utility", "graphics", "video", "display"],
+            default="all",
+        )
+
+        return [
+            NvidiaExtension.as_arg_name(),
+            nvidia_runtime,
+            NvidiaExtension.as_arg_name(self.nvidia_capability),
+            nvidia_capability,
+        ]

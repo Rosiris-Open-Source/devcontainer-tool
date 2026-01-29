@@ -38,3 +38,14 @@ def print_warning(title: str, message: str) -> None:
             border_style=color,
         )
     )
+
+
+def print_signal(title: str, message: str) -> None:
+    color = "bright_black"
+    console.print(
+        Panel.fit(
+            Text(message),
+            title=f"[{color}]{title}[/{color}]",
+            border_style=color,
+        )
+    )
