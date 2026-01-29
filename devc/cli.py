@@ -66,6 +66,12 @@ def main(
             "interactive or not"
         ),
     )
+    parser.add_argument(
+        "--log-level",
+        choices=["ERROR", "WARNING", "INFO", "DEBUG"],
+        default="INFO",
+        help="Set logging verbosity",
+    )
 
     # add arguments for command extension(s)
     if extension:
@@ -94,6 +100,8 @@ def main(
 
     # parse the command line arguments
     args = parser.parse_args(args=argv)
+    if args.log_level:
+        logger.setLevel(args.log_level)
 
     if not args.use_python_default_buffering:
         # Make the output always line buffered.
@@ -131,6 +139,7 @@ def main(
             args = parser.parse_args(argv)
             # TODO(Manuel) we have to clean the user_selected_extension up...
             extension = cast(CommandExtension, user_extension)
+            logger.debug(f"selected extension {extension.NAME}({extension}) with args: {args}")
 
         # call the main method of the extension
         rc = extension.main(parser=parser, args=args)

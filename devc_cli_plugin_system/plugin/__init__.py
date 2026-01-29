@@ -35,13 +35,11 @@ class Plugin(ABC):
     """
     The interface for a plugin.
 
-    The following properties must be defined:
-    * `NAME` (will be set to the entry point name)
-
     The following methods must be defined:
     * `main`
     """
 
+    # NAME will be set to the entry point name
     NAME = None
     EXTENSION_POINT_VERSION = "0.1"
     PLUGIN_EXTENSION_GROUP: str | None = None

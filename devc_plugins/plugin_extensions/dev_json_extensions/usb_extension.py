@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Any
+from typing import Any, override
 import argparse
 
 from devc_plugins.plugin_extensions.dev_json_extensions import (
@@ -19,6 +19,8 @@ from devc_plugins.plugin_extensions.dev_json_extensions import (
 )
 from devc.utils.argparse_helpers import get_or_create_group
 from devc.constants.plugin_constants import PLUGIN_EXTENSION_ARGUMENT_GROUPS
+from devc_cli_plugin_system.interactive_creation.interaction_provider import InteractionProvider
+from devc.utils.validators.input_provider_validators import ExistingPaths
 
 
 class UsbExtension(DevJsonPluginExtension):
@@ -79,7 +81,7 @@ class UsbExtension(DevJsonPluginExtension):
         usb_parser.add_argument(
             "--usb-dialout",
             action="store_true",
-            help="Do not add the 'dialout' group (use if not dealing with serial devices)",
+            help="Do add user to 'dialout' group (use if dealing with serial devices)",
         )
 
     def _parse_cli(self, cliargs: argparse.Namespace) -> dict:
@@ -88,3 +90,37 @@ class UsbExtension(DevJsonPluginExtension):
         for arg in self._registered_args:
             parsed_args[arg] = cliargs.get(arg, None)
         return parsed_args
+
+    @override
+    def interactive_creation_hook(
+        self,
+        parser: argparse.ArgumentParser,
+        subparser: argparse._SubParsersAction,
+        cli_name: str,
+        interaction_provider: InteractionProvider,
+    ) -> list[str]:
+        usb_all = interaction_provider.confirm(
+            "Expose all USB devices (/dev/bus/usb) to the container?"
+        )
+
+        devices_must_exist = interaction_provider.confirm("Should be checked if the devices exist?")
+
+        usb_devices_input = interaction_provider.input_text(
+            "Enter USB device paths (comma-separated, e.g., /dev/ttyUSB0,/dev/ttyACM0):",
+            default="",
+            validate=(
+                ExistingPaths(must_be_device=True, delimiter=",") if devices_must_exist else None
+            ),
+        )
+
+        dialout = interaction_provider.confirm("Add user to 'dialout' group")
+
+        result: list[str] = []
+        if usb_all:
+            result.append("--usb-all")
+        if dialout:
+            result.append("--usb-dialout")
+        if usb_devices_input:
+            result.append(f"--usb-devices={usb_devices_input}")
+
+        return result

@@ -20,13 +20,12 @@ LOGGER_NAME = "devc"
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
     if not logging.getLogger().handlers:  # only configure once
         logging.basicConfig(
-            level="NOTSET",
+            level=level,
             format="%(message)s",
             datefmt="[%X]",
             handlers=[RichHandler(rich_tracebacks=True, markup=True)],
         )
     root = logging.getLogger(LOGGER_NAME)
-    root.setLevel(level)
     return root
 
 
