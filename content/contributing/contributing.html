@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributing &#8212; devc 2025 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=cb975c41"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Contributing to the documentation" href="docs.html" />
+    <link rel="prev" title="Plugin System Overview" href="../plugin_system/plugin_system.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="contributing">
+<span id="id1"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h1>
+<p>On guides how to contributed to the documentation or how to create command, plugins and plugins extensions, checkout those pages:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Contributing to the documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docs.html#test-your-changes-locally">Test your changes locally</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins_and_extensions.html">Contributing commands, plugins and plugin-extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins_and_extensions.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins_and_extensions.html#creating-a-plugin">Creating a Plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins_and_extensions.html#creating-a-plugin-extension">Creating a Plugin Extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins_and_extensions.html#when-to-use-a-plugin-vs-an-extension">When to Use a Plugin vs. an Extension</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This project is designed to be extensible and contributions are highly welcome! You can be of great help by
+either contributing:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>improving the core functionality e.g. tests, bug fixes,…</p></li>
+<li><p>adding new commands, plugins or plugin-extensions: <a class="reference internal" href="plugins_and_extensions.html#contributing-plugins-extensions"><span class="std std-ref">Contributing commands, plugins and plugin-extensions</span></a></p></li>
+<li><p>improving the documentation: see <a class="reference internal" href="docs.html#contributing-docs"><span class="std std-ref">Contributing to the documentation</span></a></p></li>
+</ul>
+</div></blockquote>
+<section id="testing-new-code-contributions">
+<h2>Testing New Code Contributions<a class="headerlink" href="#testing-new-code-contributions" title="Link to this heading"></a></h2>
+<p>All new features must:</p>
+<ul class="simple">
+<li><p>include tests under <code class="docutils literal notranslate"><span class="pre">test/</span></code>,</p></li>
+<li><p>validate behavior through the extension manager or plugin runner,</p></li>
+<li><p>not break existing plugin discovery.</p></li>
+</ul>
+<p>The test setup makes it straightforward to instantiate a plugin or extension
+with a simulated <code class="docutils literal notranslate"><span class="pre">argparse.Namespace</span></code> to validate the JSON patches.</p>
+</section>
+<section id="submitting-changes">
+<h2>Submitting Changes<a class="headerlink" href="#submitting-changes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> to ensure code style.</p></li>
+<li><p>Open a pull request with a clear description and summarize your changes.</p></li>
+<li><p>Ensure CI runs has no issues.</p></li>
+<li><p>Include documentation updates in <code class="docutils literal notranslate"><span class="pre">docs/</span></code>.</p></li>
+</ol>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">devc</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin_system/plugin_system.html">Plugin System Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Contributing to the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins_and_extensions.html">Contributing commands, plugins and plugin-extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-new-code-contributions">Testing New Code Contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submitting-changes">Submitting Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../plugin_system/plugin_system.html" title="previous chapter">Plugin System Overview</a></li>
+      <li>Next: <a href="docs.html" title="next chapter">Contributing to the documentation</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Manuel Muth.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../_sources/content/contributing/contributing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

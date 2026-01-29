@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>devc – Reproducible Development Environments &#8212; devc 2025 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=cb975c41"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quickstart" href="content/quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="devc-reproducible-development-environments">
+<h1>devc – Reproducible Development Environments<a class="headerlink" href="#devc-reproducible-development-environments" title="Link to this heading"></a></h1>
+<p>For a quickstart guide, see <a class="reference internal" href="content/quickstart.html"><span class="doc">Quickstart</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">devc</span></code> is a small CLI tool to create Dockerfiles and devcontainer.json.
+It helps to setup reproducible and isolated development environments within seconds that can be shared across teams.</p>
+<section id="what-it-gives-you">
+<h2>What it gives you<a class="headerlink" href="#what-it-gives-you" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>automatic Dockerfile + devcontainer generation</p></li>
+<li><p>clean, isolated development environments</p></li>
+<li><p>easy sharing — share the image and reuse the devcontainer.json</p></li>
+</ul>
+</section>
+<section id="quick-example-ros-2">
+<h2>Quick Example (ROS 2)<a class="headerlink" href="#quick-example-ros-2" title="Link to this heading"></a></h2>
+<p>Using the ROS 2 plugin, <code class="docutils literal notranslate"><span class="pre">devc</span></code> creates the entire environment for you:</p>
+<p><strong>Create a ROS 2 my_ros2_ws :</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">my_ros2_ws</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="n">my_ros2_ws</span>
+</pre></div>
+</div>
+<p><strong>Generated ROS 2 Dockerfile :</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">devc</span> <span class="n">dockerfile</span> <span class="n">ros2</span><span class="o">-</span><span class="n">desktop</span><span class="o">-</span><span class="n">full</span> <span class="o">--</span><span class="n">ros</span><span class="o">-</span><span class="n">distro</span> <span class="n">rolling</span>
+</pre></div>
+</div>
+<p><strong>Generated ROS 2 devcontainer.json with nvidia support and your ssh keys mounted:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">devc</span> <span class="n">dev</span><span class="o">-</span><span class="n">json</span> <span class="n">ros2</span><span class="o">-</span><span class="n">desktop</span><span class="o">-</span><span class="n">full</span> <span class="o">--</span><span class="n">ros</span><span class="o">-</span><span class="n">distro</span> <span class="n">rolling</span> <span class="o">--</span><span class="n">name</span> <span class="s2">&quot;my_ros2_ws&quot;</span> <span class="o">--</span><span class="n">nvidia</span> <span class="o">--</span><span class="n">ssh</span><span class="o">=</span><span class="n">mount</span>
+</pre></div>
+</div>
+<p>That’s all you need. After this you can open the folder in VSCode with: <code class="docutils literal notranslate"><span class="pre">code</span> <span class="pre">.</span></code> and press F1 → <code class="docutils literal notranslate"><span class="pre">Dev</span> <span class="pre">Containers:</span> <span class="pre">Reopen</span> <span class="pre">in</span> <span class="pre">Container</span></code>.
+After this you are all set up with a isolated full ROS 2 development environment.</p>
+</section>
+<section id="typical-project-layout">
+<h2>Typical Project Layout<a class="headerlink" href="#typical-project-layout" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_ws/
+├── .devcontainer/
+│   └── devcontainer.json
+└── .docker/
+|    └── Dockerfile
+└── rest of your project files ...
+</pre></div>
+</div>
+<p>The workspace <code class="docutils literal notranslate"><span class="pre">my_ws</span></code> folder is mounted inside the container. This means any code inside this folder is accessible from within the container.</p>
+</section>
+<section id="ci-integration">
+<h2>CI Integration<a class="headerlink" href="#ci-integration" title="Link to this heading"></a></h2>
+<p>Pipelines can prebuild the Docker image and push it to a registry.
+Your <code class="docutils literal notranslate"><span class="pre">devcontainer.json</span></code> can reference that image directly, allowing instant
+startup without rebuilding locally.</p>
+<p><strong>Using of a pre-build ros2 image shared with your team:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">devc</span> <span class="n">dev</span><span class="o">-</span><span class="n">json</span> <span class="n">base</span><span class="o">-</span><span class="n">setup</span> <span class="o">--</span><span class="n">image</span><span class="o">=</span><span class="s2">&quot;your_registry:your_image&quot;</span> <span class="o">--</span><span class="n">name</span> <span class="s2">&quot;my_ws&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="where-to-go-next">
+<h2>Where to go next<a class="headerlink" href="#where-to-go-next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="content/quickstart.html"><span class="doc">Quickstart</span></a></p></li>
+<li><p><a class="reference internal" href="content/plugin_system/plugin_system.html"><span class="doc">Plugin System Overview</span></a></p></li>
+<li><p><a class="reference internal" href="content/contributing/contributing.html"><span class="doc">Contributing</span></a></p></li>
+<li><p><a class="reference internal" href="content/faq.html"><span class="doc">FAQ</span></a></p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="content/quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="content/quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="content/quickstart.html#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="content/quickstart.html#create-a-dockerfile">Create a Dockerfile:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="content/quickstart.html#create-a-devcontainer-json">Create a devcontainer.json:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="content/plugin_system/plugin_system.html">Plugin System Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/contributing/contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="content/contributing/docs.html">Contributing to the documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="content/contributing/docs.html#test-your-changes-locally">Test your changes locally</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="content/contributing/plugins_and_extensions.html">Contributing commands, plugins and plugin-extensions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="content/contributing/plugins_and_extensions.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="content/contributing/plugins_and_extensions.html#creating-a-plugin">Creating a Plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="content/contributing/plugins_and_extensions.html#creating-a-plugin-extension">Creating a Plugin Extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="content/contributing/plugins_and_extensions.html#when-to-use-a-plugin-vs-an-extension">When to Use a Plugin vs. an Extension</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="content/contributing/contributing.html#testing-new-code-contributions">Testing New Code Contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="content/contributing/contributing.html#submitting-changes">Submitting Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="content/faq.html">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="content/faq.html#argcomplete-not-working">Argcomplete not working</a></li>
+<li class="toctree-l2"><a class="reference internal" href="content/faq.html#how-to-debug-a-plugin">How to debug a  plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="content/faq.html#how-to-debug-a-the-interactive-creation">How to debug a the interactive creation?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">devc</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="content/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/plugin_system/plugin_system.html">Plugin System Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/contributing/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/faq.html">FAQ</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="content/quickstart.html" title="next chapter">Quickstart</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Manuel Muth.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Quickstart &#8212; devc 2025 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=cb975c41"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plugin System Overview" href="plugin_system/plugin_system.html" />
+    <link rel="prev" title="devc – Reproducible Development Environments" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading"></a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>Make sure you have docker, python 3.11, venv, and pip installed.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>~/.devc-venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>~/.devc-venv/bin/activate<span class="w"> </span><span class="o">&amp;&amp;</span>
+pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/Rosiris-Open-Source/devcontainer-tool.git
+</pre></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>You can always see available commands by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>devc<span class="w"> </span>-h
+or
+devc<span class="w"> </span>&lt;command&gt;<span class="w"> </span>-h<span class="w"> </span>e.g.<span class="w"> </span>devc<span class="w"> </span>dev-json<span class="w"> </span>-h
+</pre></div>
+</div>
+<section id="create-a-dockerfile">
+<h3>Create a Dockerfile:<a class="headerlink" href="#create-a-dockerfile" title="Link to this heading"></a></h3>
+<p>Create a Dockerfile (optional):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>devc<span class="w"> </span>dockerfile<span class="w"> </span>&lt;dockerfile_plugin&gt;
+</pre></div>
+</div>
+<p><strong>ROS2 Example:</strong></p>
+<p>For example, to create a Dockerfile with Ubuntu 24.04 and ROS2 Rolling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>devc<span class="w"> </span>dockerfile<span class="w"> </span>ros2-desktop-full
+</pre></div>
+</div>
+</section>
+<section id="create-a-devcontainer-json">
+<h3>Create a devcontainer.json:<a class="headerlink" href="#create-a-devcontainer-json" title="Link to this heading"></a></h3>
+<p>Create a devcontainer.json using a local <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> located in <code class="docutils literal notranslate"><span class="pre">.docker/Dockerfile</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>devc<span class="w"> </span>dev-json<span class="w"> </span>&lt;dev-json_plugin&gt;<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;test_project&quot;</span>
+</pre></div>
+</div>
+<p>If you want to use an existing image instead:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>devc<span class="w"> </span>dev-json<span class="w"> </span>&lt;dev-json_plugin&gt;<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;test_project&quot;</span><span class="w"> </span>--image<span class="o">=</span><span class="s2">&quot;&lt;image_name&gt;&quot;</span>
+</pre></div>
+</div>
+<p><strong>ROS2 Example:</strong></p>
+<p>For example, to create a Dockerfile with Ubuntu 24.04 and ROS2 Rolling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>devc<span class="w"> </span>dev-json<span class="w"> </span>ros2-desktop-full<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;ros2_rolling_project&quot;</span><span class="w"> </span>--nvidia<span class="w"> </span>--ssh<span class="o">=</span>mount
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The folder in which the <code class="docutils literal notranslate"><span class="pre">.devcontainer/devcontainer.json</span></code> is in, is mounted as <code class="docutils literal notranslate"><span class="pre">workspace</span></code> into the container.</p></li>
+</ul>
+</div>
+<p>See <a class="reference internal" href="plugin_system/plugin_system.html#plugin-system"><span class="std std-ref">Plugin System</span></a> for how to create your own dev-json plugins and extensions.</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">devc</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-dockerfile">Create a Dockerfile:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-devcontainer-json">Create a devcontainer.json:</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_system/plugin_system.html">Plugin System Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">devc – Reproducible Development Environments</a></li>
+      <li>Next: <a href="plugin_system/plugin_system.html" title="next chapter">Plugin System Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Manuel Muth.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/content/quickstart.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
