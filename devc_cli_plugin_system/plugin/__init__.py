@@ -17,9 +17,6 @@ from abc import ABC, abstractmethod
 import argparse
 from typing import Any
 
-# TODO(Manuel) get rid of questionary dependency in this file
-import questionary
-
 from devc_cli_plugin_system.plugin_system import instantiate_extensions
 from devc_cli_plugin_system.plugin_system import PLUGIN_SYSTEM_VERSION
 from devc_cli_plugin_system.plugin_system import satisfies_version
@@ -74,9 +71,9 @@ class Plugin(ABC):
         # let user preselect plugin extension we should call to collect args for them
         # this way its avoided that a user has to iterating all extension when
         # the user just wants a subset
-        selected_plugin_extension_names = questionary.checkbox(
+        selected_plugin_extension_names = interaction_provider.select_multiple(
             "Select extensions to call", choices=self._plugin_extensions_context.list_names()
-        ).ask()
+        )
 
         for plugin_extension_name in selected_plugin_extension_names:
             ext = self._plugin_extensions_context.get_extension(plugin_extension_name)
